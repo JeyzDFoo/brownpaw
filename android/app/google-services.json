@@ -39,46 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1047120968895-s3kkojc0cs2vsfrjcn8uaepma7mfpgo3.apps.googleusercontent.com",
+              "client_id": "1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.brownpaw.brownclaw"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1047120968895:android:b785cd4940b8b7ec899a0a",
-        "android_client_info": {
-          "package_name": "com.example.brownpaw"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1047120968895-f56596g53nq4fnkf8n78q1hsl97a8fk7.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCUO8lljlPNaIGSxso72_DJE4EDesXGF6g"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1047120968895-f56596g53nq4fnkf8n78q1hsl97a8fk7.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "1047120968895-s3kkojc0cs2vsfrjcn8uaepma7mfpgo3.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.brownpaw.brownclaw"
+                "bundle_id": "com.example.brownpaw"
               }
             }
           ]

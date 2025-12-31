@@ -1,4 +1,4 @@
-package com.example.brownpaw
+package com.brownpaw.brownclaw
 
 import io.flutter.embedding.android.FlutterActivity
 

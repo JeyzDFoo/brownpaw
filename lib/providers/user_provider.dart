@@ -1,0 +1,203 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+// Providers
+final authProvider = Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
+final firestoreProvider = Provider<FirebaseFirestore>(
+  (ref) => FirebaseFirestore.instance,
+);
+final googleSignInProvider = Provider<GoogleSignIn>((ref) => GoogleSignIn());
+
+// Auth state stream
+final authStateProvider = StreamProvider<User?>((ref) {
+  return ref.watch(authProvider).authStateChanges();
+});
+
+// User data state
+class UserData {
+  final User? user;
+  final Map<String, dynamic>? userData;
+  final bool isLoading;
+  final String? errorMessage;
+
+  UserData({
+    this.user,
+    this.userData,
+    this.isLoading = false,
+    this.errorMessage,
+  });
+
+  bool get isAuthenticated => user != null;
+
+  UserData copyWith({
+    User? user,
+    Map<String, dynamic>? userData,
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    return UserData(
+      user: user ?? this.user,
+      userData: userData ?? this.userData,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+}
+
+// User state notifier
+class UserNotifier extends StateNotifier<UserData> {
+  final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
+  final GoogleSignIn _googleSignIn;
+
+  UserNotifier(this._auth, this._firestore, this._googleSignIn)
+    : super(UserData()) {
+    _auth.authStateChanges().listen(_onAuthStateChanged);
+  }
+
+  Future<void> _onAuthStateChanged(User? user) async {
+    state = state.copyWith(user: user, errorMessage: null);
+
+    if (user != null) {
+      await _fetchUserData(user.uid);
+    } else {
+      state = state.copyWith(userData: null);
+    }
+  }
+
+  Future<void> _fetchUserData(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        state = state.copyWith(userData: doc.data());
+      }
+    } catch (e) {
+      final errorMessage = 'Failed to fetch user data: $e';
+      state = state.copyWith(errorMessage: errorMessage);
+      if (kDebugMode) {
+        print(errorMessage);
+      }
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      // Trigger the Google Sign-In flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User canceled the sign-in
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      // Create or update user document in Firestore
+      if (userCredential.user != null) {
+        final userDoc = _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid);
+        final docSnapshot = await userDoc.get();
+
+        if (!docSnapshot.exists) {
+          // New user - create document
+          await userDoc.set({
+            'uid': userCredential.user!.uid,
+            'email': userCredential.user!.email,
+            'displayName': userCredential.user!.displayName,
+            'photoURL': userCredential.user!.photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        } else {
+          // Existing user - update last sign in
+          await userDoc.update({'lastSignIn': FieldValue.serverTimestamp()});
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to sign in with Google: $e');
+      if (kDebugMode) {
+        print('Google Sign-In error: $e');
+      }
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
+      state = state.copyWith(userData: null);
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to sign out');
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> updateUserData(Map<String, dynamic> data) async {
+    if (state.user == null) return;
+
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      await _firestore.collection('users').doc(state.user!.uid).update(data);
+      await _fetchUserData(state.user!.uid);
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to update user data');
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  void clearError() {
+    state = state.copyWith(errorMessage: null);
+  }
+
+  String _getAuthErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'No user found with this email';
+      case 'wrong-password':
+        return 'Incorrect password';
+      case 'email-already-in-use':
+        return 'An account already exists with this email';
+      case 'weak-password':
+        return 'Password is too weak';
+      case 'invalid-email':
+        return 'Invalid email address';
+      case 'user-disabled':
+        return 'This account has been disabled';
+      default:
+        return 'Authentication error: ${e.message}';
+    }
+  }
+}
+
+// User provider
+final userProvider = StateNotifierProvider<UserNotifier, UserData>((ref) {
+  final auth = ref.watch(authProvider);
+  final firestore = ref.watch(firestoreProvider);
+  final googleSignIn = ref.watch(googleSignInProvider);
+  return UserNotifier(auth, firestore, googleSignIn);
+});

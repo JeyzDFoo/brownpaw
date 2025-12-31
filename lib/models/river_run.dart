@@ -14,8 +14,11 @@ class RiverRun {
   /// Name of the river
   final String river;
 
-  /// Region code (e.g., "BC", "AB")
-  final String region;
+  /// Province/State code (e.g., "BC", "AB")
+  final String province;
+
+  /// Regional subdivision within province (e.g., "Vancouver Island", "Kootenays")
+  final String? region;
 
   /// Difficulty rating (e.g., "Class IV/IV+")
   final String difficultyClass;
@@ -77,6 +80,24 @@ class RiverRun {
   /// Take-out location description
   final String? takeOut;
 
+  /// Put-in GPS coordinates {latitude, longitude}
+  final Map<String, double>? putInCoordinates;
+
+  /// Take-out GPS coordinates {latitude, longitude}
+  final Map<String, double>? takeOutCoordinates;
+
+  /// Gauge/monitoring station information {name, code}
+  final Map<String, String>? gaugeStation;
+
+  /// Scouting and portaging information
+  final String? scouting;
+
+  /// Full description text from source
+  final String? fullText;
+
+  /// Images with URLs and captions
+  final List<Map<String, String>>? images;
+
   /// Minimum recommended flow
   final double? minRecommendedFlow;
 
@@ -105,7 +126,8 @@ class RiverRun {
     required this.riverId,
     required this.name,
     required this.river,
-    required this.region,
+    required this.province,
+    this.region,
     required this.difficultyClass,
     this.description,
     this.difficultyMin,
@@ -126,6 +148,12 @@ class RiverRun {
     this.hazards,
     this.putIn,
     this.takeOut,
+    this.putInCoordinates,
+    this.takeOutCoordinates,
+    this.gaugeStation,
+    this.scouting,
+    this.fullText,
+    this.images,
     this.minRecommendedFlow,
     this.maxRecommendedFlow,
     this.optimalFlowMin,
@@ -148,7 +176,8 @@ class RiverRun {
       riverId: docId ?? data['riverId'] as String,
       name: data['name'] as String,
       river: data['river'] as String,
-      region: data['region'] as String,
+      province: data['province'] as String,
+      region: _asString(data['region']),
       difficultyClass: data['difficultyClass'] as String,
       description: _asString(data['description']),
       difficultyMin: data['difficultyMin'] as int?,
@@ -171,6 +200,22 @@ class RiverRun {
       hazards: _asString(data['hazards']),
       putIn: _asString(data['putIn']),
       takeOut: _asString(data['takeOut']),
+      putInCoordinates: data['putInCoordinates'] != null
+          ? Map<String, double>.from(data['putInCoordinates'] as Map)
+          : null,
+      takeOutCoordinates: data['takeOutCoordinates'] != null
+          ? Map<String, double>.from(data['takeOutCoordinates'] as Map)
+          : null,
+      gaugeStation: data['gaugeStation'] != null
+          ? Map<String, String>.from(data['gaugeStation'] as Map)
+          : null,
+      scouting: _asString(data['scouting']),
+      fullText: _asString(data['fullText']),
+      images: data['images'] != null
+          ? (data['images'] as List)
+                .map((img) => Map<String, String>.from(img as Map))
+                .toList()
+          : null,
       minRecommendedFlow: (data['minRecommendedFlow'] as num?)?.toDouble(),
       maxRecommendedFlow: (data['maxRecommendedFlow'] as num?)?.toDouble(),
       optimalFlowMin: (data['optimalFlowMin'] as num?)?.toDouble(),
@@ -196,10 +241,13 @@ class RiverRun {
       'riverId': riverId,
       'name': name,
       'river': river,
-      'region': region,
+      'province': province,
       'difficultyClass': difficultyClass,
       'flowUnit': flowUnit,
     };
+
+    // Add region if present
+    if (region != null) map['region'] = region;
 
     // Add optional fields only if they're not null
     if (description != null) map['description'] = description;
@@ -209,6 +257,13 @@ class RiverRun {
     if (season != null) map['season'] = season;
     if (stationId != null) map['stationId'] = stationId;
     if (permits != null) map['permits'] = permits;
+    if (putInCoordinates != null) map['putInCoordinates'] = putInCoordinates;
+    if (takeOutCoordinates != null) {
+      map['takeOutCoordinates'] = takeOutCoordinates;
+    }
+    if (gaugeStation != null) map['gaugeStation'] = gaugeStation;
+    if (scouting != null) map['scouting'] = scouting;
+    if (fullText != null) map['fullText'] = fullText;
     if (access != null) map['access'] = access;
     if (shuttle != null) map['shuttle'] = shuttle;
     if (gradient != null) map['gradient'] = gradient;
@@ -272,27 +327,16 @@ class RiverRun {
     String? riverId,
     String? name,
     String? river,
+    String? province,
     String? region,
     String? difficultyClass,
     String? description,
-    int? difficultyMin,
-    int? difficultyMax,
-    String? estimatedTime,
-    String? season,
-    String? flowUnit,
-    String? stationId,
-    String? permits,
-    String? access,
-    String? shuttle,
-    String? gradient,
-    String? length,
-    Map<String, dynamic>? flowRanges,
-    String? source,
-    String? sourceUrl,
-    Map<String, double>? coordinates,
-    String? hazards,
-    String? putIn,
-    String? takeOut,
+    Map<String, double>? putInCoordinates,
+    Map<String, double>? takeOutCoordinates,
+    Map<String, String>? gaugeStation,
+    String? scouting,
+    String? fullText,
+    List<Map<String, String>>? images,
     double? minRecommendedFlow,
     double? maxRecommendedFlow,
     double? optimalFlowMin,
@@ -306,27 +350,34 @@ class RiverRun {
       riverId: riverId ?? this.riverId,
       name: name ?? this.name,
       river: river ?? this.river,
+      province: province ?? this.province,
       region: region ?? this.region,
       difficultyClass: difficultyClass ?? this.difficultyClass,
       description: description ?? this.description,
-      difficultyMin: difficultyMin ?? this.difficultyMin,
-      difficultyMax: difficultyMax ?? this.difficultyMax,
-      estimatedTime: estimatedTime ?? this.estimatedTime,
-      season: season ?? this.season,
-      flowUnit: flowUnit ?? this.flowUnit,
-      stationId: stationId ?? this.stationId,
-      permits: permits ?? this.permits,
-      access: access ?? this.access,
-      shuttle: shuttle ?? this.shuttle,
-      gradient: gradient ?? this.gradient,
-      length: length ?? this.length,
-      flowRanges: flowRanges ?? this.flowRanges,
-      source: source ?? this.source,
-      sourceUrl: sourceUrl ?? this.sourceUrl,
-      coordinates: coordinates ?? this.coordinates,
-      hazards: hazards ?? this.hazards,
-      putIn: putIn ?? this.putIn,
-      takeOut: takeOut ?? this.takeOut,
+      difficultyMin: this.difficultyMin,
+      difficultyMax: this.difficultyMax,
+      estimatedTime: this.estimatedTime,
+      season: this.season,
+      flowUnit: this.flowUnit,
+      stationId: this.stationId,
+      permits: this.permits,
+      access: this.access,
+      shuttle: this.shuttle,
+      gradient: this.gradient,
+      length: this.length,
+      flowRanges: this.flowRanges,
+      source: this.source,
+      sourceUrl: this.sourceUrl,
+      coordinates: this.coordinates,
+      hazards: this.hazards,
+      putIn: this.putIn,
+      takeOut: this.takeOut,
+      putInCoordinates: putInCoordinates ?? this.putInCoordinates,
+      takeOutCoordinates: takeOutCoordinates ?? this.takeOutCoordinates,
+      gaugeStation: gaugeStation ?? this.gaugeStation,
+      scouting: scouting ?? this.scouting,
+      fullText: fullText ?? this.fullText,
+      images: images ?? this.images,
       minRecommendedFlow: minRecommendedFlow ?? this.minRecommendedFlow,
       maxRecommendedFlow: maxRecommendedFlow ?? this.maxRecommendedFlow,
       optimalFlowMin: optimalFlowMin ?? this.optimalFlowMin,
@@ -341,7 +392,7 @@ class RiverRun {
   @override
   String toString() {
     return 'RiverRun(riverId: $riverId, name: $name, river: $river, '
-        'region: $region, difficulty: $difficultyText)';
+        'province: $province, region: $region, difficulty: $difficultyText)';
   }
 
   @override

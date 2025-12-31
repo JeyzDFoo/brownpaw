@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:brownpaw/providers/user_provider.dart';
+
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';

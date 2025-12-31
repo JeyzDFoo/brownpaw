@@ -27,7 +27,6 @@ class AppTheme {
 
   // Neutral Colors - Earthy tones
   static const Color _rockGrey = Color(0xFF455A64); // Rock/slate
-  static const Color _riverbank = Color(0xFF5D4037); // Brown earth
   static const Color _mist = Color(0xFFECEFF1); // Morning mist
   static const Color _shadow = Color(0xFF263238); // Deep shadow
 

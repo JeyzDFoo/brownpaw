@@ -1,1 +1,34 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"brownclaw","appId":"1:1047120968895:android:b785cd4940b8b7ec899a0a","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"brownclaw","appId":"1:1047120968895:ios:4304b83ecb07fb26899a0a","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"brownclaw","configurations":{"android":"1:1047120968895:android:b785cd4940b8b7ec899a0a","ios":"1:1047120968895:ios:4304b83ecb07fb26899a0a"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "brownclaw",
+          "appId": "1:1047120968895:android:b785cd4940b8b7ec899a0a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "brownclaw",
+          "appId": "1:1047120968895:ios:4304b83ecb07fb26899a0a",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "brownclaw",
+          "configurations": {
+            "android": "1:1047120968895:android:b785cd4940b8b7ec899a0a",
+            "ios": "1:1047120968895:ios:4304b83ecb07fb26899a0a"
+          }
+        }
+      }
+    }
+  }
+}

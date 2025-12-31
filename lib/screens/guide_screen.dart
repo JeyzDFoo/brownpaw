@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/river_run.dart';
+import 'run_details_screen.dart';
 
 class GuideScreen extends StatelessWidget {
   const GuideScreen({super.key});
@@ -9,7 +11,7 @@ class GuideScreen extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('river_runs')
-          .orderBy('name')
+          .orderBy('river')
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -45,19 +47,20 @@ class GuideScreen extends StatelessWidget {
           );
         }
 
-        final runs = snapshot.data!.docs;
+        final runs = snapshot.data!.docs
+            .map((doc) => RiverRun.fromFirestore(doc))
+            .toList();
 
         return ListView.builder(
           itemCount: runs.length,
           itemBuilder: (context, index) {
-            final run = runs[index].data() as Map<String, dynamic>;
-            final runId = runs[index].id;
+            final run = runs[index];
 
-            final difficultyClass = run['difficultyClass'];
-            final river = run['river'] ?? '';
-            final subtitle = difficultyClass != null
-                ? '$river • Class $difficultyClass'
-                : river;
+            final title = run.region.isNotEmpty
+                ? '${run.river} - ${run.region}'
+                : run.river;
+
+            final subtitle = '${run.name} (${run.difficultyText})';
 
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -66,11 +69,17 @@ class GuideScreen extends StatelessWidget {
                   Icons.water,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: Text(run['name'] ?? 'Unnamed Run'),
+                title: Text(title),
                 subtitle: Text(subtitle),
                 trailing: Icon(Icons.chevron_right),
                 onTap: () {
-                  // TODO: Navigate to run details
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RunDetailsScreen(runId: run.riverId),
+                    ),
+                  );
                 },
               ),
             );

@@ -6,7 +6,7 @@ These models define the structure for station data from various providers
 """
 
 from datetime import datetime
-from typing import Optional, Dict, Any, Literal
+from typing import Optional, Dict, Any, Literal, List
 from enum import Enum
 
 
@@ -318,6 +318,166 @@ def calculate_trend(previous_level: Optional[float], current_level: Optional[flo
         return Trend.STABLE
 
 
+class RiverRun:
+    """
+    River run metadata for whitewater sections.
+    
+    Collection: river_runs
+    Document ID: {riverId} (e.g., "beaver-river-kinbasket-canyon")
+    """
+    
+    def __init__(
+        self,
+        name: str,
+        river: str,
+        region: str,
+        river_id: str,
+        difficulty_class: str,
+        description: Optional[str] = None,
+        difficulty_min: Optional[float] = None,
+        difficulty_max: Optional[float] = None,
+        estimated_time: Optional[str] = None,
+        season: Optional[str] = None,
+        flow_unit: str = "cms",
+        station_id: Optional[str] = None,
+        permits: Optional[str] = None,
+        access: Optional[str] = None,
+        shuttle: Optional[str] = None,
+        gradient: Optional[str] = None,
+        length: Optional[str] = None,
+        flow_ranges: Optional[Dict[str, Any]] = None,
+        source: Optional[str] = None,
+        source_url: Optional[str] = None,
+        created_by: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        updated_at: Optional[datetime] = None,
+        # Additional fields found in actual data
+        coordinates: Optional[Dict[str, float]] = None,
+        hazards: Optional[str] = None,
+        put_in: Optional[str] = None,
+        take_out: Optional[str] = None,
+        min_recommended_flow: Optional[float] = None,
+        max_recommended_flow: Optional[float] = None,
+        optimal_flow_min: Optional[float] = None,
+        optimal_flow_max: Optional[float] = None,
+        has_valid_station: Optional[bool] = None
+    ):
+        self.name = name
+        self.river = river
+        self.region = region
+        self.river_id = river_id
+        self.difficulty_class = difficulty_class
+        self.description = description
+        self.difficulty_min = difficulty_min
+        self.difficulty_max = difficulty_max
+        self.estimated_time = estimated_time
+        self.season = season
+        self.flow_unit = flow_unit
+        self.station_id = station_id
+        self.permits = permits
+        self.access = access
+        self.shuttle = shuttle
+        self.gradient = gradient
+        self.length = length
+        self.flow_ranges = flow_ranges
+        self.source = source
+        self.source_url = source_url
+        self.created_by = created_by
+        self.created_at = created_at
+        self.updated_at = updated_at
+        self.coordinates = coordinates
+        self.hazards = hazards
+        self.put_in = put_in
+        self.take_out = take_out
+        self.min_recommended_flow = min_recommended_flow
+        self.max_recommended_flow = max_recommended_flow
+        self.optimal_flow_min = optimal_flow_min
+        self.optimal_flow_max = optimal_flow_max
+        self.has_valid_station = has_valid_station
+    
+    @property
+    def document_id(self) -> str:
+        """Generate the Firestore document ID."""
+        return self.river_id
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for Firestore."""
+        data = {
+            'name': self.name,
+            'river': self.river,
+            'region': self.region,
+            'riverId': self.river_id,
+            'difficultyClass': self.difficulty_class,
+            'description': self.description,
+            'difficultyMin': self.difficulty_min,
+            'difficultyMax': self.difficulty_max,
+            'estimatedTime': self.estimated_time,
+            'season': self.season,
+            'flowUnit': self.flow_unit,
+            'stationId': self.station_id,
+            'permits': self.permits,
+            'access': self.access,
+            'shuttle': self.shuttle,
+            'gradient': self.gradient,
+            'length': self.length,
+            'flowRanges': self.flow_ranges,
+            'source': self.source,
+            'sourceUrl': self.source_url,
+            'createdBy': self.created_by,
+            'createdAt': self.created_at,
+            'updatedAt': self.updated_at,
+            'coordinates': self.coordinates,
+            'hazards': self.hazards,
+            'putIn': self.put_in,
+            'takeOut': self.take_out,
+            'minRecommendedFlow': self.min_recommended_flow,
+            'maxRecommendedFlow': self.max_recommended_flow,
+            'optimalFlowMin': self.optimal_flow_min,
+            'optimalFlowMax': self.optimal_flow_max,
+            'hasValidStation': self.has_valid_station
+        }
+        # Remove None values to keep documents clean
+        return {k: v for k, v in data.items() if v is not None}
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'RiverRun':
+        """Create RiverRun from Firestore document."""
+        return cls(
+            name=data['name'],
+            river=data['river'],
+            region=data['region'],
+            river_id=data['riverId'],
+            difficulty_class=data['difficultyClass'],
+            description=data.get('description'),
+            difficulty_min=data.get('difficultyMin'),
+            difficulty_max=data.get('difficultyMax'),
+            estimated_time=data.get('estimatedTime'),
+            season=data.get('season'),
+            flow_unit=data.get('flowUnit', 'cms'),
+            station_id=data.get('stationId'),
+            permits=data.get('permits'),
+            access=data.get('access'),
+            shuttle=data.get('shuttle'),
+            gradient=data.get('gradient'),
+            length=data.get('length'),
+            flow_ranges=data.get('flowRanges'),
+            source=data.get('source'),
+            source_url=data.get('sourceUrl'),
+            created_by=data.get('createdBy'),
+            created_at=data.get('createdAt'),
+            updated_at=data.get('updatedAt'),
+            coordinates=data.get('coordinates'),
+            hazards=data.get('hazards'),
+            put_in=data.get('putIn'),
+            take_out=data.get('takeOut'),
+            min_recommended_flow=data.get('minRecommendedFlow'),
+            max_recommended_flow=data.get('maxRecommendedFlow'),
+            optimal_flow_min=data.get('optimalFlowMin'),
+            optimal_flow_max=data.get('optimalFlowMax'),
+            has_valid_station=data.get('hasValidStation')
+        )
+
+
 # Example usage
 if __name__ == "__main__":
     # Example: Create a station
@@ -365,3 +525,26 @@ if __name__ == "__main__":
     curr_level = 1.92
     trend = calculate_trend(prev_level, curr_level)
     print(f"\nTrend from {prev_level}m to {curr_level}m: {trend}")
+    
+    # Example: Create a river run
+    run = RiverRun(
+        name="Beaver River (Kinbasket Canyon)",
+        river="Beaver River",
+        region="AB",
+        river_id="beaver-river-kinbasket-canyon",
+        difficulty_class="Class IV/IV+",
+        difficulty_min=4,
+        difficulty_max=4,
+        description="Overview: Early season warm up run with a linear class I to IV+ progression.",
+        estimated_time="2 hours",
+        season="Early Spring",
+        flow_unit="cms",
+        station_id="08NB019",
+        permits="Everything is scoutable (the 2nd drop of the double drop is hard to get a really good look at)",
+        source="bcwhitewater.org",
+        source_url="https://www.bcwhitewater.org/reaches/beaver-river-kinbasket-canyon",
+        created_by="bcwhitewater-import"
+    )
+    
+    print("\nRiver Run Document ID:", run.document_id)
+    print("River Run Data:", run.to_dict())

@@ -19,31 +19,49 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
     """Process one station's realtime data."""
     try:
         logger.info(f"  Processing station {station_id}...")
+        logger.info(f"    Step 1: Fetching 720 hours of data...")
         
         # Fetch 30 days (720 hours) of hourly data
         readings = await service.fetch_latest_readings(station_id, hours=720)
+        
+        logger.info(f"    Step 2: Got {len(readings)} readings")
         
         if not readings:
             logger.warning(f"    No readings fetched for {station_id}")
             return {'station_id': station_id, 'status': 'no_data', 'readings': 0}
         
+        logger.info(f"    Step 3: Fetching station status...")
+        
         # Get station status (latest + trend)
-        status = await service.get_station_status(station_id, hours=24)
+        status = await service.get_station_status(station_id)
+        
+        logger.info(f"    Step 4: Got status, latest={status.get('latest_reading', {}).get('datetime') if status else None}")
         
         if not status:
             logger.warning(f"    No status available for {station_id}")
             return {'station_id': station_id, 'status': 'no_status', 'readings': len(readings)}
         
-        # Convert readings list to dict keyed by datetime for Firestore
-        readings_dict = {r['datetime']: r for r in readings}
+        logger.info(f"    Step 5: Converting {len(readings)} readings to CSV...")
+        
+        # Convert readings to CSV string to avoid Firestore index limits
+        csv_lines = ['datetime,discharge,level']
+        for r in readings:
+            discharge = r.get('discharge', '')
+            level = r.get('level', '')
+            csv_lines.append(f"{r['datetime']},{discharge},{level}")
+        readings_csv = '\n'.join(csv_lines)
+        
+        csv_size = len(readings_csv.encode('utf-8'))
+        logger.info(f"    Step 6: CSV created, size={csv_size:,} bytes ({csv_size/1024:.1f} KB)")
         
         # Store in Firestore
+        logger.info(f"    Step 7: Writing to Firestore...")
         manager.write_current_station_data(
-            provider=Provider.ENVIRONMENT_CANADA,
+            provider=Provider.ENVIRONMENT_CANADA.value,
             station_id=station_id,
             latest_reading=status['latest_reading'],
             trend=status['trend'],
-            hourly_readings=readings_dict,
+            hourly_readings_csv=readings_csv,
             updated_at=datetime.now()
         )
         
@@ -51,14 +69,23 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
         return {'station_id': station_id, 'status': 'success', 'readings': len(readings)}
         
     except Exception as e:
-        logger.error(f"    ✗ Error processing {station_id}: {e}")
+        # Log full error with traceback for debugging
+        import traceback
+        error_details = traceback.format_exc()
+        logger.error(f"    ✗ Error processing {station_id}:")
+        logger.error(f"    Exception type: {type(e).__name__}")
+        logger.error(f"    Exception message: {str(e)}")
+        logger.error(f"    Full traceback:")
+        for line in error_details.split('\n'):
+            if line.strip():
+                logger.error(f"      {line}")
         return {'station_id': station_id, 'status': 'error', 'error': str(e)}
 
 
 async def run_update():
     """Main async function for realtime updates."""
     logger.info("=" * 70)
-    logger.info("REALTIME DATA UPDATE (Cloud Function)")
+    logger.info("REALTIME DATA UPDATE (Cloud Function) - 30 days CSV format")
     logger.info("=" * 70)
     
     start_time = datetime.now()

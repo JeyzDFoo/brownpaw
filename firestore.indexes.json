@@ -1,4 +1,10 @@
 {
   "indexes": [],
-  "fieldConfigurationOverrides": []
+  "fieldConfigurationOverrides": [
+    {
+      "collectionGroup": "station_current",
+      "fieldPath": "hourly_readings",
+      "indexes": []
+    }
+  ]
 }

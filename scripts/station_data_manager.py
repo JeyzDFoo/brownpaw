@@ -365,21 +365,21 @@ class StationDataManager:
         station_id: str,
         latest_reading: Dict[str, Any],
         trend: str,
-        hourly_readings: Dict[str, Dict[str, Any]],
+        hourly_readings_csv: str,
         updated_at: datetime
     ) -> None:
         """
         Write current station data to station_current collection.
         
         This is used by the realtime updater to store the latest conditions
-        and 30 days of hourly readings for quick access.
+        and hourly readings as CSV for quick access.
         
         Args:
             provider: Provider name
             station_id: Station identifier
             latest_reading: Most recent reading with datetime, discharge, level
             trend: Trend indicator ("rising", "falling", "stable")
-            hourly_readings: Dict mapping datetime strings to reading data
+            hourly_readings_csv: CSV string of hourly readings
             updated_at: Timestamp of this update
         """
         doc_id = f"{provider}_{station_id}"
@@ -390,9 +390,7 @@ class StationDataManager:
             'provider': provider,
             'latest_reading': latest_reading,
             'trend': trend,
-            'hourly_readings': hourly_readings,
-            'readings_count': len(hourly_readings),
-            'updated_at': updated_at,
+            'hourly_readings_csv': hourly_readings_csv,            'updated_at': updated_at,
         }
         
         current_ref.set(data)

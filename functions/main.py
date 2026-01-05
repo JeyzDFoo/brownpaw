@@ -2,7 +2,7 @@
 Google Cloud Functions for BrownPaw station data updates.
 
 Entry points for two scheduled functions:
-1. update_realtime_data: Runs every 3 hours, fetches 30 days of hourly data
+1. update_realtime_data: Runs every 3 hours, fetches 14 days of hourly data
 2. update_daily_averages: Runs once daily, calculates today's average from cached data
 """
 
@@ -49,8 +49,14 @@ def update_daily_averages(request):
     HTTP Cloud Function for daily average calculations.
     Scheduled to run once daily via Cloud Scheduler.
     """
+    logger.info("=" * 70)
+    logger.info("update_daily_averages function called")
+    logger.info("=" * 70)
+    
     try:
+        logger.info("Calling daily_updater.run_update()")
         result = daily_updater.run_update()
+        logger.info(f"daily_updater.run_update() completed: {result}")
         return {'status': 'success', 'result': result}, 200
     except Exception as e:
         logger.error(f"Function error: {e}", exc_info=True)

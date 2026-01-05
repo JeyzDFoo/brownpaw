@@ -58,7 +58,7 @@ def process_station(station_id: str, data_service: DailyDataService, manager: St
         logger.info(f"  Processing station {station_id}...")
         
         # Get cached hourly readings from station_current collection
-        doc_id = f"{Provider.ENVIRONMENT_CANADA}_{station_id}"
+        doc_id = f"{Provider.ENVIRONMENT_CANADA.value}_{station_id}"
         current_doc = manager.db.collection('station_current').document(doc_id).get()
         
         if not current_doc.exists:
@@ -66,20 +66,29 @@ def process_station(station_id: str, data_service: DailyDataService, manager: St
             return {'station_id': station_id, 'status': 'no_cache'}
         
         current_data = current_doc.to_dict()
-        hourly_readings_dict = current_data.get('hourly_readings', {})
+        readings_csv = current_data.get('hourly_readings_csv', '')
         
-        if not hourly_readings_dict:
+        if not readings_csv:
             logger.warning(f"    No hourly readings for {station_id}")
             return {'station_id': station_id, 'status': 'no_readings'}
         
-        # Convert dict back to list for processing
+        # Parse CSV to array
         hourly_readings = []
-        for dt_str, reading in hourly_readings_dict.items():
-            hourly_readings.append({
-                'datetime': dt_str,
-                'discharge': reading.get('discharge'),
-                'level': reading.get('level'),
-            })
+        for line in readings_csv.split('\n')[1:]:  # Skip header
+            if not line.strip():
+                continue
+            parts = line.split(',')
+            if len(parts) >= 3:
+                reading = {'datetime': parts[0]}
+                if parts[1]:  # discharge
+                    reading['discharge'] = float(parts[1])
+                if parts[2]:  # level
+                    reading['level'] = float(parts[2])
+                hourly_readings.append(reading)
+        
+        if not hourly_readings:
+            logger.warning(f"    No valid readings in CSV for {station_id}")
+            return {'station_id': station_id, 'status': 'no_readings'}
         
         # Calculate daily averages
         daily_readings = calculate_daily_averages(hourly_readings)
@@ -97,7 +106,7 @@ def process_station(station_id: str, data_service: DailyDataService, manager: St
         for year, yearly_readings in readings_by_year.items():
             operations.append({
                 'type': 'write_readings',
-                'provider': Provider.ENVIRONMENT_CANADA,
+                'provider': Provider.ENVIRONMENT_CANADA.value,
                 'station_id': station_id,
                 'year': year,
                 'daily_readings': yearly_readings,

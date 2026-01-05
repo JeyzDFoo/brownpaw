@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/river_run.dart';
+import '../widgets/flow_information_widget.dart';
 
 class RunDetailsScreen extends StatelessWidget {
   final String runId;
@@ -45,11 +46,14 @@ class RunDetailsScreen extends StatelessWidget {
                 if (run.images?.isNotEmpty == true)
                   _buildImagesSection(context, run),
 
-                // Flow Information
-                if (run.minRecommendedFlow != null ||
-                    run.maxRecommendedFlow != null ||
-                    run.gaugeStation != null)
-                  _buildFlowSection(context, run),
+                // Flow Information with Charts
+                FlowInformationWidget(
+                  run: run,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                ),
 
                 // Logistics Section (Access, Shuttle, Permits)
                 _buildLogisticsSection(context, run),
@@ -311,117 +315,6 @@ class RunDetailsScreen extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
-  }
-
-  // FLOW SECTION
-  Widget _buildFlowSection(BuildContext context, RiverRun run) {
-    final hasFlowData =
-        run.minRecommendedFlow != null ||
-        run.maxRecommendedFlow != null ||
-        run.optimalFlowMin != null ||
-        run.optimalFlowMax != null;
-
-    if (!hasFlowData && run.gaugeStation == null)
-      return const SizedBox.shrink();
-
-    return _buildSection(
-      context,
-      'Flow Information',
-      Icons.water_drop,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (hasFlowData) ...[
-            _buildFlowRange(
-              context,
-              'Recommended',
-              run.minRecommendedFlow,
-              run.maxRecommendedFlow,
-              run.flowUnit,
-              isPrimary: true,
-            ),
-            const SizedBox(height: 12),
-            _buildFlowRange(
-              context,
-              'Optimal',
-              run.optimalFlowMin,
-              run.optimalFlowMax,
-              run.flowUnit,
-            ),
-          ],
-
-          if (run.gaugeStation != null) ...[
-            if (hasFlowData) const SizedBox(height: 16),
-            _buildGaugeInfo(context, run.gaugeStation!),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFlowRange(
-    BuildContext context,
-    String label,
-    double? min,
-    double? max,
-    String unit, {
-    bool isPrimary = false,
-  }) {
-    if (min == null && max == null) return const SizedBox.shrink();
-
-    String flowText = '';
-    if (min != null && max != null) {
-      flowText = '$min - $max $unit';
-    } else if (min != null) {
-      flowText = 'Min: $min $unit';
-    } else if (max != null) {
-      flowText = 'Max: $max $unit';
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.bodyMedium),
-        Text(
-          flowText,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: isPrimary ? FontWeight.bold : FontWeight.normal,
-            color: isPrimary ? Theme.of(context).colorScheme.primary : null,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGaugeInfo(
-    BuildContext context,
-    Map<String, String> gaugeStation,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Gauge Station',
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          if (gaugeStation['name'] != null) Text(gaugeStation['name']!),
-          if (gaugeStation['code'] != null)
-            Text(
-              'Code: ${gaugeStation['code']}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-        ],
       ),
     );
   }

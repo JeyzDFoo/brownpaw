@@ -64,6 +64,42 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
     
+    // Station levels collection - real-time flow data (publicly readable)
+    match /station_levels/{stationId} {
+      allow read: if isAuthenticated();
+      
+      // Only backend should write station data
+      allow create, update, delete: if false;
+    }
+    
+    // Station current collection - current flow data (publicly readable)
+    match /station_current/{stationId} {
+      allow read: if isAuthenticated();
+      
+      // Only backend should write station data
+      allow create, update, delete: if false;
+    }
+    
+    // Stations collection - historical flow data (publicly readable)
+    match /stations/{stationId} {
+      allow read: if isAuthenticated();
+      
+      // Only backend should write station data
+      allow create, update, delete: if false;
+      
+      // Daily means subcollection
+      match /daily_means/{dateId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if false;
+      }
+      
+      // Readings subcollection (yearly documents)
+      match /readings/{yearId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if false;
+      }
+    }
+    
     // User favorites collection - strict user ownership
     match /user_favorites/{userId} {
       allow read: if isOwner(userId);

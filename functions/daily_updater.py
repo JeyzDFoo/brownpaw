@@ -4,7 +4,7 @@ Calculates daily averages from cached realtime data once per day.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 from scripts.station_data_manager import StationDataManager
@@ -15,45 +15,82 @@ from scripts.environment_canada.daily_data_service import DailyDataService
 logger = logging.getLogger(__name__)
 
 
-def calculate_daily_averages(hourly_readings: list) -> dict:
+def calculate_daily_average_for_yesterday(hourly_readings: list) -> dict:
     """
-    Calculate daily averages from hourly readings.
+    Calculate daily average from yesterday's hourly readings only.
     
     Args:
         hourly_readings: List of dicts with datetime, discharge, level
         
     Returns:
-        Dict mapping date strings to daily averages
+        Dict mapping yesterday's date string to daily average
     """
-    # Group readings by date
-    readings_by_date = defaultdict(list)
+    # Get yesterday's date
+    yesterday = datetime.now() - timedelta(days=1)
+    yesterday_date_str = yesterday.strftime('%Y-%m-%d')
+    
+    # Filter readings to only yesterday's data
+    yesterday_readings = []
     for reading in hourly_readings:
         dt = datetime.fromisoformat(reading['datetime'].replace('Z', '+00:00'))
         date_str = dt.strftime('%Y-%m-%d')
-        readings_by_date[date_str].append(reading)
+        if date_str == yesterday_date_str:
+            yesterday_readings.append(reading)
     
-    # Calculate daily averages
-    daily_readings = {}
-    for date_str in sorted(readings_by_date.keys()):
-        day_readings = readings_by_date[date_str]
-        
-        discharges = [r['discharge'] for r in day_readings if r.get('discharge') is not None]
-        levels = [r['level'] for r in day_readings if r.get('level') is not None]
-        
-        daily_reading = {}
-        if discharges:
-            daily_reading['mean_discharge'] = round(sum(discharges) / len(discharges), 2)
-        if levels:
-            daily_reading['mean_level'] = round(sum(levels) / len(levels), 3)
-        
-        if daily_reading:
-            daily_readings[date_str] = daily_reading
+    # Calculate averages for yesterday only
+    if not yesterday_readings:
+        return {}
     
-    return daily_readings
+    discharges = [r['discharge'] for r in yesterday_readings if r.get('discharge') is not None]
+    levels = [r['level'] for r in yesterday_readings if r.get('level') is not None]
+    
+    daily_reading = {}
+    if discharges:
+        daily_reading['mean_discharge'] = round(sum(discharges) / len(discharges), 2)
+    if levels:
+        daily_reading['mean_level'] = round(sum(levels) / len(levels), 3)
+    
+    if daily_reading:
+        return {yesterday_date_str: daily_reading}
+    
+    return {}
 
 
-def process_station(station_id: str, data_service: DailyDataService, manager: StationDataManager):
-    """Process one station's daily average from cached data."""
+def process_new_station(station_id: str, data_service: DailyDataService, manager: StationDataManager):
+    """Process a new station by fetching historical data."""
+    try:
+        logger.info(f"  Processing NEW station {station_id} (fetching historical data)...")
+        
+        # Fetch 5 years of historical data
+        daily_readings = data_service.fetch_historical_data(station_id, days=1825)
+        
+        if not daily_readings:
+            logger.warning(f"    No historical data available for {station_id}")
+            return {'station_id': station_id, 'status': 'no_historical_data'}
+        
+        # Organize by year and write to Firestore
+        readings_by_year = data_service.organize_by_year(daily_readings)
+        operations = []
+        for year, yearly_readings in readings_by_year.items():
+            operations.append({
+                'type': 'write_readings',
+                'provider': Provider.ENVIRONMENT_CANADA.value,
+                'station_id': station_id,
+                'year': year,
+                'daily_readings': yearly_readings,
+            })
+        manager.batch_write_station_data(operations)
+        
+        logger.info(f"    ✓ Wrote {len(daily_readings)} days of historical data")
+        return {'station_id': station_id, 'status': 'success', 'days': len(daily_readings)}
+        
+    except Exception as e:
+        logger.error(f"    ✗ Error processing new station {station_id}: {e}")
+        return {'station_id': station_id, 'status': 'error', 'error': str(e)}
+
+
+def process_existing_station(station_id: str, data_service: DailyDataService, manager: StationDataManager):
+    """Process an existing station's daily average from cached data."""
     try:
         logger.info(f"  Processing station {station_id}...")
         
@@ -90,15 +127,15 @@ def process_station(station_id: str, data_service: DailyDataService, manager: St
             logger.warning(f"    No valid readings in CSV for {station_id}")
             return {'station_id': station_id, 'status': 'no_readings'}
         
-        # Calculate daily averages
-        daily_readings = calculate_daily_averages(hourly_readings)
+        # Calculate daily average for yesterday only
+        daily_readings = calculate_daily_average_for_yesterday(hourly_readings)
         
         if not daily_readings:
-            logger.warning(f"    Could not calculate averages for {station_id}")
-            return {'station_id': station_id, 'status': 'no_averages'}
+            logger.warning(f"    No readings for yesterday for {station_id}")
+            return {'station_id': station_id, 'status': 'no_yesterday_data'}
         
-        # Get the most recent date (today)
-        latest_date = max(daily_readings.keys())
+        # Get yesterday's date (only one date in the dict)
+        latest_date = list(daily_readings.keys())[0]
         
         # Organize by year and write to Firestore
         readings_by_year = data_service.organize_by_year(daily_readings)
@@ -141,22 +178,33 @@ def run_update():
     
     logger.info(f"Found {len(ec_stations)} Environment Canada stations")
     
-    # Get existing stations (skip new ones - they need historical data)
-    logger.info("Identifying existing stations...")
+    # Separate new and existing stations
+    logger.info("Identifying new vs existing stations...")
+    new_stations = set()
     existing_stations = set()
     for station_id in ec_stations:
         doc_id = f"{Provider.ENVIRONMENT_CANADA}_{station_id}"
         doc = manager.db.collection('station_data').document(doc_id).get()
         if doc.exists:
             existing_stations.add(station_id)
+        else:
+            new_stations.add(station_id)
     
-    logger.info(f"Processing {len(existing_stations)} existing stations...")
+    logger.info(f"New stations: {len(new_stations)}")
+    logger.info(f"Existing stations: {len(existing_stations)}")
     
-    # Process stations
-    results = [
-        process_station(station_id, data_service, manager)
-        for station_id in sorted(existing_stations)
-    ]
+    # Process new stations with historical data fetch
+    results = []
+    if new_stations:
+        logger.info(f"Processing {len(new_stations)} new stations with historical data...")
+        for station_id in sorted(new_stations):
+            results.append(process_new_station(station_id, data_service, manager))
+    
+    # Process existing stations with yesterday's cached data
+    if existing_stations:
+        logger.info(f"Processing {len(existing_stations)} existing stations with yesterday's data...")
+        for station_id in sorted(existing_stations):
+            results.append(process_existing_station(station_id, data_service, manager))
     
     # Summary
     success = sum(1 for r in results if r['status'] == 'success')

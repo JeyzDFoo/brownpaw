@@ -133,34 +133,39 @@ class _GuideScreenState extends State<GuideScreen> {
                   ),
                   value: _selectedProvince,
                   isExpanded: true,
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text(
-                        'All Provinces',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    ..._provinces.map(
-                      (province) => DropdownMenuItem<String>(
-                        value: province,
-                        child: Text(
-                          province,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedProvince = value;
-                      // Clear region filter when province changes
-                      if (value != _selectedProvince) {
-                        _selectedRegion = null;
-                      }
-                    });
-                  },
+                  items: _provinces.isEmpty
+                      ? null
+                      : [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text(
+                              'All Provinces',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          ..._provinces.map(
+                            (province) => DropdownMenuItem<String>(
+                              value: province,
+                              child: Text(
+                                province,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                  onChanged: _provinces.isEmpty
+                      ? null
+                      : (value) {
+                          setState(() {
+                            final oldProvince = _selectedProvince;
+                            _selectedProvince = value;
+                            // Clear region filter when province changes
+                            if (value != oldProvince) {
+                              _selectedRegion = null;
+                            }
+                          });
+                        },
                 ),
               ),
               const SizedBox(width: 16),
@@ -173,30 +178,34 @@ class _GuideScreenState extends State<GuideScreen> {
                   ),
                   value: _selectedRegion,
                   isExpanded: true,
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text(
-                        'All Regions',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    ..._regions.map(
-                      (region) => DropdownMenuItem<String>(
-                        value: region,
-                        child: Text(
-                          region,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRegion = value;
-                    });
-                  },
+                  items: _regions.isEmpty
+                      ? null
+                      : [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text(
+                              'All Regions',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          ..._regions.map(
+                            (region) => DropdownMenuItem<String>(
+                              value: region,
+                              child: Text(
+                                region,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                  onChanged: _regions.isEmpty
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _selectedRegion = value;
+                          });
+                        },
                 ),
               ),
             ],

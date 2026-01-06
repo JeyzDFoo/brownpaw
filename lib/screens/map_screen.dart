@@ -5,7 +5,21 @@ import 'package:latlong2/latlong.dart';
 
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
+import 'package:brownpaw/providers/favorites_provider.dart';
 import 'package:brownpaw/screens/run_details_screen.dart';
+
+// Custom tween for smooth LatLng animation
+class LatLngTween extends Tween<LatLng> {
+  LatLngTween({required LatLng begin, required LatLng end})
+    : super(begin: begin, end: end);
+
+  @override
+  LatLng lerp(double t) {
+    final lat = begin!.latitude + (end!.latitude - begin!.latitude) * t;
+    final lng = begin!.longitude + (end!.longitude - begin!.longitude) * t;
+    return LatLng(lat, lng);
+  }
+}
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -14,25 +28,75 @@ class MapScreen extends ConsumerStatefulWidget {
   ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends ConsumerState<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen>
+    with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   RiverRun? _selectedRiver;
   double _sheetHeight = 0.5; // 0.0 to 1.0, representing percentage of screen
+  late AnimationController _animationController;
+  Animation<LatLng>? _positionAnimation;
+  Animation<double>? _zoomAnimation;
 
   static const double _minSheetHeight = 0.3;
   static const double _maxSheetHeight = 0.9;
 
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   void _onMarkerTapped(RiverRun river) {
-    // Smoothly move map to selected river, positioning marker above bottom sheet
+    // Smoothly animate map to selected river, positioning marker above bottom sheet
     final coords = river.coordinates ?? river.putInCoordinates;
     if (coords != null) {
-      _mapController.move(
-        LatLng(
-          coords['latitude']! - 0.01,
-          coords['longitude']!,
-        ), // Position marker higher so it stays visible above bottom sheet
-        14.0, // Zoom in for better view
+      final currentCenter = _mapController.camera.center;
+      final currentZoom = _mapController.camera.zoom;
+      final targetPosition = LatLng(
+        coords['latitude']! - 0.01,
+        coords['longitude']!,
       );
+      const targetZoom = 14.0;
+
+      // Create animations for position and zoom
+      _positionAnimation =
+          LatLngTween(begin: currentCenter, end: targetPosition).animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeInOutCubic,
+            ),
+          );
+
+      _zoomAnimation = Tween<double>(begin: currentZoom, end: targetZoom)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeInOutCubic,
+            ),
+          );
+
+      // Listen to animation updates
+      void updateMap() {
+        if (_positionAnimation != null && _zoomAnimation != null) {
+          _mapController.move(_positionAnimation!.value, _zoomAnimation!.value);
+        }
+      }
+
+      _animationController.addListener(updateMap);
+
+      // Start animation and clean up listener when done
+      _animationController.forward(from: 0).then((_) {
+        _animationController.removeListener(updateMap);
+      });
     }
 
     setState(() {

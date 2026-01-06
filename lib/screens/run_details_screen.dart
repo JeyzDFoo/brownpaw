@@ -118,11 +118,9 @@ class RunDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // River and region
+            // Difficulty
             Text(
-              run.region?.isNotEmpty == true
-                  ? '${run.river} • ${run.region}'
-                  : run.river,
+              run.difficultyClass,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

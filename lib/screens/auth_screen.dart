@@ -17,11 +17,17 @@ class AuthScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // App Logo/Title
-              Icon(
-                Icons.pets,
-                size: 100,
-                color: Theme.of(context).colorScheme.primary,
+              // App Logo
+              Image.asset(
+                'images/brownpaw-logo.png',
+                height: 120,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(
+                    Icons.pets,
+                    size: 100,
+                    color: Theme.of(context).colorScheme.primary,
+                  );
+                },
               ),
               const SizedBox(height: 24),
               Text(

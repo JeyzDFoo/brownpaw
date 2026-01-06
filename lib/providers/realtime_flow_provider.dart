@@ -47,7 +47,7 @@ final realtimeFlowProvider =
         }
 
         final data = doc.data() as Map<String, dynamic>;
-        final csvData = data['hourly_readings_csv'] as String?;
+        final csvData = data?['hourly_readings_csv'] as String?;
 
         if (csvData == null || csvData.isEmpty) {
           print('❌ No CSV data found in document');
@@ -78,6 +78,7 @@ final realtimeFlowProvider =
 final realtimeFlowStreamProvider =
     StreamProvider.family<StationRealtimeFlow?, String>((ref, stationId) {
       if (stationId.isEmpty) {
+        print('❌ Station ID is empty, returning null stream.');
         return Stream.value(null);
       }
 
@@ -90,17 +91,42 @@ final realtimeFlowStreamProvider =
           .doc(normalizedId)
           .snapshots()
           .map((doc) {
-            if (!doc.exists) return null;
+            print('📄 Received snapshot for $normalizedId');
+            if (!doc.exists) {
+              print('❌ Document does not exist for $normalizedId');
+              return null;
+            }
+            print('✅ Document exists for $normalizedId');
 
             final data = doc.data() as Map<String, dynamic>?;
-            final csvData = data?['hourly_readings_csv'] as String?;
+            if (data == null) {
+              print('❌ Document data is null for $normalizedId');
+              return null;
+            }
+            print('✅ Document data is not null.');
 
-            if (csvData == null || csvData.isEmpty) return null;
+            final csvData = data['hourly_readings_csv'] as String?;
+
+            if (csvData == null || csvData.isEmpty) {
+              print('❌ "hourly_readings_csv" field is null or empty.');
+              print('   Available keys: ${data.keys.join(', ')}');
+              return null;
+            }
+            print(
+              '✅ Found "hourly_readings_csv" field with length: ${csvData.length}',
+            );
 
             final flow = RealtimeFlow.fromCSV(csvData);
 
-            if (flow.readings.isEmpty) return null;
+            if (flow.readings.isEmpty) {
+              print('❌ Parsed CSV but found no readings.');
+              print(
+                '   Original CSV data snippet: ${csvData.substring(0, (csvData.length > 200) ? 200 : csvData.length)}...',
+              );
+              return null;
+            }
 
+            print('✅ Parsed ${flow.readings.length} readings successfully.');
             return StationRealtimeFlow(stationId: normalizedId, flow: flow);
           });
     });
@@ -128,7 +154,7 @@ String _normalizeStationId(String stationId) {
   // If it's just a station code, assume Environment Canada
   // "08HD006" -> "environment_canada_08hd006"
   if (RegExp(r'^\d{2}[A-Z]{2}\d{3}$').hasMatch(stationId)) {
-    final normalized = 'environment_canada_${stationId.toLowerCase()}';
+    final normalized = 'environment_canada_$stationId';
     print('   ✅ Converted from station code: $normalized');
     return normalized;
   }

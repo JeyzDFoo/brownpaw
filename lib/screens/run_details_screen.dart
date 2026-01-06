@@ -47,13 +47,7 @@ class RunDetailsScreen extends StatelessWidget {
                   _buildImagesSection(context, run),
 
                 // Flow Information with Charts
-                FlowInformationWidget(
-                  run: run,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                ),
+                FlowInformationWidget(riverRun: run),
 
                 // Logistics Section (Access, Shuttle, Permits)
                 _buildLogisticsSection(context, run),

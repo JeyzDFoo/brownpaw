@@ -1,43 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../models/descent.dart';
 import '../providers/descents_provider.dart';
-import '../providers/realtime_flow_provider.dart';
 
-class LogDescentDialog extends ConsumerStatefulWidget {
-  final String runId;
-  final String runName;
-  final double? initialFlow;
-  final String? stationId;
+class EditDescentDialog extends StatefulWidget {
+  final Descent descent;
+  final WidgetRef ref;
 
-  const LogDescentDialog({
+  const EditDescentDialog({
     super.key,
-    required this.runId,
-    required this.runName,
-    this.initialFlow,
-    this.stationId,
+    required this.descent,
+    required this.ref,
   });
 
   @override
-  ConsumerState<LogDescentDialog> createState() => _LogDescentDialogState();
+  State<EditDescentDialog> createState() => _EditDescentDialogState();
 }
 
-class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
+class _EditDescentDialogState extends State<EditDescentDialog> {
   final _formKey = GlobalKey<FormState>();
   late DateTime _selectedDate;
-  final _flowController = TextEditingController();
-  final _notesController = TextEditingController();
-  int? _rating;
-  bool _isPublic = true;
+  late TextEditingController _flowController;
+  late TextEditingController _notesController;
+  late int? _rating;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
-    // Pre-populate flow if available
-    if (widget.initialFlow != null) {
-      _flowController.text = widget.initialFlow!.toStringAsFixed(1);
-    }
+    _selectedDate = widget.descent.date;
+    _flowController = TextEditingController(
+      text: widget.descent.flow?.toStringAsFixed(1) ?? '',
+    );
+    _notesController = TextEditingController(text: widget.descent.notes ?? '');
+    _rating = widget.descent.rating;
   }
 
   @override
@@ -58,57 +55,18 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
       setState(() {
         _selectedDate = picked;
       });
-      // Update flow for the selected date
-      await _updateFlowForDate(picked);
     }
   }
 
-  Future<void> _updateFlowForDate(DateTime date) async {
-    if (widget.stationId == null) return;
-
-    try {
-      final flowData = await ref.read(
-        realtimeFlowStreamProvider(widget.stationId!).future,
-      );
-
-      if (flowData == null) return;
-
-      // Find the reading closest to the selected date
-      final readings = flowData.flow.readings;
-      if (readings.isEmpty) return;
-
-      // Find reading for the selected date (or closest one)
-      double? flowForDate;
-      Duration? smallestDiff;
-
-      for (final reading in readings) {
-        if (reading.discharge == null) continue;
-
-        final diff = reading.timestamp.difference(date).abs();
-        if (smallestDiff == null || diff < smallestDiff) {
-          smallestDiff = diff;
-          flowForDate = reading.discharge;
-        }
-      }
-
-      if (flowForDate != null && mounted) {
-        setState(() {
-          _flowController.text = flowForDate!.toStringAsFixed(1);
-        });
-      }
-    } catch (e) {
-      // Silently fail - user can manually enter flow
-    }
-  }
-
-  Future<void> _saveDescent() async {
+  Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final descentId = await ref
+    setState(() => _isLoading = true);
+
+    final success = await widget.ref
         .read(descentsProvider.notifier)
-        .addDescent(
-          runId: widget.runId,
-          runName: widget.runName,
+        .updateDescent(
+          descentId: widget.descent.id,
           date: _selectedDate,
           flow: _flowController.text.isNotEmpty
               ? double.tryParse(_flowController.text)
@@ -118,27 +76,39 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
               ? _notesController.text
               : null,
           rating: _rating,
-          isPublic: _isPublic,
         );
 
-    if (descentId != null && mounted) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Descent logged successfully!')),
-      );
-    } else if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to log descent')));
+    if (mounted) {
+      setState(() => _isLoading = false);
+      if (success) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Text('Descent updated successfully'),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update descent'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final descentsState = ref.watch(descentsProvider);
-
     return AlertDialog(
-      title: const Text('Log Descent'),
+      title: const Text('Edit Descent'),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -146,9 +116,9 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Run name
+              // Run name (read-only)
               Text(
-                widget.runName,
+                widget.descent.runName,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -194,7 +164,9 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
                           : Icons.star_border,
                       color: Colors.amber,
                     ),
-                    onPressed: () => setState(() => _rating = starValue),
+                    onPressed: () => setState(() {
+                      _rating = _rating == starValue ? null : starValue;
+                    }),
                   );
                 }),
               ),
@@ -210,31 +182,18 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
                 ),
                 maxLines: 3,
               ),
-              // Public visibility toggle
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Make Public'),
-                subtitle: const Text(
-                  'Record this descent in the public logbook',
-                ),
-                value: _isPublic,
-                onChanged: (value) => setState(() => _isPublic = value),
-              ),
-              const SizedBox(height: 8),
             ],
           ),
         ),
       ),
       actions: [
         TextButton(
-          onPressed: descentsState.isLoading
-              ? null
-              : () => Navigator.of(context).pop(),
+          onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         FilledButton(
-          onPressed: descentsState.isLoading ? null : _saveDescent,
-          child: descentsState.isLoading
+          onPressed: _isLoading ? null : _saveChanges,
+          child: _isLoading
               ? const SizedBox(
                   height: 16,
                   width: 16,

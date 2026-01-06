@@ -79,6 +79,7 @@ class Descent {
       rating: data['rating'],
       difficulty: data['difficulty'],
       photos: data['photos'] != null ? List<String>.from(data['photos']) : null,
+      isPublic: data['isPublic'] ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: data['updatedAt'] != null
           ? (data['updatedAt'] as Timestamp).toDate()

@@ -139,35 +139,4 @@ class FavouritesScreen extends ConsumerWidget {
       },
     );
   }
-
-  void _showClearConfirmation(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear all favourites?'),
-        content: const Text(
-          'This will remove all river runs from your favourites list. This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              ref.read(favoritesProvider.notifier).clearAllFavorites();
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('All favourites cleared')),
-              );
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Clear All'),
-          ),
-        ],
-      ),
-    );
-  }
 }

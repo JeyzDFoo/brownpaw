@@ -23,30 +23,30 @@ class FlowInformationWidget extends ConsumerWidget {
         if (flowData == null) {
           return _buildSection(
             context,
-            'Real-Time Flow',
+            '30-day discharge',
             Icons.show_chart,
             child: const Text('No real-time flow data available.'),
           );
         }
         return _buildSection(
           context,
-          'Real-Time Flow',
+          '30-day history (m³/s)',
           Icons.show_chart,
           child: SizedBox(
-            height: 200,
+            height: 300,
             child: FlowChart(flowData: flowData.flow),
           ),
         );
       },
       error: (err, stack) => _buildSection(
         context,
-        'Real-Time Flow',
+        '30-day history (m³/s)',
         Icons.show_chart,
         child: Text('Error loading flow data: $err'),
       ),
       loading: () => _buildSection(
         context,
-        'Real-Time Flow',
+        '30-day history (m³/s)',
         Icons.show_chart,
         child: const Center(child: CircularProgressIndicator()),
       ),

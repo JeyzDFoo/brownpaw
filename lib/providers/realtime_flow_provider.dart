@@ -47,7 +47,7 @@ final realtimeFlowProvider =
         }
 
         final data = doc.data() as Map<String, dynamic>;
-        final csvData = data?['hourly_readings_csv'] as String?;
+        final csvData = data['hourly_readings_csv'] as String?;
 
         if (csvData == null || csvData.isEmpty) {
           print('❌ No CSV data found in document');
@@ -98,7 +98,7 @@ final realtimeFlowStreamProvider =
             }
             print('✅ Document exists for $normalizedId');
 
-            final data = doc.data() as Map<String, dynamic>?;
+            final data = doc.data();
             if (data == null) {
               print('❌ Document data is null for $normalizedId');
               return null;

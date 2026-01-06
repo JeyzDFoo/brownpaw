@@ -4,41 +4,43 @@ import 'package:intl/intl.dart';
 
 import '../models/realtime_flow.dart';
 
-class FlowChart extends StatefulWidget {
+class FlowChart extends StatelessWidget {
   final RealtimeFlow flowData;
+
   const FlowChart({super.key, required this.flowData});
 
   @override
-  State<FlowChart> createState() => _FlowChartState();
-}
-
-class _FlowChartState extends State<FlowChart> {
-  int? _selectedSpotIndex;
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.flowData.readings.isEmpty) {
+    if (flowData.readings.isEmpty) {
       return const Center(child: Text('No recent flow data available.'));
     }
 
     final spots = <FlSpot>[];
-    for (final reading in widget.flowData.readings) {
-      if (reading.level != null) {
+    for (final reading in flowData.readings) {
+      if (reading.discharge != null) {
         spots.add(
           FlSpot(
             reading.timestamp.millisecondsSinceEpoch.toDouble(),
-            reading.level!,
+            reading.discharge!,
           ),
         );
       }
     }
 
     if (spots.isEmpty) {
-      return const Center(child: Text('No level data to display.'));
+      return const Center(child: Text('No discharge data to display.'));
     }
+
+    // Calculate y-axis range with deadband (10% padding on each side)
+    final minY = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
+    final maxY = spots.map((s) => s.y).reduce((a, b) => a > b ? a : b);
+    final yRange = maxY - minY;
+    final yDeadband = yRange * 0.1;
 
     return LineChart(
       LineChartData(
+        minY: minY - yDeadband,
+        maxY: maxY + yDeadband,
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
@@ -55,12 +57,32 @@ class _FlowChartState extends State<FlowChart> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 45,
+              reservedSize: 50,
+              interval: null,
               getTitlesWidget: (value, meta) {
+                // Skip labels that are too close to the edges to prevent overlap
+                final range = meta.max - meta.min;
+                if (meta.max - value < range * 0.03 ||
+                    value - meta.min < range * 0.03) {
+                  return const SizedBox.shrink();
+                }
+
+                // Format large numbers more compactly
+                String label;
+                if (value >= 1000) {
+                  label = '${(value / 1000).toStringAsFixed(1)}k';
+                } else if (value >= 100) {
+                  label = value.toStringAsFixed(0);
+                } else if (value >= 10) {
+                  label = value.toStringAsFixed(1);
+                } else {
+                  label = value.toStringAsFixed(2);
+                }
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Text(
-                    '${value.toStringAsFixed(1)}m',
+                    label,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -118,90 +140,28 @@ class _FlowChartState extends State<FlowChart> {
             width: 1.2,
           ),
         ),
+        clipData: const FlClipData.all(),
         lineTouchData: LineTouchData(
-          handleBuiltInTouches: false, // Disable default behavior
-          touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
-            if (response == null || response.lineBarSpots == null) {
-              return;
-            }
-            if (event is FlTapUpEvent) {
-              final index = response.lineBarSpots!.first.spotIndex;
-              setState(() {
-                if (_selectedSpotIndex == index) {
-                  _selectedSpotIndex = null; // Untoggle on second tap
-                } else {
-                  _selectedSpotIndex = index;
-                }
-              });
-            }
-          },
-          getTouchedSpotIndicator:
-              (LineChartBarData barData, List<int> spotIndexes) {
-                return spotIndexes.map((spotIndex) {
-                  return TouchedSpotIndicatorData(
-                    FlLine(
-                      color: Colors.transparent, // Don't show the vertical line
-                    ),
-                    FlDotData(
-                      getDotPainter: (spot, percent, barData, index) {
-                        // This is the persistent dot on the chart
-                        return FlDotCirclePainter(
-                          radius: 8,
-                          color: Theme.of(context).colorScheme.primary,
-                          strokeWidth: 2,
-                          strokeColor: Theme.of(context).colorScheme.surface,
-                        );
-                      },
-                    ),
-                  );
-                }).toList();
-              },
+          enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (LineBarSpot spot) =>
-                Theme.of(context).colorScheme.surfaceContainerHighest,
-            tooltipPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-
-            tooltipBorder: BorderSide(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-              width: 1,
-            ),
             getTooltipItems: (touchedSpots) {
-              return touchedSpots.map((spot) {
+              return touchedSpots.map((LineBarSpot touchedSpot) {
                 final timestamp = DateTime.fromMillisecondsSinceEpoch(
-                  spot.x.toInt(),
+                  touchedSpot.x.toInt(),
                 );
+                final discharge = touchedSpot.y;
                 return LineTooltipItem(
-                  '${spot.y.toStringAsFixed(2)} m\n${DateFormat('MMM d, h:mm a').format(timestamp)}',
+                  '${DateFormat('MMM d, h:mm a').format(timestamp)}\n${discharge.toStringAsFixed(2)} m³/s',
                   TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
                 );
               }).toList();
             },
           ),
         ),
-        showingTooltipIndicators: _selectedSpotIndex != null
-            ? [
-                ShowingTooltipIndicators([
-                  LineBarSpot(
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      barWidth: 2,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    0, // Bar index (we only have one line)
-                    spots[_selectedSpotIndex!],
-                  ),
-                ]),
-              ]
-            : [],
         lineBarsData: [
           LineChartBarData(
             spots: spots,
@@ -222,9 +182,7 @@ class _FlowChartState extends State<FlowChart> {
                 ],
               ),
             ),
-            showingIndicators: _selectedSpotIndex != null
-                ? [_selectedSpotIndex!]
-                : [],
+            showingIndicators: [],
           ),
         ],
       ),

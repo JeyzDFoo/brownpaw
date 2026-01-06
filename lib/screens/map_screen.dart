@@ -23,6 +23,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   static const double _maxSheetHeight = 0.9;
 
   void _onMarkerTapped(RiverRun river) {
+    // Smoothly move map to selected river
+    final coords = river.coordinates ?? river.putInCoordinates;
+    if (coords != null) {
+      _mapController.move(
+        LatLng(coords['latitude']!, coords['longitude']!),
+        14.0, // Zoom in for better view
+      );
+    }
+
     setState(() {
       _selectedRiver = river;
       _sheetHeight = 0.6;
@@ -133,9 +142,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 minZoom: 6.0,
                 maxZoom: 15.0,
                 onTap: (tapPosition, point) {
-                  setState(() {
-                    _selectedRiver = null;
-                  });
+                  if (_selectedRiver != null) {
+                    setState(() {
+                      _selectedRiver = null;
+                    });
+                  }
                 },
               ),
               children: [
@@ -189,7 +200,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 // Otherwise, stay wherever it's dropped
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 100),
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOutCubic,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: const BorderRadius.vertical(

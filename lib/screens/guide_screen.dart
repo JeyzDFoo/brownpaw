@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/river_run.dart';
 import 'run_details_screen.dart';
 
@@ -16,6 +17,13 @@ class _GuideScreenState extends State<GuideScreen> {
   List<String> _provinces = [];
   List<String> _regions = [];
   String? _filterError;
+  GoogleMapController? _mapController;
+  final Set<Marker> _markers = {};
+  List<RiverRun> _currentRuns = [];
+
+  // Default center on Canada
+  static const LatLng _defaultCenter = LatLng(54.0, -100.0);
+  static const double _defaultZoom = 4.0;
 
   @override
   void initState() {
@@ -89,6 +97,106 @@ class _GuideScreenState extends State<GuideScreen> {
     }
 
     return query;
+  }
+
+  void _updateMapMarkers(List<RiverRun> runs) {
+    setState(() {
+      _markers.clear();
+      _currentRuns = runs;
+
+      for (var run in runs) {
+        // Try putInCoordinates first, then coordinates
+        final coords = run.putInCoordinates ?? run.coordinates;
+
+        if (coords != null &&
+            coords['latitude'] != null &&
+            coords['longitude'] != null) {
+          final position = LatLng(coords['latitude']!, coords['longitude']!);
+
+          _markers.add(
+            Marker(
+              markerId: MarkerId(run.riverId),
+              position: position,
+              infoWindow: InfoWindow(
+                title: run.name,
+                snippet: '${run.difficultyClass} • ${run.river}',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RunDetailsScreen(runId: run.riverId),
+                    ),
+                  );
+                },
+              ),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                _getMarkerColor(run.difficultyMin),
+              ),
+            ),
+          );
+        }
+      }
+
+      // Update camera to show all markers
+      if (_markers.isNotEmpty && _mapController != null) {
+        _fitMapToMarkers();
+      }
+    });
+  }
+
+  double _getMarkerColor(int? difficultyMin) {
+    if (difficultyMin == null) return BitmapDescriptor.hueBlue;
+    if (difficultyMin <= 2) return BitmapDescriptor.hueGreen;
+    if (difficultyMin == 3) return BitmapDescriptor.hueYellow;
+    if (difficultyMin == 4) return BitmapDescriptor.hueOrange;
+    return BitmapDescriptor.hueRed;
+  }
+
+  void _fitMapToMarkers() {
+    if (_markers.isEmpty || _mapController == null) return;
+
+    double minLat = _markers.first.position.latitude;
+    double maxLat = _markers.first.position.latitude;
+    double minLng = _markers.first.position.longitude;
+    double maxLng = _markers.first.position.longitude;
+
+    for (var marker in _markers) {
+      if (marker.position.latitude < minLat) minLat = marker.position.latitude;
+      if (marker.position.latitude > maxLat) maxLat = marker.position.latitude;
+      if (marker.position.longitude < minLng)
+        minLng = marker.position.longitude;
+      if (marker.position.longitude > maxLng)
+        maxLng = marker.position.longitude;
+    }
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+  }
+
+  Widget _buildMapHero() {
+    return SizedBox(
+      height: 300,
+      child: GoogleMap(
+        onMapCreated: (controller) {
+          _mapController = controller;
+        },
+        initialCameraPosition: const CameraPosition(
+          target: _defaultCenter,
+          zoom: _defaultZoom,
+        ),
+        markers: _markers,
+        mapType: MapType.terrain,
+        myLocationButtonEnabled: true,
+        myLocationEnabled: true,
+        zoomControlsEnabled: false,
+        mapToolbarEnabled: false,
+      ),
+    );
   }
 
   Widget _buildFilters() {
@@ -237,6 +345,7 @@ class _GuideScreenState extends State<GuideScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        _buildMapHero(),
         _buildFilters(),
         Expanded(
           child: StreamBuilder<QuerySnapshot>(
@@ -303,6 +412,14 @@ class _GuideScreenState extends State<GuideScreen> {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                // Clear markers when no runs
+                if (_markers.isNotEmpty) {
+                  setState(() {
+                    _markers.clear();
+                    _currentRuns = [];
+                  });
+                }
+
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -334,6 +451,11 @@ class _GuideScreenState extends State<GuideScreen> {
               final runs = snapshot.data!.docs
                   .map((doc) => RiverRun.fromFirestore(doc))
                   .toList();
+
+              // Update map markers with current runs
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _updateMapMarkers(runs);
+              });
 
               return ListView.builder(
                 itemCount: runs.length,

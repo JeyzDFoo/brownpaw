@@ -56,5 +56,10 @@
 			</array>
 		</dict>
 	</array>
+	<!-- Location permissions for Google Maps -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to show nearby river runs on the map.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to show nearby river runs on the map.</string>
 </dict>
 </plist>

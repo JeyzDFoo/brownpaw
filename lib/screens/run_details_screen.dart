@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import 'package:map_launcher/map_launcher.dart';
 import '../models/river_run.dart';
 import '../models/descent.dart';
 import '../widgets/flow_information_widget.dart';
@@ -171,28 +172,47 @@ class RunDetailsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              // Favorite button in top right corner
+              // Action buttons in top right corner
               Positioned(
                 top: 16,
                 right: 16,
-                child: IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: isFavorite ? Colors.red : null,
-                  ),
-                  onPressed: user != null
-                      ? () => ref
-                            .read(favoritesProvider.notifier)
-                            .toggleFavorite(runId)
-                      : null,
-                  tooltip: isFavorite
-                      ? 'Remove from favorites'
-                      : 'Add to favorites',
-                  style: IconButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surface.withOpacity(0.9),
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Navigate to Put-in button
+                    if (run.putInCoordinates != null)
+                      IconButton(
+                        icon: const Icon(Icons.navigation),
+                        onPressed: () => _navigateToPutIn(context, run),
+                        tooltip: 'Navigate to Put-in',
+                        style: IconButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.surface.withOpacity(0.9),
+                        ),
+                      ),
+                    if (run.putInCoordinates != null) const SizedBox(width: 8),
+                    // Favorite button
+                    IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : null,
+                      ),
+                      onPressed: user != null
+                          ? () => ref
+                                .read(favoritesProvider.notifier)
+                                .toggleFavorite(runId)
+                          : null,
+                      tooltip: isFavorite
+                          ? 'Remove from favorites'
+                          : 'Add to favorites',
+                      style: IconButton.styleFrom(
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surface.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -897,6 +917,83 @@ class RunDetailsScreen extends ConsumerWidget {
         difficulty: run.difficultyClass,
       ),
     );
+  }
+
+  // Navigate to put-in location using available map apps
+  Future<void> _navigateToPutIn(BuildContext context, RiverRun run) async {
+    if (run.putInCoordinates == null) return;
+
+    final latitude = run.putInCoordinates!['latitude']!;
+    final longitude = run.putInCoordinates!['longitude']!;
+
+    try {
+      final availableMaps = await MapLauncher.installedMaps;
+
+      if (availableMaps.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No map applications found on device'),
+            ),
+          );
+        }
+        return;
+      }
+
+      // If only one map app is available, launch it directly
+      if (availableMaps.length == 1) {
+        await availableMaps.first.showMarker(
+          coords: Coords(latitude, longitude),
+          title: '${run.name} Put-in',
+        );
+        return;
+      }
+
+      // If multiple map apps are available, show selection dialog
+      if (context.mounted) {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Choose Map App',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ...availableMaps.map(
+                    (map) => ListTile(
+                      leading: Image.asset(map.icon, width: 30, height: 30),
+                      title: Text(map.mapName),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await map.showMarker(
+                          coords: Coords(latitude, longitude),
+                          title: '${run.name} Put-in',
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error launching map: $e')));
+      }
+    }
   }
 
   // Launch URL in browser

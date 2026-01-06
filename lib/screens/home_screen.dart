@@ -27,10 +27,10 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   static const List<Widget> _screens = [
-    GuideScreen(),
     FavouritesScreen(),
     LogbookScreen(),
     MapScreen(),
+    GuideScreen(),
   ];
 
   @override
@@ -49,13 +49,13 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Guide'),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favourites',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Logbook'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Guide'),
         ],
       ),
     );

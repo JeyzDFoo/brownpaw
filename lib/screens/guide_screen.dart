@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../models/river_run.dart';
+import '../providers/river_runs_provider.dart';
 import 'run_details_screen.dart';
 
-class GuideScreen extends StatefulWidget {
+class GuideScreen extends ConsumerStatefulWidget {
   const GuideScreen({super.key});
 
   @override
-  State<GuideScreen> createState() => _GuideScreenState();
+  ConsumerState<GuideScreen> createState() => _GuideScreenState();
 }
 
-class _GuideScreenState extends State<GuideScreen> {
-  String? _selectedProvince;
-  String? _selectedRegion;
-  List<String> _provinces = [];
-  List<String> _regions = [];
-  String? _filterError;
-  GoogleMapController? _mapController;
-  final Set<Marker> _markers = {};
+class _GuideScreenState extends ConsumerState<GuideScreen> {
+  final MapController _mapController = MapController();
+  final List<Marker> _markers = [];
   List<RiverRun> _currentRuns = [];
+  final TextEditingController _searchController = TextEditingController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
 
   // Default center on Canada
   static const LatLng _defaultCenter = LatLng(54.0, -100.0);
@@ -28,472 +30,450 @@ class _GuideScreenState extends State<GuideScreen> {
   @override
   void initState() {
     super.initState();
-    _loadFilterOptions();
   }
 
-  Future<void> _loadFilterOptions() async {
-    try {
-      setState(() {
-        _filterError = null;
-      });
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-      // Load provinces
-      final provinceSnapshot = await FirebaseFirestore.instance
-          .collection('river_runs')
-          .get();
-
-      final provinces = <String>{};
-      final regions = <String>{};
-
-      for (var doc in provinceSnapshot.docs) {
-        final data = doc.data();
-        if (data['province'] != null) {
-          provinces.add(data['province']);
-        }
-        if (data['region'] != null && data['region'].toString().isNotEmpty) {
-          regions.add(data['region']);
-        }
+  void _scrollToRun(String runId, List<RiverRun> runs) {
+    final index = runs.indexWhere((run) => run.riverId == runId);
+    if (index != -1) {
+      // Set selection using provider
+      if (mounted) {
+        ref.read(selectedRunIdProvider.notifier).state = runId;
       }
 
-      setState(() {
-        _provinces = provinces.toList()..sort();
-        _regions = regions.toList()..sort();
+      // Wait a frame for the UI to update, then scroll
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _itemScrollController.isAttached) {
+          _itemScrollController.scrollTo(
+            index: index,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+            alignment: 0.2, // Position item 20% from the top of viewport
+          );
+        }
       });
-    } catch (e, stackTrace) {
-      debugPrint('Error loading filter options: $e');
-      debugPrint('Stack trace: $stackTrace');
 
-      setState(() {
-        _filterError = 'Failed to load filter options: ${e.toString()}';
+      // Clear selection after a longer delay
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && ref.read(selectedRunIdProvider) == runId) {
+          ref.read(selectedRunIdProvider.notifier).state = null;
+        }
       });
+    }
+  }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading filters: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Retry',
-              textColor: Colors.white,
-              onPressed: _loadFilterOptions,
+  void _updateMapMarkers(List<RiverRun> runs) {
+    // Avoid unnecessary updates
+    if (_runsAreEqual(runs, _currentRuns)) return;
+
+    _markers.clear();
+    _currentRuns = runs;
+
+    for (var run in runs) {
+      // Try putInCoordinates first, then coordinates
+      final coords = run.putInCoordinates ?? run.coordinates;
+
+      if (coords != null &&
+          coords['latitude'] != null &&
+          coords['longitude'] != null) {
+        final position = LatLng(coords['latitude']!, coords['longitude']!);
+
+        final difficultyMin = run.difficultyMin ?? 1;
+
+        _markers.add(
+          Marker(
+            point: position,
+            width: 30.0 + (difficultyMin * 3.0),
+            height: 30.0 + (difficultyMin * 3.0),
+            child: GestureDetector(
+              onTap: () {
+                _scrollToRun(run.riverId, _currentRuns);
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(
+                    Icons.location_pin,
+                    color: _getDifficultyColor(difficultyMin),
+                    size: 30.0 + (difficultyMin * 3.0),
+                    shadows: const [
+                      Shadow(blurRadius: 3, color: Colors.black45),
+                    ],
+                  ),
+                  Positioned(
+                    top: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        run.difficultyClass.replaceAll('Class ', ''),
+                        style: const TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       }
     }
-  }
 
-  Query<Map<String, dynamic>> _buildQuery() {
-    Query<Map<String, dynamic>> query = FirebaseFirestore.instance
-        .collection('river_runs')
-        .orderBy('river');
-
-    if (_selectedProvince != null) {
-      query = query.where('province', isEqualTo: _selectedProvince);
+    // Update camera to show all markers
+    if (_markers.isNotEmpty) {
+      _fitMapToMarkers();
     }
+  }
 
-    if (_selectedRegion != null) {
-      query = query.where('region', isEqualTo: _selectedRegion);
+  Color _getDifficultyColor(int difficulty) {
+    // Color gradient from easy to hard
+    if (difficulty <= 2) return Colors.green;
+    if (difficulty <= 3) return Colors.blue;
+    if (difficulty <= 4) return Colors.orange;
+    return Colors.red;
+  }
+
+  bool _runsAreEqual(List<RiverRun> a, List<RiverRun> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i].riverId != b[i].riverId) return false;
     }
-
-    return query;
-  }
-
-  void _updateMapMarkers(List<RiverRun> runs) {
-    setState(() {
-      _markers.clear();
-      _currentRuns = runs;
-
-      for (var run in runs) {
-        // Try putInCoordinates first, then coordinates
-        final coords = run.putInCoordinates ?? run.coordinates;
-
-        if (coords != null &&
-            coords['latitude'] != null &&
-            coords['longitude'] != null) {
-          final position = LatLng(coords['latitude']!, coords['longitude']!);
-
-          _markers.add(
-            Marker(
-              markerId: MarkerId(run.riverId),
-              position: position,
-              infoWindow: InfoWindow(
-                title: run.name,
-                snippet: '${run.difficultyClass} • ${run.river}',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          RunDetailsScreen(runId: run.riverId),
-                    ),
-                  );
-                },
-              ),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                _getMarkerColor(run.difficultyMin),
-              ),
-            ),
-          );
-        }
-      }
-
-      // Update camera to show all markers
-      if (_markers.isNotEmpty && _mapController != null) {
-        _fitMapToMarkers();
-      }
-    });
-  }
-
-  double _getMarkerColor(int? difficultyMin) {
-    if (difficultyMin == null) return BitmapDescriptor.hueBlue;
-    if (difficultyMin <= 2) return BitmapDescriptor.hueGreen;
-    if (difficultyMin == 3) return BitmapDescriptor.hueYellow;
-    if (difficultyMin == 4) return BitmapDescriptor.hueOrange;
-    return BitmapDescriptor.hueRed;
+    return true;
   }
 
   void _fitMapToMarkers() {
-    if (_markers.isEmpty || _mapController == null) return;
+    if (_markers.isEmpty) return;
 
-    double minLat = _markers.first.position.latitude;
-    double maxLat = _markers.first.position.latitude;
-    double minLng = _markers.first.position.longitude;
-    double maxLng = _markers.first.position.longitude;
+    double minLat = _markers.first.point.latitude;
+    double maxLat = _markers.first.point.latitude;
+    double minLng = _markers.first.point.longitude;
+    double maxLng = _markers.first.point.longitude;
 
     for (var marker in _markers) {
-      if (marker.position.latitude < minLat) minLat = marker.position.latitude;
-      if (marker.position.latitude > maxLat) maxLat = marker.position.latitude;
-      if (marker.position.longitude < minLng)
-        minLng = marker.position.longitude;
-      if (marker.position.longitude > maxLng)
-        maxLng = marker.position.longitude;
+      if (marker.point.latitude < minLat) minLat = marker.point.latitude;
+      if (marker.point.latitude > maxLat) maxLat = marker.point.latitude;
+      if (marker.point.longitude < minLng) minLng = marker.point.longitude;
+      if (marker.point.longitude > maxLng) maxLng = marker.point.longitude;
     }
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(minLat, minLng),
-      northeast: LatLng(maxLat, maxLng),
-    );
+    final bounds = LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
 
-    _mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    _mapController.fitCamera(
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
+    );
   }
 
   Widget _buildMapHero() {
-    return SizedBox(
-      height: 300,
-      child: GoogleMap(
-        onMapCreated: (controller) {
-          _mapController = controller;
-        },
-        initialCameraPosition: const CameraPosition(
-          target: _defaultCenter,
-          zoom: _defaultZoom,
-        ),
-        markers: _markers,
-        mapType: MapType.terrain,
-        myLocationButtonEnabled: true,
-        myLocationEnabled: true,
-        zoomControlsEnabled: false,
-        mapToolbarEnabled: false,
-      ),
-    );
-  }
+    final mapExpanded = ref.watch(mapExpandedProvider);
 
-  Widget _buildFilters() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: mapExpanded ? MediaQuery.of(context).size.height * 0.6 : 250,
+      child: Stack(
         children: [
-          if (_filterError != null)
-            Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(bottom: 8),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
-                border: Border.all(color: Colors.red.withOpacity(0.5)),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error, color: Colors.red, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _filterError!,
-                      style: TextStyle(color: Colors.red[700]),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: _loadFilterOptions,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _defaultCenter,
+              initialZoom: _defaultZoom,
+              minZoom: 3,
+              maxZoom: 18,
             ),
-          Row(
             children: [
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  key: ValueKey('province_$_selectedProvince'),
-                  decoration: const InputDecoration(
-                    labelText: 'Province',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedProvince,
-                  isExpanded: true,
-                  items: _provinces.isEmpty
-                      ? null
-                      : [
-                          const DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(
-                              'All Provinces',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          ..._provinces.map(
-                            (province) => DropdownMenuItem<String>(
-                              value: province,
-                              child: Text(
-                                province,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ),
-                          ),
-                        ],
-                  onChanged: _provinces.isEmpty
-                      ? null
-                      : (value) {
-                          setState(() {
-                            final oldProvince = _selectedProvince;
-                            _selectedProvince = value;
-                            // Clear region filter when province changes
-                            if (value != oldProvince) {
-                              _selectedRegion = null;
-                            }
-                          });
-                        },
-                ),
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.brownpaw.brownclaw',
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  key: ValueKey('region_$_selectedRegion'),
-                  decoration: const InputDecoration(
-                    labelText: 'Region',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedRegion,
-                  isExpanded: true,
-                  items: _regions.isEmpty
-                      ? null
-                      : [
-                          const DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(
-                              'All Regions',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          ..._regions.map(
-                            (region) => DropdownMenuItem<String>(
-                              value: region,
-                              child: Text(
-                                region,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ),
-                          ),
-                        ],
-                  onChanged: _regions.isEmpty
-                      ? null
-                      : (value) {
-                          setState(() {
-                            _selectedRegion = value;
-                          });
-                        },
-                ),
-              ),
+              MarkerLayer(markers: _markers),
             ],
           ),
-          if (_selectedProvince != null || _selectedRegion != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _selectedProvince = null;
-                        _selectedRegion = null;
-                      });
-                    },
-                    icon: const Icon(Icons.clear),
-                    label: const Text('Clear Filters'),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Column(
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'expand_map',
+                  onPressed: () {
+                    ref.read(mapExpandedProvider.notifier).state = !mapExpanded;
+                  },
+                  child: Icon(
+                    mapExpanded ? Icons.fullscreen_exit : Icons.fullscreen,
+                  ),
+                ),
+                if (_markers.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  FloatingActionButton.small(
+                    heroTag: 'fit_bounds',
+                    onPressed: _fitMapToMarkers,
+                    child: const Icon(Icons.fit_screen),
                   ),
                 ],
-              ),
+              ],
             ),
+          ),
         ],
       ),
     );
   }
 
+  Widget _buildFilters() {
+    return const SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final searchQuery = ref.watch(searchQueryProvider);
+    final filteredRunsAsync = ref.watch(filteredRiverRunsProvider);
+
     return Column(
       children: [
+        // Search Bar at top
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              labelText: 'Search rivers...',
+              hintText: 'River name, region, or province',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        ref.read(searchQueryProvider.notifier).state = '';
+                      },
+                    )
+                  : null,
+              border: const OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              ref.read(searchQueryProvider.notifier).state = value;
+            },
+          ),
+        ),
         _buildMapHero(),
         _buildFilters(),
         Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: _buildQuery().snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                final error = snapshot.error;
-                final errorMessage = error.toString();
+          child: filteredRunsAsync.when(
+            data: (runs) {
+              // Update map markers with current runs
+              if (!_runsAreEqual(runs, _currentRuns)) {
+                Future.microtask(() {
+                  if (mounted) {
+                    _updateMapMarkers(runs);
+                  }
+                });
+              }
 
-                // Print detailed error information
-                debugPrint('Firestore Error: $error');
-                if (snapshot.stackTrace != null) {
-                  debugPrint('Stack Trace: ${snapshot.stackTrace}');
-                }
+              return _buildRunPickerList(runs);
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) {
+              debugPrint('Error: $error');
+              debugPrint('Stack: $stack');
 
-                // Show error details in console
-                print('=== FIRESTORE ERROR DETAILS ===');
-                print('Error Type: ${error.runtimeType}');
-                print('Error Message: $errorMessage');
-                print('Current Query Filters:');
-                print('  Province: $_selectedProvince');
-                print('  Region: $_selectedRegion');
-                print('==============================');
-
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.red,
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Database Error',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        error.toString(),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Database Error',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: Text(
-                          errorMessage,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.invalidate(riverRunsStreamProvider);
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRunPickerList(List<RiverRun> runs) {
+    final selectedRunId = ref.watch(selectedRunIdProvider);
+
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Tap a marker on the map or select a run below',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ScrollablePositionedList.builder(
+            itemScrollController: _itemScrollController,
+            itemPositionsListener: _itemPositionsListener,
+            itemCount: runs.length,
+            itemBuilder: (context, index) {
+              final run = runs[index];
+              final difficultyMin = run.difficultyMin ?? 1;
+              final isSelected = selectedRunId == run.riverId;
+
+              return AnimatedContainer(
+                key: ValueKey(run.riverId),
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Theme.of(context).cardTheme.color ??
+                            Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    leading: SizedBox(
+                      width: 56,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: _getDifficultyColor(
+                            difficultyMin,
+                          ).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.water,
+                              color: _getDifficultyColor(difficultyMin),
+                              size: 20,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              run.difficultyClass.replaceAll('Class ', ''),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: _getDifficultyColor(difficultyMin),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            // Force rebuild to retry the query
-                          });
-                        },
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                // Clear markers when no runs
-                if (_markers.isNotEmpty) {
-                  setState(() {
-                    _markers.clear();
-                    _currentRuns = [];
-                  });
-                }
-
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.explore,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _selectedProvince != null || _selectedRegion != null
-                            ? 'No runs match your filters'
-                            : 'No runs found',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _selectedProvince != null || _selectedRegion != null
-                            ? 'Try adjusting your filter settings'
-                            : 'Check back later for new runs',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              final runs = snapshot.data!.docs
-                  .map((doc) => RiverRun.fromFirestore(doc))
-                  .toList();
-
-              // Update map markers with current runs
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _updateMapMarkers(runs);
-              });
-
-              return ListView.builder(
-                itemCount: runs.length,
-                itemBuilder: (context, index) {
-                  final run = runs[index];
-
-                  final title = run.name;
-                  final subtitle = [
-                    run.province,
-                    if (run.region?.isNotEmpty == true) run.region,
-                    run.difficultyClass,
-                  ].where((s) => s != null && s.isNotEmpty).join(' • ');
-
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
                     ),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.water,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      title: Text(title),
-                      subtitle: Text(subtitle),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                RunDetailsScreen(runId: run.riverId),
+                    title: Text(
+                      run.name,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(
+                          [
+                            run.province,
+                            if (run.region?.isNotEmpty == true) run.region,
+                          ].join(' • '),
+                        ),
+                        if (run.length != null) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.straighten,
+                                size: 14,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                run.length!,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                           ),
-                        );
-                      },
+                        ],
+                      ],
                     ),
-                  );
-                },
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              RunDetailsScreen(runId: run.riverId),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               );
             },
           ),

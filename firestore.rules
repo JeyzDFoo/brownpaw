@@ -172,6 +172,34 @@ service cloud.firestore {
       // Prevent deletion of user documents
       allow delete: if false;
     }
+
+    // Descents collection - top-level collection for all descent logs
+    match /descents/{descentId} {
+      // Users can read their own descents
+      // Anyone authenticated can read public descents
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == resource.data.userId || resource.data.isPublic == true);
+      
+      // Users can create descents
+      allow create: if isAuthenticated()
+        && isValidString('runId')
+        && isValidString('runName')
+        && isValidString('userId')
+        && request.resource.data.userId == request.auth.uid
+        && isValidTimestamp('date')
+        && isValidTimestamp('createdAt')
+        && request.resource.data.isPublic is bool;
+      
+      // Users can update their own descents
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.isPublic is bool;
+      
+      // Users can delete their own descents
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+    }
     
     // App configuration collection - for version checking, feature flags, etc.
     match /app_config/{docId} {

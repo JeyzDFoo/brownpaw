@@ -1,17 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import '../models/river_run.dart';
+import '../models/descent.dart';
 import '../widgets/flow_information_widget.dart';
+import '../providers/favorites_provider.dart';
+import '../providers/descents_provider.dart';
+import '../providers/user_provider.dart';
+import '../providers/realtime_flow_provider.dart';
+import '../widgets/log_descent_dialog.dart';
 
-class RunDetailsScreen extends StatelessWidget {
+class RunDetailsScreen extends ConsumerWidget {
   final String runId;
 
   const RunDetailsScreen({super.key, required this.runId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider).user;
+    final favoritesState = ref.watch(favoritesProvider);
+    final isFavorite = favoritesState.isFavorite(runId);
+    final descentCount = ref.watch(runDescentCountProvider(runId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Run Details')),
+      appBar: AppBar(
+        title: const Text('Run Details'),
+        actions: [
+          // Favorite button
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.red : null,
+            ),
+            onPressed: user != null
+                ? () =>
+                      ref.read(favoritesProvider.notifier).toggleFavorite(runId)
+                : null,
+            tooltip: isFavorite ? 'Remove from favorites' : 'Add to favorites',
+          ),
+        ],
+      ),
+      // Floating action button for logging descents
+      floatingActionButton: user != null
+          ? FloatingActionButton.extended(
+              onPressed: () => _showLogDescentDialog(context, ref),
+              icon: const Icon(Icons.add),
+              label: Text(
+                descentCount.when(
+                  data: (count) =>
+                      count > 0 ? 'Log Descent ($count)' : 'Log Descent',
+                  loading: () => 'Log Descent',
+                  error: (_, __) => 'Log Descent',
+                ),
+              ),
+            )
+          : null,
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('river_runs')
@@ -60,6 +104,9 @@ class RunDetailsScreen extends StatelessWidget {
                 // Images Section
                 if (run.images?.isNotEmpty == true)
                   _buildImagesSection(context, run),
+
+                // Public Descents Section
+                _buildPublicDescentsSection(context, ref),
 
                 // Source Section
                 _buildSourceSection(context, run),
@@ -444,17 +491,36 @@ class RunDetailsScreen extends StatelessWidget {
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             if (coordinates != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
+              GestureDetector(
+                onTap: () => _openInMaps(coordinates),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
                   ),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  'Coordinates',
-                  style: Theme.of(context).textTheme.labelSmall,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.map,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Open in Maps',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -548,15 +614,98 @@ class RunDetailsScreen extends StatelessWidget {
           ),
           if (run.sourceUrl != null)
             Expanded(
-              child: Text(
-                run.sourceUrl!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  decoration: TextDecoration.underline,
+              child: GestureDetector(
+                onTap: () => _launchUrl(run.sourceUrl!),
+                child: Text(
+                  run.sourceUrl!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  // PUBLIC DESCENTS SECTION
+  Widget _buildPublicDescentsSection(BuildContext context, WidgetRef ref) {
+    final publicDescents = ref.watch(publicDescentsProvider(runId));
+
+    return publicDescents.when(
+      data: (descents) {
+        if (descents.isEmpty) return const SizedBox.shrink();
+
+        return _buildSection(
+          context,
+          'Recent Descents (${descents.length})',
+          Icons.people,
+          child: Column(
+            children: descents.take(10).map((descent) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildDescentItem(context, descent),
+              );
+            }).toList(),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildDescentItem(BuildContext context, Descent descent) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                DateFormat('MMM d, yyyy').format(descent.date),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              if (descent.rating != null)
+                Row(
+                  children: List.generate(
+                    5,
+                    (index) => Icon(
+                      index < descent.rating! ? Icons.star : Icons.star_border,
+                      size: 14,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          if (descent.flow != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Flow: ${descent.flow!.toStringAsFixed(1)} ${descent.flowUnit ?? "m³/s"}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+          if (descent.notes != null && descent.notes!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              descent.notes!,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );
@@ -691,5 +840,64 @@ class RunDetailsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Show log descent dialog
+  void _showLogDescentDialog(BuildContext context, WidgetRef ref) async {
+    final run = await FirebaseFirestore.instance
+        .collection('river_runs')
+        .doc(runId)
+        .get()
+        .then((doc) => doc.exists ? RiverRun.fromFirestore(doc) : null);
+
+    if (run == null || !context.mounted) return;
+
+    // Get current flow if available
+    double? currentFlow;
+    if (run.stationId != null) {
+      final flowData = await ref.read(
+        realtimeFlowStreamProvider(run.stationId!).future,
+      );
+      currentFlow = flowData?.flow.latestReading?.discharge;
+    }
+
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => LogDescentDialog(
+        runId: runId,
+        runName: run.name,
+        initialFlow: currentFlow,
+        stationId: run.stationId,
+      ),
+    );
+  }
+
+  // Launch URL in browser
+  Future<void> _launchUrl(String urlString) async {
+    final url = Uri.parse(urlString);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  // Open coordinates in maps app
+  Future<void> _openInMaps(Map<String, double> coordinates) async {
+    final lat = coordinates['latitude'];
+    final lng = coordinates['longitude'];
+    if (lat == null || lng == null) return;
+
+    // Use Apple Maps on iOS, Google Maps on Android
+    final url = Uri.parse('https://maps.apple.com/?q=$lat,$lng');
+    final googleUrl = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else if (await canLaunchUrl(googleUrl)) {
+      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+    }
   }
 }

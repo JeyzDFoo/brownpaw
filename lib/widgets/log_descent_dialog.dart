@@ -9,6 +9,7 @@ class LogDescentDialog extends ConsumerStatefulWidget {
   final String runName;
   final double? initialFlow;
   final String? stationId;
+  final String? difficulty;
 
   const LogDescentDialog({
     super.key,
@@ -16,6 +17,7 @@ class LogDescentDialog extends ConsumerStatefulWidget {
     required this.runName,
     this.initialFlow,
     this.stationId,
+    this.difficulty,
   });
 
   @override
@@ -118,6 +120,7 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
               ? _notesController.text
               : null,
           rating: _rating,
+          difficulty: widget.difficulty,
           isPublic: _isPublic,
         );
 

@@ -870,6 +870,7 @@ class RunDetailsScreen extends ConsumerWidget {
         runName: run.name,
         initialFlow: currentFlow,
         stationId: run.stationId,
+        difficulty: run.difficultyClass,
       ),
     );
   }

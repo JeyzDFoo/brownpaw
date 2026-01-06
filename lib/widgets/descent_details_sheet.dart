@@ -1,12 +1,12 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/descent.dart';
 import '../providers/descents_provider.dart';
-import 'edit_descent_dialog.dart';
 
-class DescentDetailsSheet extends StatelessWidget {
+class DescentDetailsSheet extends StatefulWidget {
   final Descent descent;
   final ScrollController scrollController;
   final WidgetRef ref;
@@ -19,6 +19,104 @@ class DescentDetailsSheet extends StatelessWidget {
   });
 
   @override
+  State<DescentDetailsSheet> createState() => _DescentDetailsSheetState();
+}
+
+class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
+  late DateTime _selectedDate;
+  late TextEditingController _flowController;
+  late TextEditingController _notesController;
+  late int? _rating;
+  late bool _isPublic;
+  bool _isSaving = false;
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.descent.date;
+    _flowController = TextEditingController(
+      text: widget.descent.flow?.toStringAsFixed(1) ?? '',
+    );
+    _notesController = TextEditingController(text: widget.descent.notes ?? '');
+    _rating = widget.descent.rating;
+    _isPublic = widget.descent.isPublic;
+
+    _flowController.addListener(_onFieldChanged);
+    _notesController.addListener(_onFieldChanged);
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _flowController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _onFieldChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(seconds: 1), _saveChanges);
+  }
+
+  void _onImmediateChange() {
+    _debounceTimer?.cancel();
+    _saveChanges();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+      _onImmediateChange();
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    if (_isSaving) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      await widget.ref
+          .read(descentsProvider.notifier)
+          .updateDescent(
+            descentId: widget.descent.id,
+            date: _selectedDate,
+            flow: _flowController.text.isNotEmpty
+                ? double.tryParse(_flowController.text)
+                : null,
+            flowUnit: _flowController.text.isNotEmpty
+                ? (widget.descent.flowUnit ?? 'cms')
+                : null,
+            notes: _notesController.text.isNotEmpty
+                ? _notesController.text
+                : null,
+            rating: _rating,
+            isPublic: _isPublic,
+          );
+
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving: $e')));
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -29,13 +127,28 @@ class DescentDetailsSheet extends StatelessWidget {
         children: [
           // Drag handle
           const SizedBox(height: 12),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(2),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              if (_isSaving) ...[
+                const SizedBox(width: 12),
+                const SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 8),
 
@@ -60,7 +173,7 @@ class DescentDetailsSheet extends StatelessWidget {
             child: Row(
               children: [
                 Hero(
-                  tag: 'descent_${descent.id}',
+                  tag: 'descent_${widget.descent.id}',
                   child: Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
@@ -87,7 +200,7 @@ class DescentDetailsSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        descent.runName,
+                        widget.descent.runName,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
@@ -97,36 +210,40 @@ class DescentDetailsSheet extends StatelessWidget {
                             ),
                       ),
                       const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surface.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 14,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withOpacity(0.7),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              DateFormat(
-                                'EEEE, MMMM d, yyyy',
-                              ).format(descent.date),
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w500),
-                            ),
-                          ],
+                      InkWell(
+                        onTap: () => _selectDate(context),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surface.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.7),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                DateFormat(
+                                  'EEEE, MMMM d, yyyy',
+                                ).format(_selectedDate),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -139,105 +256,134 @@ class DescentDetailsSheet extends StatelessWidget {
           // Content
           Expanded(
             child: ListView(
-              controller: scrollController,
+              controller: widget.scrollController,
               padding: const EdgeInsets.all(24),
               children: [
-                // Rating prominently displayed if exists
-                if (descent.rating != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.amber.withOpacity(0.2),
-                          Colors.amber.withOpacity(0.05),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.amber.withOpacity(0.3),
-                        width: 1.5,
-                      ),
+                // Rating prominently displayed
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.amber.withOpacity(0.2),
+                        Colors.amber.withOpacity(0.05),
+                      ],
                     ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Your Rating',
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.7),
-                              ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.amber.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Your Rating',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(5, (index) {
-                            return Padding(
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(5, (index) {
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _rating = index + 1;
+                              });
+                              _onImmediateChange();
+                            },
+                            child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 4,
                               ),
                               child: Icon(
-                                index < descent.rating!
+                                (_rating != null && index < _rating!)
                                     ? Icons.star_rounded
                                     : Icons.star_outline_rounded,
                                 size: 32,
                                 color: Colors.amber,
                               ),
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 8),
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 8),
+                      if (_rating != null)
                         Text(
-                          '${descent.rating}/5',
+                          '$_rating/5',
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.amber.shade700,
                               ),
+                        )
+                      else
+                        Text(
+                          'Tap to rate',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.5),
+                              ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
+                const SizedBox(height: 20),
 
-                // Info Cards
-                Row(
+                // Flow Input
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (descent.flow != null)
-                      Expanded(
-                        child: InfoCard(
-                          icon: Icons.water_drop_rounded,
-                          label: 'Flow',
-                          value: descent.flow!.toStringAsFixed(1),
-                          unit: descent.flowUnit ?? 'm³/s',
-                          color: Colors.blue,
-                        ),
+                    Text(
+                      'Flow',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    if (descent.flow != null && descent.difficulty != null)
-                      const SizedBox(width: 12),
-                    if (descent.difficulty != null)
-                      Expanded(
-                        child: InfoCard(
-                          icon: Icons.trending_up_rounded,
-                          label: 'Difficulty',
-                          value: descent.difficulty!,
-                          unit: '',
-                          color: Colors.orange,
-                        ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _flowController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
                       ),
+                      decoration: InputDecoration(
+                        hintText: 'Enter flow rate',
+                        suffixText: widget.descent.flowUnit ?? 'cms',
+                        prefixIcon: const Icon(Icons.water_drop_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                      ),
+                    ),
                   ],
                 ),
 
                 const SizedBox(height: 16),
 
-                // Visibility Card
+                // Difficulty (read-only)
+                if (widget.descent.difficulty != null)
+                  InfoCard(
+                    icon: Icons.trending_up_rounded,
+                    label: 'Difficulty',
+                    value: widget.descent.difficulty!,
+                    unit: '',
+                    color: Colors.orange,
+                  ),
+
+                const SizedBox(height: 16),
+
+                // Visibility Toggle
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: descent.isPublic
+                    color: _isPublic
                         ? Theme.of(
                             context,
                           ).colorScheme.tertiaryContainer.withOpacity(0.3)
@@ -245,7 +391,7 @@ class DescentDetailsSheet extends StatelessWidget {
                               .withOpacity(0.3),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: descent.isPublic
+                      color: _isPublic
                           ? Theme.of(
                               context,
                             ).colorScheme.tertiary.withOpacity(0.3)
@@ -259,7 +405,7 @@ class DescentDetailsSheet extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: descent.isPublic
+                          color: _isPublic
                               ? Theme.of(context).colorScheme.tertiaryContainer
                               : Theme.of(
                                   context,
@@ -267,11 +413,9 @@ class DescentDetailsSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
-                          descent.isPublic
-                              ? Icons.public_rounded
-                              : Icons.lock_rounded,
+                          _isPublic ? Icons.public_rounded : Icons.lock_rounded,
                           size: 20,
-                          color: descent.isPublic
+                          color: _isPublic
                               ? Theme.of(
                                   context,
                                 ).colorScheme.onTertiaryContainer
@@ -286,15 +430,13 @@ class DescentDetailsSheet extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              descent.isPublic
-                                  ? 'Public Descent'
-                                  : 'Private Descent',
+                              _isPublic ? 'Public Descent' : 'Private Descent',
                               style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              descent.isPublic
+                              _isPublic
                                   ? 'Visible in public logbook'
                                   : 'Only visible to you',
                               style: Theme.of(context).textTheme.bodySmall
@@ -307,12 +449,22 @@ class DescentDetailsSheet extends StatelessWidget {
                           ],
                         ),
                       ),
+                      Switch(
+                        value: _isPublic,
+                        onChanged: (value) {
+                          setState(() {
+                            _isPublic = value;
+                          });
+                          _onImmediateChange();
+                        },
+                      ),
                     ],
                   ),
                 ),
 
                 // Photos Section
-                if (descent.photos != null && descent.photos!.isNotEmpty) ...[
+                if (widget.descent.photos != null &&
+                    widget.descent.photos!.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   Text(
                     'Photos',
@@ -325,7 +477,7 @@ class DescentDetailsSheet extends StatelessWidget {
                     height: 120,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemCount: descent.photos!.length,
+                      itemCount: widget.descent.photos!.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(width: 12),
                       itemBuilder: (context, index) {
@@ -337,7 +489,7 @@ class DescentDetailsSheet extends StatelessWidget {
                               context,
                             ).colorScheme.surfaceContainerHighest,
                             child: Image.network(
-                              descent.photos![index],
+                              widget.descent.photos![index],
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Center(
@@ -366,37 +518,18 @@ class DescentDetailsSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outline.withOpacity(0.1),
+                TextField(
+                  controller: _notesController,
+                  maxLines: 5,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    hintText: 'Add notes about your descent...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
+                    filled: true,
                   ),
-                  child: descent.notes != null && descent.notes!.isNotEmpty
-                      ? Text(
-                          descent.notes!,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge?.copyWith(height: 1.6),
-                        )
-                      : Text(
-                          'No notes added',
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.4),
-                                fontStyle: FontStyle.italic,
-                              ),
-                        ),
+                  onSubmitted: (_) => FocusScope.of(context).unfocus(),
                 ),
 
                 // Metadata Section
@@ -440,23 +573,23 @@ class DescentDetailsSheet extends StatelessWidget {
                         label: 'Logged',
                         value: DateFormat(
                           'MMM d, yyyy \'at\' h:mm a',
-                        ).format(descent.createdAt),
+                        ).format(widget.descent.createdAt),
                       ),
-                      if (descent.updatedAt != null) ...[
+                      if (widget.descent.updatedAt != null) ...[
                         const SizedBox(height: 8),
                         MetadataRow(
                           icon: Icons.edit_outlined,
                           label: 'Updated',
                           value: DateFormat(
                             'MMM d, yyyy \'at\' h:mm a',
-                          ).format(descent.updatedAt!),
+                          ).format(widget.descent.updatedAt!),
                         ),
                       ],
                       const SizedBox(height: 8),
                       MetadataRow(
                         icon: Icons.fingerprint_rounded,
                         label: 'ID',
-                        value: descent.id.substring(0, 8),
+                        value: widget.descent.id.substring(0, 8),
                       ),
                     ],
                   ),
@@ -464,49 +597,31 @@ class DescentDetailsSheet extends StatelessWidget {
 
                 const SizedBox(height: 32),
 
-                // Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showEditDialog(context);
-                        },
-                        icon: const Icon(Icons.edit_rounded),
-                        label: const Text('Edit'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                // Delete Button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _isSaving
+                        ? null
+                        : () {
+                            Navigator.pop(context);
+                            _showDeleteConfirmation(context);
+                          },
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    label: const Text('Delete Descent'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withOpacity(0.5),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showDeleteConfirmation(context);
-                        },
-                        icon: const Icon(Icons.delete_outline_rounded),
-                        label: const Text('Delete'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.error,
-                          side: BorderSide(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.error.withOpacity(0.5),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -514,13 +629,6 @@ class DescentDetailsSheet extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  void _showEditDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => EditDescentDialog(descent: descent, ref: ref),
     );
   }
 
@@ -554,9 +662,9 @@ class DescentDetailsSheet extends StatelessWidget {
           FilledButton(
             onPressed: () async {
               Navigator.pop(context);
-              final success = await ref
+              final success = await widget.ref
                   .read(descentsProvider.notifier)
-                  .deleteDescent(descent.id);
+                  .deleteDescent(widget.descent.id);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

@@ -28,15 +28,21 @@ class DescentCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
+              blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Material(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
+          elevation: 1,
           child: InkWell(
             onTap: () => _showDescentDetails(context, ref),
             borderRadius: BorderRadius.circular(16),
@@ -56,10 +62,13 @@ class DescentCard extends ConsumerWidget {
                           ).colorScheme.primaryContainer.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          Icons.kayaking,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.primary,
+                        child: Text(
+                          descent.difficulty ?? '-',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ),
                       const SizedBox(width: 12),

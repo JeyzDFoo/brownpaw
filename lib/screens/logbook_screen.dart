@@ -42,7 +42,7 @@ class LogbookScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Track your progress and share your adventures',
+                'Track your progress and share',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(
                     context,
@@ -149,7 +149,7 @@ class LogbookScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            'Your Logbook',
+                            'Logbook',
                             style: Theme.of(context).textTheme.headlineMedium
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -168,14 +168,6 @@ class LogbookScreen extends ConsumerWidget {
                               label: 'Descents',
                               value: descents.length.toString(),
                               icon: Icons.kayaking,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _StatCard(
-                              label: 'Runs',
-                              value: descentsByRun.length.toString(),
-                              icon: Icons.waves,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -297,11 +289,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            size: 28,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -310,19 +298,15 @@ class _StatCard extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               if (showStar) ...[
                 const SizedBox(width: 4),
                 const Padding(
                   padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(
-                    Icons.star,
-                    size: 16,
-                    color: Colors.amber,
-                  ),
+                  child: Icon(Icons.star, size: 16, color: Colors.amber),
                 ),
               ],
             ],
@@ -331,13 +315,11 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            ),
           ),
         ],
       ),
     );
   }
 }
-

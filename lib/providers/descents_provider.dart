@@ -176,6 +176,7 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
     String? notes,
     int? rating,
     String? difficulty,
+    bool? isPublic,
   }) async {
     final user = _ref.read(userProvider).user;
     if (user == null) {
@@ -196,6 +197,7 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
       if (notes != null) updates['notes'] = notes;
       if (rating != null) updates['rating'] = rating;
       if (difficulty != null) updates['difficulty'] = difficulty;
+      if (isPublic != null) updates['isPublic'] = isPublic;
 
       await _firestore.collection('descents').doc(descentId).update(updates);
 

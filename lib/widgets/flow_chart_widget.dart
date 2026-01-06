@@ -3,29 +3,171 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/realtime_flow.dart';
+import '../models/historical_flow.dart';
 
-class FlowChart extends StatelessWidget {
-  final RealtimeFlow flowData;
+class ChartDisplayMode {
+  final String id;
+  final String label;
+  final bool isRealtime;
+  final int? year;
+  final int days;
 
-  const FlowChart({super.key, required this.flowData});
+  const ChartDisplayMode({
+    required this.id,
+    required this.label,
+    required this.isRealtime,
+    this.year,
+    required this.days,
+  });
+
+  static const twoWeeks = ChartDisplayMode(
+    id: 'twoWeeks',
+    label: '2 weeks',
+    isRealtime: true,
+    days: 14,
+  );
+
+  static const thirtyDays = ChartDisplayMode(
+    id: 'thirtyDays',
+    label: '30 days',
+    isRealtime: true,
+    days: 30,
+  );
+
+  static ChartDisplayMode forYear(int year) => ChartDisplayMode(
+    id: 'year_$year',
+    label: '$year',
+    isRealtime: false,
+    year: year,
+    days: 365,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChartDisplayMode &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+class FlowChart extends StatefulWidget {
+  final RealtimeFlow? realtimeData;
+  final HistoricalFlow? historicalData;
+  final String stationId;
+
+  const FlowChart({
+    super.key,
+    this.realtimeData,
+    this.historicalData,
+    required this.stationId,
+  });
+
+  @override
+  State<FlowChart> createState() => _FlowChartState();
+}
+
+class _FlowChartState extends State<FlowChart> {
+  ChartDisplayMode _displayMode = ChartDisplayMode.thirtyDays;
+  List<ChartDisplayMode> _availableModes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _updateAvailableModes();
+  }
+
+  @override
+  void didUpdateWidget(FlowChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.historicalData != widget.historicalData) {
+      _updateAvailableModes();
+    }
+  }
+
+  void _updateAvailableModes() {
+    final modes = <ChartDisplayMode>[
+      ChartDisplayMode.twoWeeks,
+      ChartDisplayMode.thirtyDays,
+    ];
+
+    // Add year options based on available historical data
+    if (widget.historicalData != null &&
+        widget.historicalData!.readings.isNotEmpty) {
+      final years =
+          widget.historicalData!.readings
+              .map((r) => r.dateTime.year)
+              .toSet()
+              .toList()
+            ..sort((a, b) => b.compareTo(a)); // Most recent first
+
+      for (final year in years) {
+        modes.add(ChartDisplayMode.forYear(year));
+      }
+    }
+
+    setState(() {
+      _availableModes = modes;
+      // Reset to default if current mode is no longer available
+      if (!_availableModes.contains(_displayMode)) {
+        _displayMode = ChartDisplayMode.thirtyDays;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (flowData.readings.isEmpty) {
-      return const Center(child: Text('No recent flow data available.'));
-    }
+    return Column(
+      children: [
+        // Display mode selector
+        _buildDisplayModeSelector(context),
+        const SizedBox(height: 12),
 
-    final spots = <FlSpot>[];
-    for (final reading in flowData.readings) {
-      if (reading.discharge != null) {
-        spots.add(
-          FlSpot(
-            reading.timestamp.millisecondsSinceEpoch.toDouble(),
-            reading.discharge!,
-          ),
-        );
-      }
-    }
+        // Chart
+        Expanded(child: _buildChart(context)),
+      ],
+    );
+  }
+
+  Widget _buildDisplayModeSelector(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: _availableModes.map((mode) {
+          final isSelected = _displayMode == mode;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: FilterChip(
+              label: Text(mode.label),
+              selected: isSelected,
+              onSelected: (selected) {
+                if (selected) {
+                  setState(() {
+                    _displayMode = mode;
+                  });
+                }
+              },
+              selectedColor: Theme.of(context).colorScheme.primaryContainer,
+              labelStyle: TextStyle(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.onPrimaryContainer
+                    : Theme.of(context).colorScheme.onSurface,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildChart(BuildContext context) {
+    // Get the appropriate data based on display mode
+    final spots = _getChartData();
 
     if (spots.isEmpty) {
       return const Center(child: Text('No discharge data to display.'));
@@ -102,17 +244,15 @@ class FlowChart extends StatelessWidget {
               reservedSize: 45,
               interval: (spots.last.x - spots.first.x) / 4,
               getTitlesWidget: (value, meta) {
-                // Suppress the label at the first data point to avoid crowding
-                if (value == spots.first.x) {
+                // Skip first/last labels to prevent crowding
+                if (value == spots.first.x || value == spots.last.x) {
                   return const SizedBox.shrink();
                 }
-                final timestamp = DateTime.fromMillisecondsSinceEpoch(
-                  value.toInt(),
-                ).toLocal();
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
-                    DateFormat('MMM d\nh:mm a').format(timestamp),
+                    _formatXAxisLabel(value),
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -146,12 +286,8 @@ class FlowChart extends StatelessWidget {
           touchTooltipData: LineTouchTooltipData(
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((LineBarSpot touchedSpot) {
-                final timestamp = DateTime.fromMillisecondsSinceEpoch(
-                  touchedSpot.x.toInt(),
-                ).toLocal();
-                final discharge = touchedSpot.y;
                 return LineTooltipItem(
-                  '${DateFormat('MMM d, h:mm a').format(timestamp)}\n${discharge.toStringAsFixed(2)} m³/s',
+                  _formatTooltip(touchedSpot.x, touchedSpot.y),
                   TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
@@ -187,5 +323,73 @@ class FlowChart extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<FlSpot> _getChartData() {
+    final spots = <FlSpot>[];
+
+    if (_displayMode.isRealtime) {
+      // Use realtime data
+      if (widget.realtimeData == null) return spots;
+
+      final cutoffDate = DateTime.now().subtract(
+        Duration(days: _displayMode.days),
+      );
+
+      for (final reading in widget.realtimeData!.readings) {
+        if (reading.discharge != null &&
+            reading.timestamp.isAfter(cutoffDate)) {
+          spots.add(
+            FlSpot(
+              reading.timestamp.millisecondsSinceEpoch.toDouble(),
+              reading.discharge!,
+            ),
+          );
+        }
+      }
+    } else {
+      // Use historical data for specific year
+      if (widget.historicalData == null) return spots;
+
+      final targetYear = _displayMode.year;
+      if (targetYear == null) return spots;
+
+      for (final reading in widget.historicalData!.readings) {
+        if (reading.discharge != null && reading.dateTime.year == targetYear) {
+          spots.add(
+            FlSpot(
+              reading.dateTime.millisecondsSinceEpoch.toDouble(),
+              reading.discharge!,
+            ),
+          );
+        }
+      }
+    }
+
+    return spots;
+  }
+
+  String _formatXAxisLabel(double value) {
+    final timestamp = DateTime.fromMillisecondsSinceEpoch(
+      value.toInt(),
+    ).toLocal();
+
+    if (_displayMode.isRealtime) {
+      // For realtime: Show date and time
+      return DateFormat('MMM d\nh:mm a').format(timestamp);
+    } else {
+      // For yearly: Show month and day
+      return DateFormat('MMM d').format(timestamp);
+    }
+  }
+
+  String _formatTooltip(double x, double y) {
+    final timestamp = DateTime.fromMillisecondsSinceEpoch(x.toInt()).toLocal();
+
+    if (_displayMode.isRealtime) {
+      return '${DateFormat('MMM d, h:mm a').format(timestamp)}\n${y.toStringAsFixed(2)} m³/s';
+    } else {
+      return '${DateFormat('MMM d, yyyy').format(timestamp)}\n${y.toStringAsFixed(2)} m³/s';
+    }
   }
 }

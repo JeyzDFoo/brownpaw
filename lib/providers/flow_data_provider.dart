@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/station_level.dart';
 import '../models/daily_mean.dart';
+import '../models/historical_flow.dart';
 
 /// Provider for fetching current station level data
 final stationLevelProvider = FutureProvider.family<StationLevel?, String>((
@@ -72,10 +73,10 @@ final dailyMeansProvider = FutureProvider.family<List<DailyMean>, DailyMeansPara
 
     for (final year in years) {
       print('📅 Fetching readings for year: $year');
-      print('   Path: stations/$stationPath/readings/$year');
+      print('   Path: station_data/$stationPath/readings/$year');
 
       final doc = await FirebaseFirestore.instance
-          .collection('stations')
+          .collection('station_data')
           .doc(stationPath)
           .collection('readings')
           .doc(year.toString())
@@ -177,6 +178,17 @@ final dailyMeansProvider = FutureProvider.family<List<DailyMean>, DailyMeansPara
     return [];
   }
 });
+
+/// Provider for fetching historical flow data wrapped in HistoricalFlow model
+/// Returns HistoricalFlow object with readings for the last N days
+final historicalFlowProvider =
+    FutureProvider.family<HistoricalFlow, DailyMeansParams>((
+      ref,
+      params,
+    ) async {
+      final dailyMeans = await ref.watch(dailyMeansProvider(params).future);
+      return HistoricalFlow(readings: dailyMeans);
+    });
 
 /// Stream provider for real-time station level updates
 final stationLevelStreamProvider = StreamProvider.family<StationLevel?, String>(

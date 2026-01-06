@@ -1,5 +1,6 @@
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/realtime_flow_provider.dart';
+import 'package:brownpaw/providers/flow_data_provider.dart';
 import 'package:brownpaw/widgets/flow_chart_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,15 @@ class FlowInformationWidget extends ConsumerWidget {
 
     final realtimeFlow = ref.watch(
       realtimeFlowStreamProvider(riverRun.stationId!),
+    );
+
+    final historicalFlow = ref.watch(
+      historicalFlowProvider(
+        DailyMeansParams(
+          stationId: riverRun.stationId!,
+          days: 1095,
+        ), // ~3 years
+      ),
     );
 
     return realtimeFlow.when(
@@ -42,11 +52,25 @@ class FlowInformationWidget extends ConsumerWidget {
             // Chart
             _buildSection(
               context,
-              '30-day history (m³/s)',
+              'Flow History',
               Icons.show_chart,
               child: SizedBox(
-                height: 300,
-                child: FlowChart(flowData: flowData.flow),
+                height: 350,
+                child: historicalFlow.when(
+                  data: (historical) => FlowChart(
+                    realtimeData: flowData.flow,
+                    historicalData: historical,
+                    stationId: riverRun.stationId!,
+                  ),
+                  loading: () => FlowChart(
+                    realtimeData: flowData.flow,
+                    stationId: riverRun.stationId!,
+                  ),
+                  error: (_, __) => FlowChart(
+                    realtimeData: flowData.flow,
+                    stationId: riverRun.stationId!,
+                  ),
+                ),
               ),
             ),
           ],

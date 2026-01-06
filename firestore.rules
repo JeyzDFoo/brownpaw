@@ -100,6 +100,20 @@ service cloud.firestore {
       }
     }
     
+    // Station data collection - historical flow data (publicly readable)
+    match /station_data/{stationId} {
+      allow read: if isAuthenticated();
+      
+      // Only backend should write station data
+      allow create, update, delete: if false;
+      
+      // Readings subcollection (yearly documents)
+      match /readings/{yearId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if false;
+      }
+    }
+    
     // User favorites collection - strict user ownership
     match /user_favorites/{userId} {
       allow read: if isOwner(userId);

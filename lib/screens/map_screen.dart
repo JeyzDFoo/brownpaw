@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
+import 'package:brownpaw/screens/run_details_screen.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -16,11 +17,32 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   RiverRun? _selectedRiver;
+  double _sheetHeight = 0.5; // 0.0 to 1.0, representing percentage of screen
+
+  static const double _minSheetHeight = 0.3;
+  static const double _maxSheetHeight = 0.9;
 
   void _onMarkerTapped(RiverRun river) {
     setState(() {
       _selectedRiver = river;
+      _sheetHeight = 0.6;
     });
+  }
+
+  String _getDifficultyNumber(String difficultyClass) {
+    // Extract the first difficulty number from strings like "Class III", "IV/IV+", "II-III"
+    final match = RegExp(r'(?:Class\s+)?([IVX]+)').firstMatch(difficultyClass);
+    if (match != null) {
+      return match.group(1)!;
+    }
+
+    // If no Roman numerals found, try regular numbers
+    final numberMatch = RegExp(r'(\d+)').firstMatch(difficultyClass);
+    if (numberMatch != null) {
+      return numberMatch.group(1)!;
+    }
+
+    return '?';
   }
 
   List<Marker> _buildMarkers(List<RiverRun> rivers) {
@@ -45,16 +67,37 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
           return Marker(
             point: LatLng(coords['latitude']!, coords['longitude']!),
-            width: 40,
-            height: 40,
+            width: 30,
+            height: 30,
             child: GestureDetector(
               onTap: () => _onMarkerTapped(river),
-              child: Icon(
-                Icons.water_drop,
-                color: _selectedRiver?.riverId == river.riverId
-                    ? Colors.orange
-                    : Colors.blue,
-                size: 30,
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _selectedRiver?.riverId == river.riverId
+                      ? Colors.orange
+                      : Colors.blue,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    _getDifficultyNumber(river.difficultyClass),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
               ),
             ),
           );
@@ -122,15 +165,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             left: 0,
             right: 0,
             bottom: 0,
+            top: MediaQuery.of(context).size.height * (1 - _sheetHeight),
             child: GestureDetector(
               onVerticalDragUpdate: (details) {
-                if (details.delta.dy > 5) {
+                setState(() {
+                  final screenHeight = MediaQuery.of(context).size.height;
+                  final delta = -details.delta.dy / screenHeight;
+                  _sheetHeight = (_sheetHeight + delta).clamp(
+                    _minSheetHeight,
+                    _maxSheetHeight,
+                  );
+                });
+              },
+              onVerticalDragEnd: (details) {
+                // Close if dragged down quickly or below threshold
+                if (details.primaryVelocity! > 500 ||
+                    _sheetHeight < _minSheetHeight + 0.05) {
                   setState(() {
                     _selectedRiver = null;
+                    _sheetHeight = 0.5;
                   });
                 }
+                // Otherwise, stay wherever it's dropped
               },
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 100),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: const BorderRadius.vertical(
@@ -145,7 +204,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ],
                 ),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Drag handle
                     Container(
@@ -157,70 +215,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-
-                    // Content
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _selectedRiver!.name,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_selectedRiver!.river} - ${_selectedRiver!.province}',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withOpacity(0.7),
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.trending_up,
-                                size: 16,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _selectedRiver!.difficultyClass,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              if (_selectedRiver!.length != null) ...[
-                                const SizedBox(width: 16),
-                                Icon(
-                                  Icons.straighten,
-                                  size: 16,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withOpacity(0.7),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _selectedRiver!.length!,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // TODO: Navigate to river detail
-                              },
-                              child: const Text('View Details'),
-                            ),
-                          ),
-                        ],
+                    // Run details content
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                        child: RunDetailsScreen(runId: _selectedRiver!.riverId),
                       ),
                     ),
                   ],

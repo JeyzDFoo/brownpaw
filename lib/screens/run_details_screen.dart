@@ -42,10 +42,6 @@ class RunDetailsScreen extends StatelessWidget {
                 // Quick Stats Row
                 _buildQuickStats(context, run),
 
-                // Images Section
-                if (run.images?.isNotEmpty == true)
-                  _buildImagesSection(context, run),
-
                 // Flow Information with Charts
                 FlowInformationWidget(riverRun: run),
 
@@ -60,6 +56,10 @@ class RunDetailsScreen extends StatelessWidget {
 
                 // Description Section
                 _buildDescriptionSection(context, run),
+
+                // Images Section
+                if (run.images?.isNotEmpty == true)
+                  _buildImagesSection(context, run),
 
                 // Source Section
                 _buildSourceSection(context, run),

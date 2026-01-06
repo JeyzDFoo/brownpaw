@@ -108,7 +108,7 @@ class FlowChart extends StatelessWidget {
                 }
                 final timestamp = DateTime.fromMillisecondsSinceEpoch(
                   value.toInt(),
-                );
+                ).toLocal();
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
@@ -148,7 +148,7 @@ class FlowChart extends StatelessWidget {
               return touchedSpots.map((LineBarSpot touchedSpot) {
                 final timestamp = DateTime.fromMillisecondsSinceEpoch(
                   touchedSpot.x.toInt(),
-                );
+                ).toLocal();
                 final discharge = touchedSpot.y;
                 return LineTooltipItem(
                   '${DateFormat('MMM d, h:mm a').format(timestamp)}\n${discharge.toStringAsFixed(2)} m³/s',

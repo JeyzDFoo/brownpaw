@@ -50,6 +50,6 @@ class AuthWrapper extends ConsumerWidget {
     }
 
     // Show home page if authenticated
-    return const MyHomePage(title: 'brownpaw');
+    return const MyHomePage(title: 'BrownPaw');
   }
 }

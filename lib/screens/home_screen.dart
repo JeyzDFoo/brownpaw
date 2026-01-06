@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
+import 'package:brownpaw/screens/map_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -29,6 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
     GuideScreen(),
     FavouritesScreen(),
     LogbookScreen(),
+    MapScreen(),
   ];
 
   @override
@@ -53,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Favourites',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Logbook'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
         ],
       ),
     );

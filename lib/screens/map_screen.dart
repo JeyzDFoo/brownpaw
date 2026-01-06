@@ -23,11 +23,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   static const double _maxSheetHeight = 0.9;
 
   void _onMarkerTapped(RiverRun river) {
-    // Smoothly move map to selected river
+    // Smoothly move map to selected river, positioning marker above bottom sheet
     final coords = river.coordinates ?? river.putInCoordinates;
     if (coords != null) {
       _mapController.move(
-        LatLng(coords['latitude']!, coords['longitude']!),
+        LatLng(
+          coords['latitude']! - 0.01,
+          coords['longitude']!,
+        ), // Position marker higher so it stays visible above bottom sheet
         14.0, // Zoom in for better view
       );
     }

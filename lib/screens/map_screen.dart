@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
@@ -36,6 +37,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
   late AnimationController _animationController;
   Animation<LatLng>? _positionAnimation;
   Animation<double>? _zoomAnimation;
+  LatLng? _userLocation;
 
   static const double _minSheetHeight = 0.3;
   static const double _maxSheetHeight = 0.9;
@@ -103,6 +105,105 @@ class _MapScreenState extends ConsumerState<MapScreen>
       _selectedRiver = river;
       _sheetHeight = 0.6;
     });
+  }
+
+  Future<void> _centerOnUserLocation() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location services are disabled.'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Location permissions are denied'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Location permissions are permanently denied, we cannot request permissions.',
+              ),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition();
+
+      // Store user location and trigger rebuild
+      setState(() {
+        _userLocation = LatLng(position.latitude, position.longitude);
+      });
+
+      // Animate to user's location
+      final currentCenter = _mapController.camera.center;
+      final currentZoom = _mapController.camera.zoom;
+      final userLocation = LatLng(position.latitude, position.longitude);
+      const targetZoom = 12.0;
+
+      _positionAnimation = LatLngTween(begin: currentCenter, end: userLocation)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeInOutCubic,
+            ),
+          );
+
+      _zoomAnimation = Tween<double>(begin: currentZoom, end: targetZoom)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Curves.easeInOutCubic,
+            ),
+          );
+
+      void updateMap() {
+        if (_positionAnimation != null && _zoomAnimation != null) {
+          _mapController.move(_positionAnimation!.value, _zoomAnimation!.value);
+        }
+      }
+
+      _animationController.addListener(updateMap);
+
+      _animationController.forward(from: 0).then((_) {
+        _animationController.removeListener(updateMap);
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error getting location: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   String _getDifficultyNumber(String difficultyClass) {
@@ -189,6 +290,37 @@ class _MapScreenState extends ConsumerState<MapScreen>
     return markers;
   }
 
+  Marker _buildUserLocationMarker() {
+    return Marker(
+      point: _userLocation!,
+      width: 20,
+      height: 20,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          border: Border.all(color: Colors.blue, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(2),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.blue,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final riverRunsAsync = ref.watch(riverRunsStreamProvider);
@@ -229,6 +361,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
                   },
                 ),
                 MarkerLayer(markers: _buildMarkers(rivers)),
+                if (_userLocation != null)
+                  MarkerLayer(markers: [_buildUserLocationMarker()]),
               ],
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -308,6 +442,21 @@ class _MapScreenState extends ConsumerState<MapScreen>
               ),
             ),
           ),
+
+        // Location button
+        Positioned(
+          bottom: _selectedRiver != null
+              ? MediaQuery.of(context).size.height * _sheetHeight + 20
+              : 20,
+          right: 20,
+          child: FloatingActionButton(
+            heroTag: "location_button",
+            onPressed: _centerOnUserLocation,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blue,
+            child: const Icon(Icons.my_location),
+          ),
+        ),
       ],
     );
   }

@@ -170,6 +170,71 @@ class UserNotifier extends StateNotifier<UserData> {
     }
   }
 
+  Future<void> deleteAccount() async {
+    if (state.user == null) return;
+
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      final uid = state.user!.uid;
+
+      // Delete user document from Firestore
+      await _firestore.collection('users').doc(uid).delete();
+
+      // Delete any related user data (favorites, etc.)
+      final batch = _firestore.batch();
+
+      // Delete user's favorites
+      final favoritesQuery = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('favorites')
+          .get();
+
+      for (final doc in favoritesQuery.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Delete user's descents
+      final descentsQuery = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('descents')
+          .get();
+
+      for (final doc in descentsQuery.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Commit the batch delete
+      await batch.commit();
+
+      // Sign out from Google if signed in
+      await _googleSignIn.signOut();
+
+      // Delete Firebase Auth account (this must be done last)
+      await state.user!.delete();
+
+      // Clear state
+      state = UserData();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        state = state.copyWith(
+          errorMessage: 'Please sign in again to delete your account',
+        );
+      } else {
+        state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
+      }
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to delete account: $e');
+      if (kDebugMode) {
+        print('Delete account error: $e');
+      }
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }

@@ -4,6 +4,7 @@ import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
 import 'package:brownpaw/screens/map_screen.dart';
+import 'package:brownpaw/screens/settings_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -27,10 +28,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   static const List<Widget> _screens = [
-    FavouritesScreen(),
     LogbookScreen(),
+    FavouritesScreen(),
     MapScreen(),
     GuideScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -42,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {
@@ -49,13 +52,17 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Logbook'),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favourites',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Logbook'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Guide'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
 import 'package:brownpaw/screens/map_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
+import 'package:brownpaw/screens/log_descent_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -38,6 +39,20 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton.extended(
+              onNavigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LogDescentScreen(),
+                  ),
+                );
+                // TODO: Navigate to log run screen
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Log Descent'),
+            )
+          : null,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),

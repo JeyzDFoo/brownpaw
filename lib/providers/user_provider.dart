@@ -2,12 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 // Providers
 final authProvider = Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
 final firestoreProvider = Provider<FirebaseFirestore>(
   (ref) => FirebaseFirestore.instance,
+);
+final storageProvider = Provider<FirebaseStorage>(
+  (ref) => FirebaseStorage.instance,
 );
 final googleSignInProvider = Provider<GoogleSignIn>((ref) => GoogleSignIn());
 
@@ -51,9 +55,10 @@ class UserData {
 class UserNotifier extends StateNotifier<UserData> {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final FirebaseStorage _storage;
   final GoogleSignIn _googleSignIn;
 
-  UserNotifier(this._auth, this._firestore, this._googleSignIn)
+  UserNotifier(this._auth, this._firestore, this._storage, this._googleSignIn)
     : super(UserData()) {
     _auth.authStateChanges().listen(_onAuthStateChanged);
   }
@@ -170,6 +175,58 @@ class UserNotifier extends StateNotifier<UserData> {
     }
   }
 
+  Future<void> updateDisplayName(String displayName) async {
+    if (state.user == null) return;
+
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      await _firestore.collection('users').doc(state.user!.uid).update({
+        'displayName': displayName,
+      });
+      await _fetchUserData(state.user!.uid);
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to update display name');
+      rethrow;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<String> updatePhotoURL(Uint8List imageBytes, String fileName) async {
+    if (state.user == null) throw Exception('User not authenticated');
+
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      // Upload image to Firebase Storage
+      final ref = _storage.ref().child(
+        'user_photos/${state.user!.uid}/$fileName',
+      );
+      final uploadTask = await ref.putData(
+        imageBytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      // Get download URL
+      final photoURL = await uploadTask.ref.getDownloadURL();
+
+      // Update Firestore
+      await _firestore.collection('users').doc(state.user!.uid).update({
+        'photoURL': photoURL,
+      });
+
+      await _fetchUserData(state.user!.uid);
+
+      return photoURL;
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to update photo');
+      rethrow;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
   Future<void> deleteAccount() async {
     if (state.user == null) return;
 
@@ -263,6 +320,7 @@ class UserNotifier extends StateNotifier<UserData> {
 final userProvider = StateNotifierProvider<UserNotifier, UserData>((ref) {
   final auth = ref.watch(authProvider);
   final firestore = ref.watch(firestoreProvider);
+  final storage = ref.watch(storageProvider);
   final googleSignIn = ref.watch(googleSignInProvider);
-  return UserNotifier(auth, firestore, googleSignIn);
+  return UserNotifier(auth, firestore, storage, googleSignIn);
 });

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 // Remove package_info_plus import for now - can be added back later if needed
 // import 'package:package_info_plus/package_info_plus.dart';
 import '../providers/user_provider.dart';
@@ -95,6 +96,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final user = userState.user;
     if (user == null) return const SizedBox.shrink();
 
+    // Get display name from Firestore userData if available, fallback to Firebase Auth
+    final displayName =
+        userState.userData?['displayName'] as String? ??
+        user.displayName ??
+        'Unknown User';
+
+    // Get photo URL from Firestore userData if available, fallback to Firebase Auth
+    final photoURL =
+        userState.userData?['photoURL'] as String? ?? user.photoURL;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -103,28 +114,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: user.photoURL != null
-                      ? NetworkImage(user.photoURL!)
-                      : null,
-                  child: user.photoURL == null
-                      ? Text(
-                          user.displayName?.substring(0, 1).toUpperCase() ??
-                              user.email?.substring(0, 1).toUpperCase() ??
-                              'U',
-                          style: const TextStyle(fontSize: 24),
-                        )
-                      : null,
+                GestureDetector(
+                  onTap: () => _showChangePhotoOptions(context),
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: photoURL != null
+                            ? NetworkImage(photoURL)
+                            : null,
+                        child: photoURL == null
+                            ? Text(
+                                displayName.substring(0, 1).toUpperCase(),
+                                style: const TextStyle(fontSize: 24),
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        user.displayName ?? 'Unknown User',
-                        style: Theme.of(context).textTheme.titleLarge,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              displayName,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 20),
+                            onPressed: () => _showEditDisplayNameDialog(
+                              context,
+                              displayName,
+                            ),
+                            tooltip: 'Edit display name',
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -269,6 +315,131 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (confirmed == true) {
       _deleteAccount(userNotifier);
+    }
+  }
+
+  Future<void> _showChangePhotoOptions(BuildContext context) async {
+    final source = await showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Profile Picture'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take Photo'),
+              onTap: () => Navigator.of(context).pop(ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source != null) {
+      await _pickAndUploadPhoto(source);
+    }
+  }
+
+  Future<void> _pickAndUploadPhoto(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null) return;
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Uploading photo...')));
+      }
+
+      final imageBytes = await pickedFile.readAsBytes();
+      final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final userNotifier = ref.read(userProvider.notifier);
+      await userNotifier.updatePhotoURL(imageBytes, fileName);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile picture updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update photo: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showEditDisplayNameDialog(
+    BuildContext context,
+    String currentDisplayName,
+  ) async {
+    final newDisplayName = await showDialog<String>(
+      context: context,
+      builder: (context) =>
+          _EditDisplayNameDialog(currentDisplayName: currentDisplayName),
+    );
+
+    if (newDisplayName != null && newDisplayName != currentDisplayName) {
+      await _updateDisplayName(newDisplayName);
+    }
+  }
+
+  Future<void> _updateDisplayName(String newDisplayName) async {
+    final userNotifier = ref.read(userProvider.notifier);
+
+    try {
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Updating display name...')),
+        );
+      }
+
+      // Update display name in Firestore only
+      await userNotifier.updateDisplayName(newDisplayName);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Display name updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update display name: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -424,5 +595,73 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } catch (e) {
       return 'Unknown';
     }
+  }
+}
+
+// Separate dialog widget with its own state to manage controller lifecycle
+class _EditDisplayNameDialog extends StatefulWidget {
+  final String currentDisplayName;
+
+  const _EditDisplayNameDialog({required this.currentDisplayName});
+
+  @override
+  State<_EditDisplayNameDialog> createState() => _EditDisplayNameDialogState();
+}
+
+class _EditDisplayNameDialogState extends State<_EditDisplayNameDialog> {
+  late final TextEditingController _controller;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.currentDisplayName);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Edit Display Name'),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _controller,
+          decoration: const InputDecoration(
+            labelText: 'Display Name',
+            hintText: 'Enter your display name',
+          ),
+          autofocus: true,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Display name cannot be empty';
+            }
+            if (value.trim().length < 2) {
+              return 'Display name must be at least 2 characters';
+            }
+            return null;
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              Navigator.of(context).pop(_controller.text.trim());
+            }
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    );
   }
 }

@@ -41,13 +41,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
-              onNavigator.push(
+              onPressed: () {
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const LogDescentScreen(),
                   ),
                 );
-                // TODO: Navigate to log run screen
               },
               icon: const Icon(Icons.add),
               label: const Text('Log Descent'),

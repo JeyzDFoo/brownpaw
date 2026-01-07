@@ -233,53 +233,110 @@ class _MapScreenState extends ConsumerState<MapScreen>
       debugPrint('  putInCoordinates: ${rivers[i].putInCoordinates}');
     }
 
-    final markers = rivers
+    final favoritesState = ref.watch(favoritesProvider);
+
+    // Create a list of marker data with river association
+    final markerData = rivers
         .where((river) {
           // Try coordinates first, then putInCoordinates as fallback
           return river.coordinates != null || river.putInCoordinates != null;
         })
-        .map((river) {
-          // Use coordinates if available, otherwise use putInCoordinates
-          final coords = river.coordinates ?? river.putInCoordinates!;
+        .map(
+          (river) => (
+            river: river,
+            isFavorite: favoritesState.isFavorite(river.riverId),
+          ),
+        )
+        .toList();
 
-          return Marker(
-            point: LatLng(coords['latitude']!, coords['longitude']!),
-            width: 30,
-            height: 30,
-            child: GestureDetector(
-              onTap: () => _onMarkerTapped(river),
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _selectedRiver?.riverId == river.riverId
-                      ? Colors.orange
-                      : Colors.blue,
-                  border: Border.all(color: Colors.white, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 3,
-                      offset: const Offset(0, 1),
+    // Sort so favorites appear on top (drawn last)
+    markerData.sort((a, b) {
+      if (a.isFavorite && !b.isFavorite) return 1;
+      if (!a.isFavorite && b.isFavorite) return -1;
+      return 0;
+    });
+
+    // Build markers from sorted data
+    final markers = markerData.map((data) {
+      final river = data.river;
+      final isFavorite = data.isFavorite;
+      // Use coordinates if available, otherwise use putInCoordinates
+      final coords = river.coordinates ?? river.putInCoordinates!;
+
+      return Marker(
+        point: LatLng(coords['latitude']!, coords['longitude']!),
+        width: 30,
+        height: 30,
+        child: GestureDetector(
+          onTap: () => _onMarkerTapped(river),
+          child: isFavorite
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      Icons.favorite,
+                      color: _selectedRiver?.riverId == river.riverId
+                          ? Colors.orange
+                          : Colors.red,
+                      size: 30,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      top: 8,
+                      child: Text(
+                        _getDifficultyNumber(river.difficultyClass),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                child: Center(
-                  child: Text(
-                    _getDifficultyNumber(river.difficultyClass),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
+                )
+              : Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _selectedRiver?.riverId == river.riverId
+                        ? Colors.orange
+                        : Colors.blue,
+                    border: Border.all(color: Colors.white, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      _getDifficultyNumber(river.difficultyClass),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
-        })
-        .toList();
+        ),
+      );
+    }).toList();
 
     debugPrint('Rivers with coordinates: ${markers.length}');
     if (markers.isNotEmpty) {

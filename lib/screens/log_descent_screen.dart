@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/river_run.dart';
 import '../providers/river_runs_provider.dart';
+import '../providers/user_provider.dart';
+import '../providers/favorites_provider.dart';
+import '../providers/realtime_flow_provider.dart';
 
 class LogDescentScreen extends ConsumerStatefulWidget {
   const LogDescentScreen({super.key});
@@ -19,6 +23,7 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
   // Selected run data
   String? _selectedRunId;
   String? _selectedRunName;
+  String? _selectedStationId;
 
   DateTime _selectedDate = DateTime.now();
   int? _rating;
@@ -43,6 +48,11 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
       setState(() {
         _selectedDate = picked;
       });
+
+      // Update flow data for the new date if a run with station is selected
+      if (_selectedStationId != null && _selectedStationId!.isNotEmpty) {
+        _fetchAndPopulateFlow(_selectedStationId!);
+      }
     }
   }
 
@@ -57,7 +67,96 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
       setState(() {
         _selectedRunId = run.riverId;
         _selectedRunName = '${run.river} - ${run.name}';
+        _selectedStationId = run.stationId;
       });
+
+      // Auto-populate flow if station data is available
+      if (run.stationId != null && run.stationId!.isNotEmpty) {
+        _fetchAndPopulateFlow(run.stationId!);
+      }
+    }
+  }
+
+  Future<void> _fetchAndPopulateFlow(String stationId) async {
+    try {
+      final now = DateTime.now();
+      final isToday =
+          _selectedDate.year == now.year &&
+          _selectedDate.month == now.month &&
+          _selectedDate.day == now.day;
+
+      print(
+        '🌊 Fetching flow for station: $stationId, date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)} (isToday: $isToday)',
+      );
+
+      double? discharge;
+
+      if (isToday) {
+        // Fetch real-time data for today
+        final flowData = await ref.read(realtimeFlowProvider(stationId).future);
+        discharge = flowData?.discharge;
+        print('📊 Real-time discharge: $discharge m³/s');
+      } else {
+        // Fetch historical data directly from Firestore for past dates
+        final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+        print('📅 Fetching historical data for: $dateStr');
+
+        // Normalize station ID
+        String stationPath = stationId;
+        if (!stationId.startsWith('Provider.')) {
+          // Convert "08GA071" or "environment_canada_08GA071" to "Provider.ENVIRONMENT_CANADA_08GA071"
+          if (stationId.contains('_')) {
+            final parts = stationId.split('_');
+            final provider = parts
+                .take(parts.length - 1)
+                .join('_')
+                .toUpperCase();
+            final station = parts.last;
+            stationPath = 'Provider.${provider}_$station';
+          } else {
+            stationPath = 'Provider.ENVIRONMENT_CANADA_$stationId';
+          }
+        }
+
+        final year = _selectedDate.year;
+        final doc = await FirebaseFirestore.instance
+            .collection('station_data')
+            .doc(stationPath)
+            .collection('readings')
+            .doc(year.toString())
+            .get();
+
+        if (doc.exists) {
+          final data = doc.data();
+          final dailyReadings =
+              data?['daily_readings'] as Map<String, dynamic>?;
+          final reading = dailyReadings?[dateStr] as Map<String, dynamic>?;
+          discharge = reading?['mean_discharge'] as double?;
+          print('📊 Historical discharge for $dateStr: $discharge m³/s');
+        } else {
+          print('⚠️ No readings document found for year $year');
+        }
+      }
+
+      if (discharge != null) {
+        setState(() {
+          _flowController.text = discharge!.toStringAsFixed(1);
+        });
+        print('✅ Flow populated: $discharge m³/s');
+      } else {
+        setState(() {
+          _flowController.text = '';
+        });
+        print(
+          'ℹ️ No discharge data available for station $stationId on ${DateFormat('yyyy-MM-dd').format(_selectedDate)}',
+        );
+      }
+    } catch (e) {
+      print('❌ Error fetching flow data: $e');
+      setState(() {
+        _flowController.text = '';
+      });
+      // Don't show error to user - just leave flow field empty
     }
   }
 
@@ -384,9 +483,117 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                       ),
                     ),
                     onChanged: (value) {
-                      setState(() => _searchQuery = value.toLowerCase());
+                      setState(() => _searchQuery = value);
                     },
                   ),
+                  // Create new option
+                  if (_searchQuery.isNotEmpty)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: InkWell(
+                          onTap: () async {
+                            final user = ref.read(userProvider).user;
+                            if (user == null) {
+                              // Show error - user must be logged in
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Please sign in to create runs',
+                                    ),
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+
+                            try {
+                              // Show loading indicator
+                              if (context.mounted) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+
+                              // Create the run in Firestore
+                              final riverRunsNotifier = ref.read(
+                                riverRunsProvider,
+                              );
+                              final searchText = _searchController.text.trim();
+                              final riverId = await riverRunsNotifier.createRun(
+                                name: searchText,
+                                river: searchText,
+                                userId: user.uid,
+                              );
+
+                              // Create a RiverRun object to return
+                              final newRun = RiverRun(
+                                riverId: riverId,
+                                name: searchText,
+                                river: searchText,
+                                province: 'Unknown',
+                                difficultyClass: 'Unknown',
+                                createdBy: user.uid,
+                                verified: false,
+                                visibility: 'private',
+                              );
+
+                              // Close loading dialog
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                // Return the new run
+                                Navigator.pop(context, newRun);
+                              }
+                            } catch (e) {
+                              // Close loading dialog
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error creating run: $e'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add_circle_outline,
+                                  size: 20,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Create "${_searchController.text.trim()}"',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -395,29 +602,120 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
             Expanded(
               child: riverRunsAsync.when(
                 data: (runs) {
-                  final filteredRuns = _searchQuery.isEmpty
-                      ? runs
-                      : runs.where((run) {
-                          final searchLower = _searchQuery.toLowerCase();
-                          return run.name.toLowerCase().contains(searchLower) ||
-                              run.river.toLowerCase().contains(searchLower) ||
-                              (run.region?.toLowerCase().contains(
-                                    searchLower,
-                                  ) ??
-                                  false);
-                        }).toList();
+                  final favoritesState = ref.watch(favoritesProvider);
+                  final List<RiverRun> filteredRuns;
 
-                  if (filteredRuns.isEmpty) {
+                  if (_searchQuery.isEmpty) {
+                    // Show favorites when no search query
+                    debugPrint(
+                      '🔍 Favorites IDs: ${favoritesState.favoriteRunIds}',
+                    );
+                    debugPrint('🔍 Total runs available: ${runs.length}');
+                    filteredRuns = runs.where((run) {
+                      final isFav = favoritesState.favoriteRunIds.contains(
+                        run.riverId,
+                      );
+                      if (isFav) {
+                        debugPrint(
+                          '✅ Found favorite: ${run.riverId} - ${run.name}',
+                        );
+                      }
+                      return isFav;
+                    }).toList();
+                    debugPrint(
+                      '🔍 Filtered favorites count: ${filteredRuns.length}',
+                    );
+                  } else {
+                    // Filter by search query - only search name and river
+                    final searchLower = _searchQuery.toLowerCase();
+                    filteredRuns = runs.where((run) {
+                      final nameMatch = run.name.toLowerCase().contains(
+                        searchLower,
+                      );
+                      final riverMatch = run.river.toLowerCase().contains(
+                        searchLower,
+                      );
+                      final match = nameMatch || riverMatch;
+
+                      if (match) {
+                        debugPrint(
+                          '🔍 Match: "${run.river} - ${run.name}" (nameMatch: $nameMatch, riverMatch: $riverMatch)',
+                        );
+                      }
+
+                      return match;
+                    }).toList();
+
+                    // Sort favorites to the top
+                    filteredRuns.sort((a, b) {
+                      final aIsFav = favoritesState.favoriteRunIds.contains(
+                        a.riverId,
+                      );
+                      final bIsFav = favoritesState.favoriteRunIds.contains(
+                        b.riverId,
+                      );
+
+                      if (aIsFav && !bIsFav) return -1;
+                      if (!aIsFav && bIsFav) return 1;
+
+                      // If both favorites or both not, sort by river then name
+                      final riverCompare = a.river.compareTo(b.river);
+                      if (riverCompare != 0) return riverCompare;
+                      return a.name.compareTo(b.name);
+                    });
+                    debugPrint(
+                      '🔍 Search "$_searchQuery" returned ${filteredRuns.length} results',
+                    );
+                  }
+
+                  if (filteredRuns.isEmpty && _searchQuery.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.search_off,
+                            Icons.favorite_outline,
                             size: 64,
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No favorites yet',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Start typing to search for runs',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (filteredRuns.isEmpty && _searchQuery.isNotEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline,
+                            size: 64,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.7),
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -428,6 +726,25 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                                     context,
                                   ).colorScheme.onSurfaceVariant,
                                 ),
+                          ),
+                          const SizedBox(height: 24),
+                          FilledButton.icon(
+                            onPressed: () {
+                              // Create a temporary RiverRun with the search query
+                              final newRun = RiverRun(
+                                riverId:
+                                    'temp_${DateTime.now().millisecondsSinceEpoch}',
+                                name: _searchController.text.trim(),
+                                river: _searchController.text.trim(),
+                                province: 'Unknown',
+                                difficultyClass: 'Unknown',
+                              );
+                              Navigator.pop(context, newRun);
+                            },
+                            icon: const Icon(Icons.add),
+                            label: Text(
+                              'Create "${_searchController.text.trim()}"',
+                            ),
                           ),
                         ],
                       ),

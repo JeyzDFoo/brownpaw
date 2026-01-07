@@ -122,6 +122,12 @@ class RiverRun {
   /// When this record was last updated
   final DateTime? updatedAt;
 
+  /// Whether this run has been verified by admins
+  final bool verified;
+
+  /// Visibility setting for user-created runs
+  final String visibility;
+
   RiverRun({
     required this.riverId,
     required this.name,
@@ -162,6 +168,8 @@ class RiverRun {
     this.createdBy,
     this.createdAt,
     this.updatedAt,
+    this.verified = true,
+    this.visibility = 'public',
   });
 
   /// Create RiverRun from Firestore document
@@ -224,6 +232,8 @@ class RiverRun {
       createdBy: _asString(data['createdBy']),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      verified: data['verified'] as bool? ?? true,
+      visibility: _asString(data['visibility']) ?? 'public',
     );
   }
 
@@ -287,6 +297,8 @@ class RiverRun {
     if (createdBy != null) map['createdBy'] = createdBy;
     if (createdAt != null) map['createdAt'] = Timestamp.fromDate(createdAt!);
     if (updatedAt != null) map['updatedAt'] = Timestamp.fromDate(updatedAt!);
+    map['verified'] = verified;
+    map['visibility'] = visibility;
 
     return map;
   }

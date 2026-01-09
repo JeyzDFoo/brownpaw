@@ -7,6 +7,8 @@ import '../providers/river_runs_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/realtime_flow_provider.dart';
+import '../providers/descents_provider.dart';
+import '../widgets/difficulty_selector.dart';
 
 class LogDescentScreen extends ConsumerStatefulWidget {
   const LogDescentScreen({super.key});
@@ -24,10 +26,11 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
   String? _selectedRunId;
   String? _selectedRunName;
   String? _selectedStationId;
+  String? _selectedDifficulty;
 
   DateTime _selectedDate = DateTime.now();
   int? _rating;
-  String? _textLevel; // low, medium, high
+  String? _userDifficulty; // User's assessment of difficulty
   bool _isPublic = true;
 
   @override
@@ -68,6 +71,7 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
         _selectedRunId = run.riverId;
         _selectedRunName = '${run.river} - ${run.name}';
         _selectedStationId = run.stationId;
+        _selectedDifficulty = run.difficultyClass;
       });
 
       // Auto-populate flow if station data is available
@@ -85,9 +89,9 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
           _selectedDate.month == now.month &&
           _selectedDate.day == now.day;
 
-      print(
-        '🌊 Fetching flow for station: $stationId, date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)} (isToday: $isToday)',
-      );
+      // print(
+      //   '🌊 Fetching flow for station: $stationId, date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)} (isToday: $isToday)',
+      // );
 
       double? discharge;
 
@@ -95,11 +99,9 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
         // Fetch real-time data for today
         final flowData = await ref.read(realtimeFlowProvider(stationId).future);
         discharge = flowData?.discharge;
-        print('📊 Real-time discharge: $discharge m³/s');
       } else {
         // Fetch historical data directly from Firestore for past dates
         final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-        print('📅 Fetching historical data for: $dateStr');
 
         // Normalize station ID
         String stationPath = stationId;
@@ -132,31 +134,91 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
               data?['daily_readings'] as Map<String, dynamic>?;
           final reading = dailyReadings?[dateStr] as Map<String, dynamic>?;
           discharge = reading?['mean_discharge'] as double?;
-          print('📊 Historical discharge for $dateStr: $discharge m³/s');
-        } else {
-          print('⚠️ No readings document found for year $year');
-        }
+        } else {}
       }
 
       if (discharge != null) {
         setState(() {
           _flowController.text = discharge!.toStringAsFixed(1);
         });
-        print('✅ Flow populated: $discharge m³/s');
       } else {
         setState(() {
           _flowController.text = '';
         });
-        print(
-          'ℹ️ No discharge data available for station $stationId on ${DateFormat('yyyy-MM-dd').format(_selectedDate)}',
-        );
       }
     } catch (e) {
-      print('❌ Error fetching flow data: $e');
       setState(() {
         _flowController.text = '';
       });
       // Don't show error to user - just leave flow field empty
+    }
+  }
+
+  Future<void> _saveDescent() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_selectedRunId == null) return;
+
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final descentId = await ref
+          .read(descentsProvider.notifier)
+          .addDescent(
+            runId: _selectedRunId!,
+            runName: _selectedRunName ?? '',
+            date: _selectedDate,
+            flow: _flowController.text.isNotEmpty
+                ? double.tryParse(_flowController.text)
+                : null,
+            flowUnit: _flowController.text.isNotEmpty ? 'm³/s' : null,
+            notes: _notesController.text.isNotEmpty
+                ? _notesController.text
+                : null,
+            rating: _rating,
+            difficulty: _userDifficulty,
+            isPublic: _isPublic,
+          );
+
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      if (descentId != null) {
+        // Close the log descent screen
+        Navigator.pop(context);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Descent logged successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to log descent. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      // Close loading dialog if still open
+      Navigator.pop(context);
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -166,10 +228,12 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Log Descent')),
+      resizeToAvoidBottomInset: true,
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: [
             // River Run Selection - Required Field
             Card(
@@ -224,6 +288,16 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
                                     : FontWeight.normal,
                               ),
                             ),
+                            if (_selectedDifficulty != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Difficulty: $_selectedDifficulty',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -240,64 +314,52 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Date
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Date'),
-              subtitle: Text(DateFormat('MMM d, yyyy').format(_selectedDate)),
-              onTap: () => _selectDate(context),
-            ),
-            const SizedBox(height: 16),
-
-            // Flow
-            TextFormField(
-              controller: _flowController,
-              decoration: const InputDecoration(
-                labelText: 'Flow (m³/s)',
-                hintText: 'e.g., 25.5',
-                helperText: 'Water flow at time of descent (optional)',
-                prefixIcon: Icon(Icons.water),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Text Level
-            const Text(
-              'Text Level',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment<String>(
-                  value: 'low',
-                  label: Text('Low'),
-                  icon: Icon(Icons.trending_down),
+            // Date and Flow Row
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Date
+                Expanded(
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.calendar_today),
+                    title: const Text('Date'),
+                    subtitle: Text(
+                      DateFormat('MMM d, yyyy').format(_selectedDate),
+                    ),
+                    onTap: () => _selectDate(context),
+                  ),
                 ),
-                ButtonSegment<String>(
-                  value: 'medium',
-                  label: Text('Medium'),
-                  icon: Icon(Icons.trending_flat),
+                const SizedBox(height: 24),
+
+                // Difficulty Assessment
+                DifficultySelector(
+                  initialDifficulty: _userDifficulty,
+                  onChanged: (value) {
+                    setState(() {
+                      _userDifficulty = value;
+                    });
+                  },
                 ),
-                ButtonSegment<String>(
-                  value: 'high',
-                  label: Text('High'),
-                  icon: Icon(Icons.trending_up),
+                const SizedBox(width: 16),
+                // Flow
+                Expanded(
+                  child: TextFormField(
+                    controller: _flowController,
+                    decoration: const InputDecoration(
+                      labelText: 'Flow (m³/s)',
+                      hintText: '25.5',
+                      prefixIcon: Icon(Icons.water),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                  ),
                 ),
               ],
-              selected: _textLevel != null ? {_textLevel!} : {},
-              onSelectionChanged: (Set<String> newSelection) {
-                setState(() {
-                  _textLevel = newSelection.first;
-                });
-              },
-              emptySelectionAllowed: true,
             ),
+
             const SizedBox(height: 24),
 
             // Rating
@@ -342,7 +404,12 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
                 hintText: 'How was it?',
                 border: OutlineInputBorder(),
               ),
-              maxLines: 3,
+              minLines: 3,
+              maxLines: null,
+              textInputAction: TextInputAction.newline,
+              onTapOutside: (_) {
+                FocusScope.of(context).unfocus();
+              },
             ),
             const SizedBox(height: 8),
 
@@ -360,20 +427,13 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
 
             // Save Button (inside scroll view to remain accessible with keyboard)
             FilledButton(
-              onPressed: _selectedRunId == null
-                  ? null
-                  : () {
-                      if (_formKey.currentState!.validate()) {
-                        // TODO: Save descent
-                        Navigator.pop(context);
-                      }
-                    },
+              onPressed: _selectedRunId == null ? null : () => _saveDescent(),
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Text('Save Descent', style: TextStyle(fontSize: 16)),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 162),
           ],
         ),
       ),

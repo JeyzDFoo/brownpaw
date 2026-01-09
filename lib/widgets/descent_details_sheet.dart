@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/descent.dart';
 import '../providers/descents_provider.dart';
+import 'difficulty_selector.dart';
 
 class DescentDetailsSheet extends StatefulWidget {
   final Descent descent;
@@ -117,90 +118,6 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
         ).showSnackBar(SnackBar(content: Text('Error saving: $e')));
       }
     }
-  }
-
-  void _incrementDifficulty() {
-    int currentNum = _parseDifficultyNumber(_difficulty);
-    if (currentNum < 6) {
-      setState(() {
-        _difficulty = _toRoman(currentNum + 1);
-      });
-      _onImmediateChange();
-    }
-  }
-
-  void _decrementDifficulty() {
-    int currentNum = _parseDifficultyNumber(_difficulty);
-    if (currentNum > 1) {
-      setState(() {
-        _difficulty = _toRoman(currentNum - 1);
-      });
-      _onImmediateChange();
-    }
-  }
-
-  int _parseDifficultyNumber(String? difficulty) {
-    if (difficulty == null) return 1;
-    // Extract number from strings like "Class III", "IV/IV+", "II-III"
-    final match = RegExp(
-      r'(\\d+|I{1,3}V?|VI?)',
-    ).firstMatch(difficulty.toUpperCase());
-    if (match != null) {
-      final roman = match.group(0)!;
-      return _fromRoman(roman);
-    }
-    return 1;
-  }
-
-  String _toRoman(int num) {
-    switch (num) {
-      case 1:
-        return 'I';
-      case 2:
-        return 'II';
-      case 3:
-        return 'III';
-      case 4:
-        return 'IV';
-      case 5:
-        return 'V';
-      case 6:
-        return 'VI';
-      default:
-        return 'I';
-    }
-  }
-
-  int _fromRoman(String roman) {
-    switch (roman) {
-      case 'I':
-        return 1;
-      case 'II':
-        return 2;
-      case 'III':
-        return 3;
-      case 'IV':
-        return 4;
-      case 'V':
-        return 5;
-      case 'VI':
-        return 6;
-      default:
-        return int.tryParse(roman) ?? 1;
-    }
-  }
-
-  String? _extractRomanNumeral(String? difficulty) {
-    if (difficulty == null) return null;
-    // If it's already just a Roman numeral, return it
-    if (RegExp(r'^(I{1,3}V?|VI?)$').hasMatch(difficulty.toUpperCase())) {
-      return difficulty.toUpperCase();
-    }
-    // Extract Roman numeral from strings like "Class III", "IV/IV+", "II-III"
-    final match = RegExp(
-      r'(I{1,3}V?|VI?)',
-    ).firstMatch(difficulty.toUpperCase());
-    return match?.group(0);
   }
 
   @override
@@ -455,119 +372,14 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                 const SizedBox(height: 16),
 
                 // Difficulty (editable)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.orange.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.trending_up_rounded,
-                            color: Colors.orange,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Difficulty',
-                            style: Theme.of(context).textTheme.labelMedium
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withOpacity(0.7),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          // Decrement button
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline.withOpacity(0.3),
-                              ),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: _parseDifficultyNumber(_difficulty) > 1
-                                  ? _decrementDifficulty
-                                  : null,
-                              iconSize: 18,
-                              constraints: const BoxConstraints(
-                                minWidth: 36,
-                                minHeight: 36,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Difficulty display
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Colors.orange.withOpacity(0.3),
-                                ),
-                              ),
-                              child: Text(
-                                _extractRomanNumeral(_difficulty) ?? 'I',
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.orange,
-                                    ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Increment button
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline.withOpacity(0.3),
-                              ),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: _parseDifficultyNumber(_difficulty) < 6
-                                  ? _incrementDifficulty
-                                  : null,
-                              iconSize: 18,
-                              constraints: const BoxConstraints(
-                                minWidth: 36,
-                                minHeight: 36,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                DifficultySelector(
+                  initialDifficulty: _difficulty,
+                  onChanged: (value) {
+                    setState(() {
+                      _difficulty = value;
+                    });
+                    _onImmediateChange();
+                  },
                 ),
 
                 const SizedBox(height: 16),

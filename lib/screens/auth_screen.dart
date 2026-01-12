@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:brownpaw/providers/user_provider.dart';
@@ -115,6 +116,36 @@ class AuthScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
+
+              // Apple Sign-In Button (iOS only)
+              if (Platform.isIOS) ...[
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: userData.isLoading
+                      ? null
+                      : () async {
+                          await ref
+                              .read(userProvider.notifier)
+                              .signInWithApple();
+                        },
+                  icon: userData.isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.apple),
+                  label: Text(
+                    userData.isLoading ? 'Signing in...' : 'Sign in with Apple',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

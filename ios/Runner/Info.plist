@@ -61,5 +61,10 @@
 	<string>This app needs access to your location to show nearby river runs on the map.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to your location to show nearby river runs on the map.</string>
+	<!-- Apple Sign In -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>

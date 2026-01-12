@@ -1,9 +1,11 @@
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 // Providers
 final authProvider = Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
@@ -147,11 +149,110 @@ class UserNotifier extends StateNotifier<UserData> {
     }
   }
 
+  Future<void> signInWithApple() async {
+    // Only available on iOS
+    if (!Platform.isIOS) {
+      state = state.copyWith(
+        errorMessage: 'Apple Sign In is only available on iOS devices',
+      );
+      return;
+    }
+
+    try {
+      state = state.copyWith(isLoading: true, errorMessage: null);
+
+      // Check if Apple Sign In is available
+      final isAvailable = await SignInWithApple.isAvailable();
+      if (!isAvailable) {
+        state = state.copyWith(
+          errorMessage: 'Apple Sign In is not available on this device',
+          isLoading: false,
+        );
+        return;
+      }
+
+      // Request Apple ID credential
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      // Create OAuth provider credential
+      final oAuthProvider = OAuthProvider('apple.com');
+      final credential = oAuthProvider.credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      // Sign in to Firebase with the Apple credential
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      // Create or update user document in Firestore
+      if (userCredential.user != null) {
+        final userDoc = _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid);
+        final docSnapshot = await userDoc.get();
+
+        if (!docSnapshot.exists) {
+          // New user - create document
+          // Apple provides name only on first sign in
+          String? displayName;
+          if (appleCredential.givenName != null ||
+              appleCredential.familyName != null) {
+            displayName =
+                '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'
+                    .trim();
+          }
+
+          await userDoc.set({
+            'uid': userCredential.user!.uid,
+            'email': userCredential.user!.email,
+            'displayName': displayName ?? userCredential.user!.displayName,
+            'photoURL': userCredential.user!.photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        } else {
+          // Existing user - update last sign in
+          await userDoc.update({'lastSignIn': FieldValue.serverTimestamp()});
+        }
+      }
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        // User canceled the sign-in
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+      state = state.copyWith(
+        errorMessage: 'Apple Sign In failed: ${e.message}',
+      );
+      if (kDebugMode) {
+        print('Apple Sign-In error: $e');
+      }
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Failed to sign in with Apple: $e');
+      if (kDebugMode) {
+        print('Apple Sign-In error: $e');
+      }
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
   Future<void> signOut() async {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
 
-      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
+      // Sign out from Google (will silently fail if not signed in with Google)
+      await _googleSignIn.signOut();
+
+      // Sign out from Firebase
+      await _auth.signOut();
+
       state = state.copyWith(userData: null);
     } catch (e) {
       state = state.copyWith(errorMessage: 'Failed to sign out');

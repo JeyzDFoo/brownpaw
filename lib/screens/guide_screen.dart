@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/river_run.dart';
 import '../providers/river_runs_provider.dart';
 import '../widgets/river_run_card.dart';
-import 'run_details_screen.dart';
 
 class GuideScreen extends ConsumerStatefulWidget {
   const GuideScreen({super.key});

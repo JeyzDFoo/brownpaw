@@ -1,0 +1,2331 @@
+{
+  "count": 190,
+  "markers": [
+    {
+      "title": "Adam River",
+      "region": "Vancouver Island",
+      "class": "III+ with one optional V-",
+      "put_in": {
+        "latitude": 50.38553085170929,
+        "longitude": -126.17493217628152
+      },
+      "take_out": {
+        "latitude": 50.42586294581173,
+        "longitude": -126.22916115162377
+      }
+    },
+    {
+      "title": "Alsek River",
+      "region": "Northwest",
+      "class": "III-IV (V through Turnback Canyon)",
+      "put_in": {
+        "latitude": 60.72663877540569,
+        "longitude": -137.75854073989296
+      },
+      "take_out": {
+        "latitude": 59.18446633301613,
+        "longitude": -138.47940675851322
+      }
+    },
+    {
+      "title": "Ashlu Creek - Bottom Mile",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.921005974597705,
+        "longitude": -123.33138082469796
+      },
+      "take_out": {
+        "latitude": 49.913767217102986,
+        "longitude": -123.32434650975937
+      }
+    },
+    {
+      "title": "Ashlu Creek - Box Canyon",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.9341821781166,
+        "longitude": -123.36019837666694
+      },
+      "take_out": {
+        "latitude": 49.91842372105015,
+        "longitude": -123.33838183700979
+      }
+    },
+    {
+      "title": "Ashlu Creek - Mine Run",
+      "region": "South Coast",
+      "class": "IV-V at medium levels.",
+      "put_in": {
+        "latitude": 49.94545859264775,
+        "longitude": -123.41290920756585
+      },
+      "take_out": {
+        "latitude": 49.93482617544325,
+        "longitude": -123.37876653992988
+      }
+    },
+    {
+      "title": "Ashlu Creek - Play Run",
+      "region": "South Coast",
+      "class": "III+ (IV-)",
+      "put_in": {
+        "latitude": 49.993031388028896,
+        "longitude": -123.52690324286743
+      },
+      "take_out": {
+        "latitude": 49.95034296079942,
+        "longitude": -123.42257954591106
+      }
+    },
+    {
+      "title": "Ashlu Mini Mine",
+      "region": "South Coast",
+      "class": "IV",
+      "put_in": {
+        "latitude": 49.93436798324751,
+        "longitude": -123.37859689354241
+      },
+      "take_out": {
+        "latitude": 49.93429465991204,
+        "longitude": -123.36011543282024
+      }
+    },
+    {
+      "title": "Ashnola River",
+      "region": "Thompson Okanagan",
+      "class": "IV",
+      "put_in": {
+        "latitude": 49.152287858353276,
+        "longitude": -120.19963140454149
+      },
+      "take_out": {
+        "latitude": 49.197161759675055,
+        "longitude": -119.99644338358796
+      }
+    },
+    {
+      "title": "Babine River",
+      "region": "Northwest",
+      "class": "III+-IV",
+      "put_in": {
+        "latitude": 55.42601678018167,
+        "longitude": -126.69734565365962
+      },
+      "take_out": {
+        "latitude": 55.69532332621293,
+        "longitude": -127.6894799721552
+      }
+    },
+    {
+      "title": "Beaver River (Kinbasket Canyon)",
+      "region": "Kootenay Boundary",
+      "class": "IV/IV+",
+      "put_in": {
+        "latitude": 51.4879342998577,
+        "longitude": -117.49194543830694
+      },
+      "take_out": {
+        "latitude": 51.52687261329979,
+        "longitude": -117.43387271985935
+      }
+    },
+    {
+      "title": "Bedwell River",
+      "region": "Vancouver Island",
+      "class": "IV+ (P)",
+      "put_in": {
+        "latitude": 49.449435831324024,
+        "longitude": -125.61331542070252
+      },
+      "take_out": {
+        "latitude": 49.15459764558244,
+        "longitude": -125.91018931239242
+      }
+    },
+    {
+      "title": "Benson River - Lower",
+      "region": "Vancouver Island",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.39742683254215,
+        "longitude": -127.26549093093072
+      },
+      "take_out": {
+        "latitude": 50.418686751571585,
+        "longitude": -127.35992296233556
+      }
+    },
+    {
+      "title": "Benson River - Upper",
+      "region": "Vancouver Island",
+      "class": "IV+ at low water",
+      "put_in": {
+        "latitude": 50.34510051115677,
+        "longitude": -127.22746775788042
+      },
+      "take_out": {
+        "latitude": 50.359560355209084,
+        "longitude": -127.23183687783352
+      }
+    },
+    {
+      "title": "Big Creek - Lower",
+      "region": "Cariboo",
+      "class": "V with a big portage",
+      "put_in": {
+        "latitude": 51.7257474667083,
+        "longitude": -122.95782092776437
+      },
+      "take_out": {
+        "latitude": 51.82600219130151,
+        "longitude": -122.5622092188851
+      }
+    },
+    {
+      "title": "Big Mouth Creek",
+      "region": "Kootenay Boundary",
+      "class": "III-IV",
+      "put_in": {
+        "latitude": 51.84974976663554,
+        "longitude": -118.44862055824535
+      },
+      "take_out": {
+        "latitude": 51.83910764353905,
+        "longitude": -118.61718681117684
+      }
+    },
+    {
+      "title": "Big Silver Creek - Middle",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.778408890267855,
+        "longitude": -121.86466799072028
+      },
+      "take_out": {
+        "latitude": 49.693193704900665,
+        "longitude": -121.8607523335164
+      }
+    },
+    {
+      "title": "Big Silver Creek - Upper",
+      "region": "South Coast",
+      "class": "IV-IV+ at medium levels",
+      "put_in": {
+        "latitude": 49.778357365781204,
+        "longitude": -121.86458582093694
+      },
+      "take_out": {
+        "latitude": 49.74505636110928,
+        "longitude": -121.85321825705407
+      }
+    },
+    {
+      "title": "Birkenhead River - Lower",
+      "region": "South Coast",
+      "class": "III(+), IV if doing the first rapids",
+      "put_in": {
+        "latitude": 50.383974288149005,
+        "longitude": -122.70649849932718
+      },
+      "take_out": {
+        "latitude": 50.32200444685634,
+        "longitude": -122.71913415407931
+      }
+    },
+    {
+      "title": "Birkenhead River - Upper",
+      "region": "South Coast",
+      "class": "IV-V at medium, V at medium-high and up.",
+      "put_in": {
+        "latitude": 50.49710322598645,
+        "longitude": -122.73312127354203
+      },
+      "take_out": {
+        "latitude": 50.45057948222782,
+        "longitude": -122.69159753891276
+      }
+    },
+    {
+      "title": "Blaeberry River - Split Creek to Thompson Falls",
+      "region": "Kootenay Boundary",
+      "class": "III+ to IV",
+      "put_in": {
+        "latitude": 51.52997966188693,
+        "longitude": -116.88725903415047
+      },
+      "take_out": {
+        "latitude": 51.51608121184316,
+        "longitude": -116.95470458056106
+      }
+    },
+    {
+      "title": "Blaeberry River - Thompson Falls Section",
+      "region": "Kootenay Boundary",
+      "class": "IV+ to V",
+      "put_in": {
+        "latitude": 51.51195693785857,
+        "longitude": -116.95932321273528
+      },
+      "take_out": {
+        "latitude": 51.47750231886209,
+        "longitude": -116.9695948181056
+      }
+    },
+    {
+      "title": "Blanket Creek (Sutherland Falls)",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.83216800150677,
+        "longitude": -118.09064777241625
+      }
+    },
+    {
+      "title": "Bobbie Burns Creek into Spillimacheen River",
+      "region": "Kootenay Boundary",
+      "class": "III+ to IV (V)",
+      "put_in": {
+        "latitude": 50.956162945301486,
+        "longitude": -116.69766467198804
+      },
+      "take_out": {
+        "latitude": 50.89931372583493,
+        "longitude": -116.4410156124992
+      }
+    },
+    {
+      "title": "Boston Bar Creek",
+      "region": "South Coast",
+      "class": "IV",
+      "put_in": {
+        "latitude": 49.538988180615746,
+        "longitude": -121.20021801574042
+      },
+      "take_out": {
+        "latitude": 49.504956988074696,
+        "longitude": -121.19885885876045
+      }
+    },
+    {
+      "title": "Bowser River",
+      "region": "Northwest",
+      "class": "II-III with one long IV+ rapid",
+      "put_in": {
+        "latitude": 56.24687445818654,
+        "longitude": -130.0812917747652
+      },
+      "take_out": {
+        "latitude": 56.37448857722737,
+        "longitude": -129.34337416402118
+      }
+    },
+    {
+      "title": "Bridge River",
+      "region": "South Coast",
+      "class": "III+-IV",
+      "put_in": {
+        "latitude": 50.86395660397244,
+        "longitude": -122.17180751818053
+      },
+      "take_out": {
+        "latitude": 50.75211027192188,
+        "longitude": -121.93487024831904
+      }
+    },
+    {
+      "title": "Bridge River - Terzaghi Dam to Yalakom",
+      "region": "South Coast",
+      "class": "III-IV (IV+ at big releases)",
+      "put_in": {
+        "latitude": 50.78671281341522,
+        "longitude": -122.21549213807575
+      },
+      "take_out": {
+        "latitude": 50.8635727779662,
+        "longitude": -122.17256802383571
+      }
+    },
+    {
+      "title": "Brittania Creek",
+      "region": "South Coast",
+      "class": "IV-V"
+    },
+    {
+      "title": "Bulkley Canyon",
+      "region": "Northwest",
+      "class": "III+ to IV-",
+      "put_in": {
+        "latitude": 55.221269105422806,
+        "longitude": -127.44720052899478
+      },
+      "take_out": {
+        "latitude": 55.25032845205703,
+        "longitude": -127.66904061013011
+      }
+    },
+    {
+      "title": "Callaghan Creek",
+      "region": "South Coast",
+      "class": "IV-V at medium levels.",
+      "put_in": {
+        "latitude": 50.092791377993734,
+        "longitude": -123.12466476250263
+      },
+      "take_out": {
+        "latitude": 50.064288852519496,
+        "longitude": -123.10088857640886
+      }
+    },
+    {
+      "title": "Cameron River",
+      "region": "Vancouver Island",
+      "class": "IV at medium levels",
+      "put_in": {
+        "latitude": 49.20337557839636,
+        "longitude": -124.60963010358174
+      },
+      "take_out": {
+        "latitude": 49.2240434054774,
+        "longitude": -124.66022943308322
+      }
+    },
+    {
+      "title": "Capilano River",
+      "region": "South Coast",
+      "class": "III",
+      "put_in": {
+        "latitude": 49.35617155996326,
+        "longitude": -123.11083702131504
+      },
+      "take_out": {
+        "latitude": 49.3326155502823,
+        "longitude": -123.11806937683511
+      }
+    },
+    {
+      "title": "Cariboo River - Lower Run",
+      "region": "Cariboo",
+      "class": "II to III (III+ at high water)",
+      "put_in": {
+        "latitude": 52.66282507802268,
+        "longitude": -121.52777812965041
+      },
+      "take_out": {
+        "latitude": 52.6642960335152,
+        "longitude": -121.67719297168233
+      }
+    },
+    {
+      "title": "Cariboo River - Upper Run",
+      "region": "Cariboo",
+      "class": "III+ to IV- (IV in high water)",
+      "put_in": {
+        "latitude": 52.69488752550703,
+        "longitude": -121.44661189264767
+      },
+      "take_out": {
+        "latitude": 52.663046396246074,
+        "longitude": -121.5281315546423
+      }
+    },
+    {
+      "title": "Cascade Creek",
+      "region": "South Coast",
+      "class": "IV-V (V+)",
+      "put_in": {
+        "latitude": 49.28807879391633,
+        "longitude": -122.1925621307075
+      }
+    },
+    {
+      "title": "Cayoosh Creek",
+      "region": "South Coast",
+      "class": "IV+ at medium levels.",
+      "put_in": {
+        "latitude": 50.64393766689699,
+        "longitude": -122.05363259731148
+      },
+      "take_out": {
+        "latitude": 50.65511726156225,
+        "longitude": -121.99717332476553
+      }
+    },
+    {
+      "title": "Cheakamus \u2013 Paradise Valley",
+      "region": "South Coast",
+      "class": "II (III)",
+      "put_in": {
+        "latitude": 49.889993694834345,
+        "longitude": -123.18114749241857
+      },
+      "take_out": {
+        "latitude": 49.79966004055339,
+        "longitude": -123.15726544647153
+      }
+    },
+    {
+      "title": "Cheakamus River - Balls To The Wall",
+      "region": "South Coast",
+      "class": "IV-IV+",
+      "put_in": {
+        "latitude": 50.07981223342665,
+        "longitude": -123.03593797280388
+      },
+      "take_out": {
+        "latitude": 50.05786074070866,
+        "longitude": -123.09873897991818
+      }
+    },
+    {
+      "title": "Cheakamus River - Cal-Cheak (Callaghan into Cheakamus)",
+      "region": "South Coast",
+      "class": "III",
+      "put_in": {
+        "latitude": 50.06543452287113,
+        "longitude": -123.10400827864882
+      },
+      "take_out": {
+        "latitude": 50.04461029845314,
+        "longitude": -123.10547163425548
+      }
+    },
+    {
+      "title": "Cheakamus River - Cheakamus Lake Down",
+      "region": "South Coast",
+      "class": "Continuous III+",
+      "put_in": {
+        "latitude": 50.03398790398796,
+        "longitude": -122.97140003227253
+      },
+      "take_out": {
+        "latitude": 50.05737455239341,
+        "longitude": -123.02923446527608
+      }
+    },
+    {
+      "title": "Cheakamus River - Daisy Lake Canyon",
+      "region": "South Coast",
+      "class": "V at medium levels.",
+      "put_in": {
+        "latitude": 50.04429238841291,
+        "longitude": -123.10489276747388
+      },
+      "take_out": {
+        "latitude": 50.02264800236972,
+        "longitude": -123.11994630863938
+      }
+    },
+    {
+      "title": "Cheakamus River - Dam Run",
+      "region": "South Coast",
+      "class": "III",
+      "put_in": {
+        "latitude": 49.97586387715606,
+        "longitude": -123.14399925801739
+      },
+      "take_out": {
+        "latitude": 49.94037868810082,
+        "longitude": -123.16884012148714
+      }
+    },
+    {
+      "title": "Cheakamus River - Upper",
+      "region": "South Coast",
+      "class": "IV at 2.5, continuous.  Gets harder as levels rise.",
+      "put_in": {
+        "latitude": 50.0715955963438,
+        "longitude": -123.03703719044026
+      },
+      "take_out": {
+        "latitude": 50.07995686531277,
+        "longitude": -123.03527175976033
+      }
+    },
+    {
+      "title": "Chehalis River - Lower (aka Statlu-Chehalis)",
+      "region": "South Coast",
+      "class": "III-IV-",
+      "put_in": {
+        "latitude": 49.349099890553646,
+        "longitude": -121.99767423855839
+      },
+      "take_out": {
+        "latitude": 49.29872123494627,
+        "longitude": -121.93626360817922
+      }
+    },
+    {
+      "title": "Chehalis River - Upper",
+      "region": "South Coast",
+      "class": "IV with optional V",
+      "put_in": {
+        "latitude": 49.40118705919471,
+        "longitude": -122.03077016444018
+      },
+      "take_out": {
+        "latitude": 49.34876669027531,
+        "longitude": -122.00052150571995
+      }
+    },
+    {
+      "title": "Chemainus River - Copper Canyon",
+      "region": "Vancouver Island",
+      "class": "III-IV+ at medium levels.",
+      "put_in": {
+        "latitude": 48.837608475765876,
+        "longitude": -123.82576227189944
+      },
+      "take_out": {
+        "latitude": 48.90403213747004,
+        "longitude": -123.75689890608973
+      }
+    },
+    {
+      "title": "Chilcotin River  (Chilko-Chilcotin-Fraser)",
+      "region": "Cariboo",
+      "class": "II-IV",
+      "put_in": {
+        "latitude": 51.562674186291986,
+        "longitude": -123.69819835444642
+      },
+      "take_out": {
+        "latitude": 51.5206411502796,
+        "longitude": -122.2838904672642
+      }
+    },
+    {
+      "title": "Chilko - Bidwell to Taseko",
+      "region": "Cariboo",
+      "class": "IV-",
+      "put_in": {
+        "latitude": 51.88671950165431,
+        "longitude": -123.8793431109396
+      },
+      "take_out": {
+        "latitude": 52.00807450870204,
+        "longitude": -123.67806188869622
+      }
+    },
+    {
+      "title": "Chilliwack Canyon - Camp Foley to Slesse",
+      "region": "South Coast",
+      "class": "III-IV low, IV- medium, IV high",
+      "put_in": {
+        "latitude": 49.099915264257845,
+        "longitude": -121.62854667814483
+      },
+      "take_out": {
+        "latitude": 49.07760170289947,
+        "longitude": -121.71158157380475
+      }
+    },
+    {
+      "title": "Chilliwack River - Pointa Vista to Vedder Bridge",
+      "region": "South Coast",
+      "class": "II",
+      "put_in": {
+        "latitude": 49.07851916034116,
+        "longitude": -121.87477571490227
+      },
+      "take_out": {
+        "latitude": 49.0946505611694,
+        "longitude": -121.95933028038664
+      }
+    },
+    {
+      "title": "Chilliwack River \u2013 Post Creek to Camp Foley",
+      "region": "South Coast",
+      "class": "III+",
+      "put_in": {
+        "latitude": 49.091580398173704,
+        "longitude": -121.47943026446355
+      },
+      "take_out": {
+        "latitude": 49.09993799336439,
+        "longitude": -121.62910217625878
+      }
+    },
+    {
+      "title": "Chilliwack River - Slesse to Tamihi",
+      "region": "South Coast",
+      "class": "III, one IV- @ Tamihi",
+      "put_in": {
+        "latitude": 49.076876485737785,
+        "longitude": -121.71358904160883
+      },
+      "take_out": {
+        "latitude": 49.071735282917416,
+        "longitude": -121.83731455956826
+      }
+    },
+    {
+      "title": "Chilliwack River - Tamihi to Pointa Vista",
+      "region": "South Coast",
+      "class": "III, one IV- @ Tamihi",
+      "put_in": {
+        "latitude": 49.071740693913625,
+        "longitude": -121.837013139095
+      },
+      "take_out": {
+        "latitude": 49.078575696494795,
+        "longitude": -121.87483171791206
+      }
+    },
+    {
+      "title": "Clearwater River - Gatling Gorge",
+      "region": "Thompson Okanagan",
+      "class": "V",
+      "put_in": {
+        "latitude": 52.01207153207639,
+        "longitude": -120.151589939236
+      },
+      "take_out": {
+        "latitude": 51.81898713487067,
+        "longitude": -120.05523544583141
+      }
+    },
+    {
+      "title": "Clearwater River - Play Run",
+      "region": "Thompson Okanagan",
+      "class": "III+ (IV)",
+      "put_in": {
+        "latitude": 51.70840526175357,
+        "longitude": -120.03453811698193
+      },
+      "take_out": {
+        "latitude": 51.64954929142269,
+        "longitude": -120.06826980265507
+      }
+    },
+    {
+      "title": "Clearwater River - Upper",
+      "region": "Thompson Okanagan",
+      "class": "IV",
+      "put_in": {
+        "latitude": 51.8261023081113,
+        "longitude": -120.0271034067058
+      },
+      "take_out": {
+        "latitude": 51.715412946449845,
+        "longitude": -120.0278102174853
+      }
+    },
+    {
+      "title": "Clearwater River - Upper Upper",
+      "region": "Thompson Okanagan",
+      "class": "IV- with optional V",
+      "put_in": {
+        "latitude": 52.14217872989656,
+        "longitude": -120.19303868026401
+      },
+      "take_out": {
+        "latitude": 52.06562809188392,
+        "longitude": -120.17624398444703
+      }
+    },
+    {
+      "title": "Clendinning Creek",
+      "region": "South Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 50.460938490878334,
+        "longitude": -123.88420792039554
+      }
+    },
+    {
+      "title": "Clore River - Grand Canyon",
+      "region": "North Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 54.32435294358564,
+        "longitude": -127.62244037476933
+      },
+      "take_out": {
+        "latitude": 54.322183623467424,
+        "longitude": -127.94074590081205
+      }
+    },
+    {
+      "title": "Coal River - Lower",
+      "region": "Northeast",
+      "class": "I-III (IV)",
+      "put_in": {
+        "latitude": 60.099603658136914,
+        "longitude": -127.53442443472176
+      },
+      "take_out": {
+        "latitude": 59.65939140922745,
+        "longitude": -126.95281714058851
+      }
+    },
+    {
+      "title": "Coquihalla River",
+      "region": "South Coast",
+      "class": "III+",
+      "put_in": {
+        "latitude": 49.482305739639,
+        "longitude": -121.24979122564346
+      },
+      "take_out": {
+        "latitude": 49.385461773013475,
+        "longitude": -121.31800172876096
+      }
+    },
+    {
+      "title": "Coquitlam",
+      "region": "South Coast",
+      "class": "III (IV-)",
+      "put_in": {
+        "latitude": 49.337914653868836,
+        "longitude": -122.77154221811408
+      },
+      "take_out": {
+        "latitude": 49.2648934809946,
+        "longitude": -122.78213271042051
+      }
+    },
+    {
+      "title": "Cowichan River - Skutz Falls to Marie Canyon",
+      "region": "Vancouver Island",
+      "class": "III (IV)",
+      "put_in": {
+        "latitude": 48.78318110300276,
+        "longitude": -123.95618013287674
+      },
+      "take_out": {
+        "latitude": 48.7710843601709,
+        "longitude": -123.89192551688977
+      }
+    },
+    {
+      "title": "Cummins River",
+      "region": "Kootenay Boundary",
+      "class": "II-III (with portages)",
+      "put_in": {
+        "latitude": 52.15062563004264,
+        "longitude": -118.03870024011601
+      }
+    },
+    {
+      "title": "Dipper Creek",
+      "region": "South Coast",
+      "class": "V+",
+      "put_in": {
+        "latitude": 50.209686646750015,
+        "longitude": -123.42525695526342
+      },
+      "take_out": {
+        "latitude": 50.174752381869155,
+        "longitude": -123.38860915166508
+      }
+    },
+    {
+      "title": "Douglas Creek",
+      "region": "South Coast",
+      "class": "IV-V",
+      "take_out": {
+        "latitude": 49.762373320040496,
+        "longitude": -122.15315552774939
+      }
+    },
+    {
+      "title": "Downie Canyon",
+      "region": "Kootenay Boundary",
+      "class": "IV with a portage",
+      "put_in": {
+        "latitude": 51.46516984843919,
+        "longitude": -118.17899423171397
+      },
+      "take_out": {
+        "latitude": 51.48820599706235,
+        "longitude": -118.20350752786452
+      }
+    },
+    {
+      "title": "Duti River",
+      "region": "Northwest",
+      "class": "IV+, depending on the level",
+      "put_in": {
+        "latitude": 57.239654767898486,
+        "longitude": -127.80020131533686
+      }
+    },
+    {
+      "title": "Eagle River",
+      "region": "Northwest",
+      "class": "I-III with one portage",
+      "put_in": {
+        "latitude": 58.54719071373205,
+        "longitude": -129.25002357586632
+      },
+      "take_out": {
+        "latitude": 59.592764069803934,
+        "longitude": -129.2181691092919
+      }
+    },
+    {
+      "title": "East Boulder Creek",
+      "region": "North Coast",
+      "class": "IV+ to V, level dependent.",
+      "put_in": {
+        "latitude": 55.10452295828111,
+        "longitude": -127.39098640845246
+      },
+      "take_out": {
+        "latitude": 55.105910058286156,
+        "longitude": -127.38113534775677
+      }
+    },
+    {
+      "title": "Elaho River - Fear Canyon",
+      "region": "South Coast",
+      "class": "IV-V depending on level",
+      "put_in": {
+        "latitude": 50.13911089239369,
+        "longitude": -123.48975032786585
+      },
+      "take_out": {
+        "latitude": 50.11402482721064,
+        "longitude": -123.42851546396514
+      }
+    },
+    {
+      "title": "Elaho River - Upper",
+      "region": "South Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 50.370230965054134,
+        "longitude": -123.5745839075214
+      },
+      "take_out": {
+        "latitude": 50.336388578099644,
+        "longitude": -123.57467104347265
+      }
+    },
+    {
+      "title": "Elaho-Squamish",
+      "region": "South Coast",
+      "class": "III (IV-)",
+      "put_in": {
+        "latitude": 50.11447657824644,
+        "longitude": -123.42913255607775
+      },
+      "take_out": {
+        "latitude": 50.0630099181038,
+        "longitude": -123.33708048277299
+      }
+    },
+    {
+      "title": "Elk River - Middle",
+      "region": "Kootenay Boundary",
+      "class": "IV",
+      "put_in": {
+        "latitude": 49.280541384106044,
+        "longitude": -115.0998958077181
+      },
+      "take_out": {
+        "latitude": 49.26230617408925,
+        "longitude": -115.09328041321079
+      }
+    },
+    {
+      "title": "Elk River - Upper",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.29684918666058,
+        "longitude": -115.10662654225634
+      }
+    },
+    {
+      "title": "Foley Creek",
+      "region": "South Coast",
+      "class": "III(+) with potential IV moves with wood.",
+      "put_in": {
+        "latitude": 49.1240779606882,
+        "longitude": -121.60059332382014
+      },
+      "take_out": {
+        "latitude": 49.106581076325625,
+        "longitude": -121.63676292093567
+      }
+    },
+    {
+      "title": "Fraser River \u2013 Alexandra Bridge to Yale",
+      "region": "South Coast",
+      "class": ": Two III-IV drops (difficult to portage) and lots of flatwater.",
+      "put_in": {
+        "latitude": 49.70756162687161,
+        "longitude": -121.41603715275176
+      },
+      "take_out": {
+        "latitude": 49.56059862401011,
+        "longitude": -121.42997228546113
+      }
+    },
+    {
+      "title": "Furry Creek",
+      "region": "South Coast",
+      "class": "V-V+"
+    },
+    {
+      "title": "Gamsby River",
+      "region": "North Coast",
+      "class": "III-V",
+      "put_in": {
+        "latitude": 53.48308548329027,
+        "longitude": -127.39129388568517
+      }
+    },
+    {
+      "title": "Gilttoyees Creek",
+      "region": "North Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 54.01649444673828,
+        "longitude": -129.209109407342
+      },
+      "take_out": {
+        "latitude": 53.89147979756484,
+        "longitude": -128.9894827131092
+      }
+    },
+    {
+      "title": "Goldstream Falls",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 51.64250964933859,
+        "longitude": -118.52773177734214
+      },
+      "take_out": {
+        "latitude": 51.66683077997655,
+        "longitude": -118.61615986435405
+      }
+    },
+    {
+      "title": "Gordon River - Flood Run",
+      "region": "Vancouver Island",
+      "class": "III-IV (V).",
+      "put_in": {
+        "latitude": 48.745878876528906,
+        "longitude": -124.36321262120126
+      },
+      "take_out": {
+        "latitude": 48.696523789117265,
+        "longitude": -124.41567662600359
+      }
+    },
+    {
+      "title": "Gordon River - Middle Gordon",
+      "region": "Vancouver Island",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 48.67507528818655,
+        "longitude": -124.43119958180225
+      },
+      "take_out": {
+        "latitude": 48.65340531034812,
+        "longitude": -124.46186863998759
+      }
+    },
+    {
+      "title": "Gordon River - Upper Gordon",
+      "region": "Vancouver Island",
+      "class": "IV at medium water.",
+      "put_in": {
+        "latitude": 48.696541518627185,
+        "longitude": -124.41561249441448
+      },
+      "take_out": {
+        "latitude": 48.672110269313066,
+        "longitude": -124.43497045685471
+      }
+    },
+    {
+      "title": "Grand Canyon of the Stikine",
+      "region": "Northwest",
+      "class": "V",
+      "put_in": {
+        "latitude": 58.04344981402443,
+        "longitude": -129.94912800332483
+      },
+      "take_out": {
+        "latitude": 58.010096541737454,
+        "longitude": -130.98092451868834
+      }
+    },
+    {
+      "title": "Granite Creek",
+      "region": "Vancouver Island",
+      "class": "V",
+      "put_in": {
+        "latitude": 48.63678834647126,
+        "longitude": -124.29171391809763
+      },
+      "take_out": {
+        "latitude": 48.59741295286716,
+        "longitude": -124.28858661126228
+      }
+    },
+    {
+      "title": "Granite Creek (Tulameen)",
+      "region": "Thompson Okanagan",
+      "class": "IV+ (P)"
+    },
+    {
+      "title": "Green River - Middle",
+      "region": "South Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 50.17837942961984,
+        "longitude": -122.87576744219069
+      },
+      "take_out": {
+        "latitude": 50.23787756230885,
+        "longitude": -122.85386219963112
+      }
+    },
+    {
+      "title": "Gun Creek",
+      "region": "South Coast",
+      "class": "III-IV.  Slightly stressful because of wood, and a lack of good eddies.",
+      "put_in": {
+        "latitude": 50.91296286299354,
+        "longitude": -122.92409821715329
+      },
+      "take_out": {
+        "latitude": 50.89441787995645,
+        "longitude": -122.77369283572129
+      }
+    },
+    {
+      "title": "Harris Creek - Canyon",
+      "region": "Vancouver Island",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 48.64052529331178,
+        "longitude": -124.23043684028059
+      },
+      "take_out": {
+        "latitude": 48.63498663009847,
+        "longitude": -124.24964762340551
+      }
+    },
+    {
+      "title": "Heber River - Lower",
+      "region": "Vancouver Island",
+      "class": "IV-V (P)",
+      "put_in": {
+        "latitude": 49.799742213518925,
+        "longitude": -126.0050086855407
+      },
+      "take_out": {
+        "latitude": 49.77401437845353,
+        "longitude": -126.05081069419944
+      }
+    },
+    {
+      "title": "Hirsch Creek",
+      "region": "North Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 54.08573104928752,
+        "longitude": -128.54859920417655
+      },
+      "take_out": {
+        "latitude": 54.063806163885175,
+        "longitude": -128.60265235010166
+      }
+    },
+    {
+      "title": "Homathko River",
+      "region": "Central Coast",
+      "class": "V (V+)",
+      "put_in": {
+        "latitude": 51.483236309763925,
+        "longitude": -124.41232972919649
+      },
+      "take_out": {
+        "latitude": 50.953232042956216,
+        "longitude": -124.86815411989264
+      }
+    },
+    {
+      "title": "Hurley River - Canyon",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.775681026256876,
+        "longitude": -122.81985779347565
+      },
+      "take_out": {
+        "latitude": 50.851279313431434,
+        "longitude": -122.84721247895516
+      }
+    },
+    {
+      "title": "Iskut River",
+      "region": "Northwest",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 57.44657240607668,
+        "longitude": -130.26991506120058
+      },
+      "take_out": {
+        "latitude": 56.94070553102901,
+        "longitude": -130.34803653198338
+      }
+    },
+    {
+      "title": "Iskut River - Kinaskan Lake down",
+      "region": "Northwest",
+      "class": "II",
+      "put_in": {
+        "latitude": 57.531185239631355,
+        "longitude": -130.1833258423253
+      },
+      "take_out": {
+        "latitude": 57.478039258751494,
+        "longitude": -130.24241609900494
+      }
+    },
+    {
+      "title": "Jordan River",
+      "region": "Kootenay Boundary",
+      "class": "IV+",
+      "put_in": {
+        "latitude": 51.04420492811019,
+        "longitude": -118.27460679059627
+      },
+      "take_out": {
+        "latitude": 51.024087932500976,
+        "longitude": -118.24431370060493
+      }
+    },
+    {
+      "title": "Khtada River",
+      "region": "North Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 54.16471520514449,
+        "longitude": -129.5764447427118
+      }
+    },
+    {
+      "title": "Kicking Horse - Palliser to Kicking Horse Rest Area",
+      "region": "Kootenay Boundary",
+      "class": "III+/IV",
+      "put_in": {
+        "latitude": 51.25534573153283,
+        "longitude": -116.71529928020959
+      },
+      "take_out": {
+        "latitude": 51.28779259500328,
+        "longitude": -116.82346829140525
+      }
+    },
+    {
+      "title": "Kicking Horse River - Kicking Horse Rest Area to Lower Canyon",
+      "region": "Kootenay Boundary",
+      "class": "V"
+    },
+    {
+      "title": "Kicking Horse River - Lower Canyon to Downtown Golden",
+      "region": "Kootenay Boundary",
+      "class": "IV",
+      "put_in": {
+        "latitude": 51.297485552049864,
+        "longitude": -116.86386901485935
+      },
+      "take_out": {
+        "latitude": 51.29691838080291,
+        "longitude": -116.9550035726894
+      }
+    },
+    {
+      "title": "Kicking Horse - Yoho Park Boundary to Palliser",
+      "region": "Kootenay Boundary",
+      "class": "II+",
+      "put_in": {
+        "latitude": 51.209057371416975,
+        "longitude": -116.61928964409958
+      },
+      "take_out": {
+        "latitude": 51.25538487546058,
+        "longitude": -116.71531131402429
+      }
+    },
+    {
+      "title": "Kitsumkalum (Kalum) River",
+      "region": "North Coast",
+      "class": "III+ to IV.  Pushy at high water - a swim would be unpleasant.",
+      "take_out": {
+        "latitude": 54.568839518795244,
+        "longitude": -128.66384953364016
+      }
+    },
+    {
+      "title": "Klastline",
+      "region": "Northwest",
+      "class": "V",
+      "put_in": {
+        "latitude": 57.72842420372001,
+        "longitude": -130.4331425817474
+      },
+      "take_out": {
+        "latitude": 58.01065678586747,
+        "longitude": -130.98107651908657
+      }
+    },
+    {
+      "title": "Kleanza Creek",
+      "region": "North Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 54.57116726030924,
+        "longitude": -128.28376060855956
+      },
+      "take_out": {
+        "latitude": 54.59745795405365,
+        "longitude": -128.38238614168154
+      }
+    },
+    {
+      "title": "Kokish River",
+      "region": "Vancouver Island",
+      "class": "V at medium levels.",
+      "put_in": {
+        "latitude": 50.458542666997545,
+        "longitude": -126.81225265980288
+      },
+      "take_out": {
+        "latitude": 50.51925517457056,
+        "longitude": -126.8754707441421
+      }
+    },
+    {
+      "title": "Koksilah River - Canyon",
+      "region": "Vancouver Island",
+      "class": "III-IV",
+      "put_in": {
+        "latitude": 48.6686574685522,
+        "longitude": -123.69533861960628
+      },
+      "take_out": {
+        "latitude": 48.72887900863543,
+        "longitude": -123.67167019066378
+      }
+    },
+    {
+      "title": "Lens Creek",
+      "region": "Vancouver Island",
+      "class": "IV-V at low to medium flows",
+      "put_in": {
+        "latitude": 48.638246588557195,
+        "longitude": -124.17495904897268
+      },
+      "take_out": {
+        "latitude": 48.59770528226369,
+        "longitude": -124.23311750796039
+      }
+    },
+    {
+      "title": "Lillooet River - Between the Lakes",
+      "region": "South Coast",
+      "class": "Class II/III+ (IV)",
+      "put_in": {
+        "latitude": 50.09172394401631,
+        "longitude": -122.53829827319916
+      },
+      "take_out": {
+        "latitude": 49.78896993149621,
+        "longitude": -122.22327307340433
+      }
+    },
+    {
+      "title": "Link River",
+      "region": "Vancouver Island",
+      "class": "III below the slides",
+      "put_in": {
+        "latitude": 50.43185876790497,
+        "longitude": -127.4064977401776
+      },
+      "take_out": {
+        "latitude": 50.43873263060985,
+        "longitude": -127.39128326109693
+      }
+    },
+    {
+      "title": "Little Qualicum Falls",
+      "region": "Vancouver Island",
+      "class": "V"
+    },
+    {
+      "title": "Lower Mamquam",
+      "region": "South Coast",
+      "class": "II+",
+      "put_in": {
+        "latitude": 49.72381319614249,
+        "longitude": -123.09575893655892
+      },
+      "take_out": {
+        "latitude": 49.731115986349096,
+        "longitude": -123.14557361045516
+      }
+    },
+    {
+      "title": "Lower Pingston",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.43859620069313,
+        "longitude": -117.97026634176169
+      },
+      "take_out": {
+        "latitude": 50.4406145991353,
+        "longitude": -117.95529136693196
+      }
+    },
+    {
+      "title": "Lynn Creek",
+      "region": "South Coast",
+      "class": "III at low levels, IV when the water is high.",
+      "put_in": {
+        "latitude": 49.34289540294182,
+        "longitude": -123.01787153857398
+      },
+      "take_out": {
+        "latitude": 49.31265817766288,
+        "longitude": -123.0340632929633
+      }
+    },
+    {
+      "title": "Mahatta River",
+      "region": "Vancouver Island",
+      "class": "IV with one harder rapid",
+      "put_in": {
+        "latitude": 50.42688616999007,
+        "longitude": -127.78542905640421
+      },
+      "take_out": {
+        "latitude": 50.46093051720953,
+        "longitude": -127.80118322863592
+      }
+    },
+    {
+      "title": "Mamquam River - Mamquam Falls",
+      "region": "South Coast",
+      "class": "V"
+    },
+    {
+      "title": "Mamquam River - Upper",
+      "region": "South Coast",
+      "class": "III-IV",
+      "put_in": {
+        "latitude": 49.71738556391722,
+        "longitude": -122.99507130820876
+      },
+      "take_out": {
+        "latitude": 49.718651795342566,
+        "longitude": -123.01834726235523
+      }
+    },
+    {
+      "title": "Marble River",
+      "region": "Vancouver Island",
+      "class": "II-III with optional V",
+      "put_in": {
+        "latitude": 50.53026903272891,
+        "longitude": -127.43278807756766
+      },
+      "take_out": {
+        "latitude": 50.59845435016268,
+        "longitude": -127.58126406812623
+      }
+    },
+    {
+      "title": "McDame Creek",
+      "region": "Northwest",
+      "class": "II-III",
+      "put_in": {
+        "latitude": 59.266743241445795,
+        "longitude": -129.57395033131186
+      },
+      "take_out": {
+        "latitude": 59.27411704238247,
+        "longitude": -129.41151732304257
+      }
+    },
+    {
+      "title": "McGregor Canyon",
+      "region": "Omineca",
+      "class": "IV+-V",
+      "put_in": {
+        "latitude": 54.14747063252119,
+        "longitude": -121.30069158936342
+      },
+      "take_out": {
+        "latitude": 54.26598644766483,
+        "longitude": -121.47329459707304
+      }
+    },
+    {
+      "title": "Meager Creek - Lower",
+      "region": "South Coast",
+      "class": "IV(+), very continuous",
+      "put_in": {
+        "latitude": 50.59232076435188,
+        "longitude": -123.43916649059086
+      },
+      "take_out": {
+        "latitude": 50.59593239015095,
+        "longitude": -123.37170267078518
+      }
+    },
+    {
+      "title": "Middle Memekay River",
+      "region": "Vancouver Island",
+      "class": "III+ with one IV",
+      "put_in": {
+        "latitude": 50.17210505091427,
+        "longitude": -125.82680031921022
+      },
+      "take_out": {
+        "latitude": 50.21366942825898,
+        "longitude": -125.77473643340416
+      }
+    },
+    {
+      "title": "Moyeha River",
+      "region": "Vancouver Island",
+      "class": "Scenic I-III packrafting, or manky IV-V creeking",
+      "put_in": {
+        "latitude": 49.49758863107826,
+        "longitude": -125.73121229031113
+      },
+      "take_out": {
+        "latitude": 49.42019100774428,
+        "longitude": -125.90685988620731
+      }
+    },
+    {
+      "title": "Muelville Creek falls",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.850403749479796,
+        "longitude": -118.11929710752351
+      }
+    },
+    {
+      "title": "Nahatlach River \u2013 Francis Lake to Apocynum Campground",
+      "region": "South Coast",
+      "class": "III+(IV)",
+      "put_in": {
+        "latitude": 50.00935542260862,
+        "longitude": -121.63135659558662
+      },
+      "take_out": {
+        "latitude": 49.99649978704426,
+        "longitude": -121.55008879678971
+      }
+    },
+    {
+      "title": "Nahatlatch River - Canyon",
+      "region": "South Coast",
+      "class": "IV at medium levels.",
+      "put_in": {
+        "latitude": 49.996888560311476,
+        "longitude": -121.55016061564871
+      },
+      "take_out": {
+        "latitude": 49.981676781065175,
+        "longitude": -121.51766152930722
+      }
+    },
+    {
+      "title": "Nass River",
+      "region": "Northwest",
+      "class": "III-V",
+      "put_in": {
+        "latitude": 57.137479433775155,
+        "longitude": -129.0798649390592
+      },
+      "take_out": {
+        "latitude": 55.80301415283938,
+        "longitude": -128.9181417912286
+      }
+    },
+    {
+      "title": "Norrish Creek",
+      "region": "South Coast",
+      "class": "IV-IV+ at medium levels.  Mainly class III-IV but one unportagable rapid is tricky and dangerous.",
+      "put_in": {
+        "latitude": 49.21864724000278,
+        "longitude": -122.14784164484642
+      },
+      "take_out": {
+        "latitude": 49.17559426217355,
+        "longitude": -122.14951314653817
+      }
+    },
+    {
+      "title": "North Stein River",
+      "region": "South Coast",
+      "class": "V+",
+      "take_out": {
+        "latitude": 50.236394926846884,
+        "longitude": -121.58313833160268
+      }
+    },
+    {
+      "title": "Pamela Creek",
+      "region": "Vancouver Island",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 49.71680605209053,
+        "longitude": -125.98664805603244
+      },
+      "take_out": {
+        "latitude": 49.71690874622084,
+        "longitude": -126.04522125763279
+      }
+    },
+    {
+      "title": "Perry River",
+      "region": "Thompson Okanagan",
+      "class": "III-IV",
+      "put_in": {
+        "latitude": 51.07326921372598,
+        "longitude": -118.69536489800575
+      },
+      "take_out": {
+        "latitude": 51.00010581899849,
+        "longitude": -118.69531682108499
+      }
+    },
+    {
+      "title": "Pingston - Middle",
+      "region": "Kootenay Boundary",
+      "class": "IV with a short V section at the end",
+      "put_in": {
+        "latitude": 50.48924562852429,
+        "longitude": -118.00041146381295
+      },
+      "take_out": {
+        "latitude": 50.438797774778465,
+        "longitude": -117.97103567131835
+      }
+    },
+    {
+      "title": "Pitt River - Upper",
+      "region": "South Coast",
+      "class": "IV+ with a portage",
+      "put_in": {
+        "latitude": 49.870680964282144,
+        "longitude": -122.92427156009498
+      }
+    },
+    {
+      "title": "Prospect Creek",
+      "region": "Thompson Okanagan",
+      "class": "IV",
+      "put_in": {
+        "latitude": 50.0430405231632,
+        "longitude": -121.15048984035259
+      },
+      "take_out": {
+        "latitude": 50.136043439491914,
+        "longitude": -121.02982794909633
+      }
+    },
+    {
+      "title": "Puntledge River - Upper",
+      "region": "Vancouver Island",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.664614702350775,
+        "longitude": -125.09499658011188
+      },
+      "take_out": {
+        "latitude": 49.696374643430204,
+        "longitude": -125.00075913431814
+      }
+    },
+    {
+      "title": "Quesnel River",
+      "region": "Cariboo",
+      "class": "III+ to IV- (IV at High water)",
+      "put_in": {
+        "latitude": 52.615747502984874,
+        "longitude": -121.57172814602603
+      },
+      "take_out": {
+        "latitude": 52.66298430869037,
+        "longitude": -121.67320531020871
+      }
+    },
+    {
+      "title": "Rogers Creek",
+      "region": "South Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 50.00464296404215,
+        "longitude": -122.4573090211826
+      },
+      "take_out": {
+        "latitude": 49.99144843090096,
+        "longitude": -122.45691030366184
+      }
+    },
+    {
+      "title": "Rutherford Creek",
+      "region": "South Coast",
+      "class": "Continuous class IV-V, class V at higher levels.",
+      "take_out": {
+        "latitude": 50.27162394153217,
+        "longitude": -122.86789381224821
+      }
+    },
+    {
+      "title": "Ryan River - Lower",
+      "region": "South Coast",
+      "class": "Continuous class IV-V. Class V at high flows."
+    },
+    {
+      "title": "Ryan River - Upper",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.452354401544966,
+        "longitude": -123.09599211754873
+      },
+      "take_out": {
+        "latitude": 50.47211659830535,
+        "longitude": -123.01342284827524
+      }
+    },
+    {
+      "title": "Seton River",
+      "region": "South Coast",
+      "class": "II+",
+      "put_in": {
+        "latitude": 50.671019430388725,
+        "longitude": -121.9691053977545
+      },
+      "take_out": {
+        "latitude": 50.68007201406931,
+        "longitude": -121.93156192369408
+      }
+    },
+    {
+      "title": "Seymour River Canyon",
+      "region": "South Coast",
+      "class": "Highly level dependent - ranges from fun class IV to raging class V.",
+      "take_out": {
+        "latitude": 49.328960135473636,
+        "longitude": -123.00903013044062
+      }
+    },
+    {
+      "title": "Seymour River - Lower run",
+      "region": "South Coast",
+      "class": "II (III- at high levels)",
+      "put_in": {
+        "latitude": 49.32183926621744,
+        "longitude": -123.01394307575987
+      },
+      "take_out": {
+        "latitude": 49.30337069535105,
+        "longitude": -123.02427266886413
+      }
+    },
+    {
+      "title": "Seymour River \u2013 Upper Run",
+      "region": "South Coast",
+      "class": "III-",
+      "put_in": {
+        "latitude": 49.42409775839812,
+        "longitude": -122.97121344552471
+      },
+      "take_out": {
+        "latitude": 49.34610199164533,
+        "longitude": -123.00266232622252
+      }
+    },
+    {
+      "title": "Silverhope Creek",
+      "region": "South Coast",
+      "class": "IV-IV+ to V, depending on the put in and take out used.",
+      "put_in": {
+        "latitude": 49.321547983633934,
+        "longitude": -121.41518694537343
+      },
+      "take_out": {
+        "latitude": 49.36235980158895,
+        "longitude": -121.471514467828
+      }
+    },
+    {
+      "title": "Similkameen Canyon",
+      "region": "Thompson Okanagan",
+      "class": "III+/IV-/IV",
+      "put_in": {
+        "latitude": 49.18890228804892,
+        "longitude": -120.5614637282546
+      },
+      "take_out": {
+        "latitude": 49.23740336238646,
+        "longitude": -120.53589143736309
+      }
+    },
+    {
+      "title": "Similkameen River - Bromley to Stemwinder",
+      "region": "Thompson Okanagan",
+      "class": "II (III)",
+      "put_in": {
+        "latitude": 49.416831441486124,
+        "longitude": -120.25863716234626
+      },
+      "take_out": {
+        "latitude": 49.37261729010771,
+        "longitude": -120.14097907033025
+      }
+    },
+    {
+      "title": "Skagit River - Wilderness Section",
+      "region": "South Coast",
+      "class": "II-III",
+      "put_in": {
+        "latitude": 49.209407754200214,
+        "longitude": -121.08046925232362
+      },
+      "take_out": {
+        "latitude": 49.117914930005185,
+        "longitude": -121.16820095323465
+      }
+    },
+    {
+      "title": "Skookumchuck",
+      "region": "South Coast",
+      "class": "III, massive volume."
+    },
+    {
+      "title": "Skookumchuck Creek",
+      "region": "Kootenay Boundary",
+      "class": "III+-IV",
+      "take_out": {
+        "latitude": 49.91140228700576,
+        "longitude": -115.7686104267668
+      }
+    },
+    {
+      "title": "Skookum Creek",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.739113659689735,
+        "longitude": -122.95211537526694
+      },
+      "take_out": {
+        "latitude": 49.71908252868238,
+        "longitude": -122.99542946184391
+      }
+    },
+    {
+      "title": "Slesse Creek",
+      "region": "South Coast",
+      "class": "III with a short IV- canyon",
+      "put_in": {
+        "latitude": 49.038742280786494,
+        "longitude": -121.6631965798987
+      },
+      "take_out": {
+        "latitude": 49.07783765360773,
+        "longitude": -121.71098493952317
+      }
+    },
+    {
+      "title": "Small River",
+      "region": "Omineca",
+      "class": "III-IV (optional V at put in)",
+      "put_in": {
+        "latitude": 53.07067976645132,
+        "longitude": -119.57594182277533
+      },
+      "take_out": {
+        "latitude": 53.05974695998685,
+        "longitude": -119.61414504284406
+      }
+    },
+    {
+      "title": "Snowcap Creek",
+      "region": "South Coast",
+      "class": "III-V",
+      "put_in": {
+        "latitude": 49.89663144705108,
+        "longitude": -122.43909555142855
+      },
+      "take_out": {
+        "latitude": 49.928621756875344,
+        "longitude": -122.40029758317546
+      }
+    },
+    {
+      "title": "Soo River",
+      "region": "South Coast",
+      "class": "IV at medium levels, somewhat continuous.  Tolerates high water very well, but becomes class V.",
+      "put_in": {
+        "latitude": 50.22990389886007,
+        "longitude": -122.87180921108039
+      },
+      "take_out": {
+        "latitude": 50.2553533049647,
+        "longitude": -122.86106126608786
+      }
+    },
+    {
+      "title": "Soo River - Railroad Canyon",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.22067736725165,
+        "longitude": -122.88645623908833
+      }
+    },
+    {
+      "title": "Spillimacheen",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.90131385786077,
+        "longitude": -116.43431269095818
+      },
+      "take_out": {
+        "latitude": 50.904315858466475,
+        "longitude": -116.4065384627383
+      }
+    },
+    {
+      "title": "Squamish River - Upper",
+      "region": "South Coast",
+      "class": "III-IV boating through some significant canyons.",
+      "put_in": {
+        "latitude": 50.203931540227785,
+        "longitude": -123.3726941209913
+      },
+      "take_out": {
+        "latitude": 50.163028220357944,
+        "longitude": -123.39824871837362
+      }
+    },
+    {
+      "title": "Statlu Creek - Statlu Canyon",
+      "region": "South Coast",
+      "class": "V at medium levels.",
+      "put_in": {
+        "latitude": 49.358251724849055,
+        "longitude": -122.0800736831647
+      },
+      "take_out": {
+        "latitude": 49.34737733236014,
+        "longitude": -122.02519937070934
+      }
+    },
+    {
+      "title": "Stave River",
+      "region": "South Coast",
+      "class": "V (V+ to VI)"
+    },
+    {
+      "title": "Stawamus River",
+      "region": "South Coast",
+      "class": "III (V)",
+      "put_in": {
+        "latitude": 49.70204676400101,
+        "longitude": -123.10276727487923
+      },
+      "take_out": {
+        "latitude": 49.70011355974913,
+        "longitude": -123.12412952831758
+      }
+    },
+    {
+      "title": "Stein River - Multiday Trip",
+      "region": "South Coast",
+      "class": "IV-IV+, V at high water",
+      "put_in": {
+        "latitude": 50.167223217435776,
+        "longitude": -122.1688855490699
+      },
+      "take_out": {
+        "latitude": 50.226593617979006,
+        "longitude": -121.58448769974021
+      }
+    },
+    {
+      "title": "Stikine - Tahltan to Telegraph",
+      "region": "Northwest",
+      "class": "II-III",
+      "put_in": {
+        "latitude": 58.01019442830017,
+        "longitude": -130.9812426906062
+      },
+      "take_out": {
+        "latitude": 57.90015657012168,
+        "longitude": -131.16300618853373
+      }
+    },
+    {
+      "title": "St. Leon Creek",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.436056739999145,
+        "longitude": -117.8645535343269
+      },
+      "take_out": {
+        "latitude": 50.440479636663326,
+        "longitude": -117.88576429559276
+      }
+    },
+    {
+      "title": "Tamihi Creek (Lower)",
+      "region": "South Coast",
+      "class": "IV+ with a mandatory portage",
+      "put_in": {
+        "latitude": 49.03309928916232,
+        "longitude": -121.81430184461826
+      },
+      "take_out": {
+        "latitude": 49.07060937743637,
+        "longitude": -121.84093458972163
+      }
+    },
+    {
+      "title": "Tamihi Creek - Upper",
+      "region": "South Coast",
+      "class": "IV+ / V",
+      "put_in": {
+        "latitude": 49.00911660241147,
+        "longitude": -121.77755390408495
+      },
+      "take_out": {
+        "latitude": 49.03178982771445,
+        "longitude": -121.81342107720917
+      }
+    },
+    {
+      "title": "Tatlow Creek",
+      "region": "South Coast",
+      "class": "V",
+      "put_in": {
+        "latitude": 49.96646267104771,
+        "longitude": -123.5019969940787
+      },
+      "take_out": {
+        "latitude": 49.97221440618338,
+        "longitude": -123.49088757083634
+      }
+    },
+    {
+      "title": "Thompson River",
+      "region": "South Coast",
+      "class": "III, big water.",
+      "put_in": {
+        "latitude": 50.26895486730609,
+        "longitude": -121.401256231525
+      },
+      "take_out": {
+        "latitude": 50.22610223796568,
+        "longitude": -121.58397603520875
+      }
+    },
+    {
+      "title": "Thompson River \u2013 Goldpan to Frog",
+      "region": "Thompson Okanagan",
+      "class": "III-",
+      "put_in": {
+        "latitude": 50.34834833189939,
+        "longitude": -121.3902415134786
+      },
+      "take_out": {
+        "latitude": 50.26862380067135,
+        "longitude": -121.40231128389411
+      }
+    },
+    {
+      "title": "Tingle Creek",
+      "region": "South Coast",
+      "class": "II-III",
+      "put_in": {
+        "latitude": 49.49575793355635,
+        "longitude": -122.38202480694797
+      },
+      "take_out": {
+        "latitude": 49.37170938826344,
+        "longitude": -122.31265022914386
+      }
+    },
+    {
+      "title": "Toby Creek - 7 Canyons",
+      "region": "Kootenay Boundary",
+      "class": "Mostly class IV/IV+ with one definite class V that can be portaged",
+      "put_in": {
+        "latitude": 50.486394043394796,
+        "longitude": -116.1880414031553
+      },
+      "take_out": {
+        "latitude": 50.52070187920003,
+        "longitude": -116.04521016900395
+      }
+    },
+    {
+      "title": "Trent River",
+      "region": "Vancouver Island",
+      "class": "V for the waterfall; III for the paddle out",
+      "put_in": {
+        "latitude": 49.60179124578366,
+        "longitude": -124.97985721883646
+      },
+      "take_out": {
+        "latitude": 49.638108765888944,
+        "longitude": -124.93519495386687
+      }
+    },
+    {
+      "title": "Trout Creek",
+      "region": "Thompson Okanagan",
+      "class": "IV+",
+      "put_in": {
+        "latitude": 49.58304618282017,
+        "longitude": -119.73253002863464
+      },
+      "take_out": {
+        "latitude": 49.5633663294488,
+        "longitude": -119.63290967456125
+      }
+    },
+    {
+      "title": "Troutline Creek",
+      "region": "Northwest",
+      "class": "I-II; V+ Canyon Below",
+      "put_in": {
+        "latitude": 59.28249025798172,
+        "longitude": -129.81747699245224
+      },
+      "take_out": {
+        "latitude": 59.26879534207231,
+        "longitude": -129.727871918307
+      }
+    },
+    {
+      "title": "Tsable River - Prickly Canyon",
+      "region": "Vancouver Island",
+      "class": "V",
+      "take_out": {
+        "latitude": 49.5173177527962,
+        "longitude": -124.83762508660553
+      }
+    },
+    {
+      "title": "Tulameen River",
+      "region": "South Coast",
+      "class": "II-III (IV for \"Tulameanie Drop\"",
+      "put_in": {
+        "latitude": 49.50403035629125,
+        "longitude": -120.67554211098928
+      },
+      "take_out": {
+        "latitude": 49.46310288105843,
+        "longitude": -120.51181037318437
+      }
+    },
+    {
+      "title": "Tutshi River",
+      "region": "Northwest",
+      "class": "III-IV at low water, IV-V at high water",
+      "put_in": {
+        "latitude": 59.7655259454217,
+        "longitude": -134.92116320334483
+      },
+      "take_out": {
+        "latitude": 59.796172244312885,
+        "longitude": -134.8887357237279
+      }
+    },
+    {
+      "title": "Ucona River - Upper",
+      "region": "Vancouver Island",
+      "class": "IV with optional V",
+      "put_in": {
+        "latitude": 49.732616494202034,
+        "longitude": -126.00725924398867
+      },
+      "take_out": {
+        "latitude": 49.71700818431617,
+        "longitude": -126.02660319712834
+      }
+    },
+    {
+      "title": "Upana River",
+      "region": "Vancouver Island",
+      "class": "IV+ to V",
+      "put_in": {
+        "latitude": 49.80960517584873,
+        "longitude": -126.11091644313345
+      },
+      "take_out": {
+        "latitude": 49.799162581002605,
+        "longitude": -126.06972540378784
+      }
+    },
+    {
+      "title": "Upper Callaghan",
+      "region": "South Coast",
+      "class": "III+ with one IV- easy waterfall",
+      "put_in": {
+        "latitude": 50.119584184350856,
+        "longitude": -123.12374534928387
+      },
+      "take_out": {
+        "latitude": 50.09277453950108,
+        "longitude": -123.1247947335093
+      }
+    },
+    {
+      "title": "Upper Pingston",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 50.539025737482746,
+        "longitude": -118.0034841335207
+      },
+      "take_out": {
+        "latitude": 50.48952144897373,
+        "longitude": -118.00054962669121
+      }
+    },
+    {
+      "title": "Upper Soo",
+      "region": "South Coast",
+      "class": "III (with a major portage, and quite a bit of flat water)",
+      "put_in": {
+        "latitude": 50.26303643371716,
+        "longitude": -123.20017555903621
+      },
+      "take_out": {
+        "latitude": 50.2263244008808,
+        "longitude": -122.91143482157476
+      }
+    },
+    {
+      "title": "Upper Tulameen",
+      "region": "South Coast",
+      "class": "III-V",
+      "put_in": {
+        "latitude": 49.5088775028521,
+        "longitude": -120.92835176568519
+      },
+      "take_out": {
+        "latitude": 49.5420359744173,
+        "longitude": -120.7566939350838
+      }
+    },
+    {
+      "title": "White River - Canyon",
+      "region": "Vancouver Island",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 50.14396356126878,
+        "longitude": -126.01971399456508
+      },
+      "take_out": {
+        "latitude": 50.176021479668435,
+        "longitude": -125.99206234044529
+      }
+    },
+    {
+      "title": "White River - Lower",
+      "region": "Vancouver Island",
+      "class": "III",
+      "put_in": {
+        "latitude": 50.22105379489531,
+        "longitude": -125.97006172528226
+      },
+      "take_out": {
+        "latitude": 50.307687624426876,
+        "longitude": -125.91794592391582
+      }
+    },
+    {
+      "title": "White River (Nass tributary)",
+      "region": "Northwest",
+      "class": "IV",
+      "put_in": {
+        "latitude": 55.94300863616078,
+        "longitude": -129.22543875821344
+      },
+      "take_out": {
+        "latitude": 55.96646971558846,
+        "longitude": -129.08094721240892
+      }
+    },
+    {
+      "title": "White River - Upper",
+      "region": "Vancouver Island",
+      "class": "III-IV (P)",
+      "put_in": {
+        "latitude": 50.17600453227223,
+        "longitude": -125.99205484646006
+      },
+      "take_out": {
+        "latitude": 50.22120858440175,
+        "longitude": -125.96956469220099
+      }
+    },
+    {
+      "title": "Williams Creek",
+      "region": "North Coast",
+      "class": "IV-V",
+      "put_in": {
+        "latitude": 54.41021926543877,
+        "longitude": -128.37742569365855
+      },
+      "take_out": {
+        "latitude": 54.442332664915625,
+        "longitude": -128.4785626472915
+      }
+    },
+    {
+      "title": "Wilson/Fitzstubbs Creek",
+      "region": "Kootenay Boundary",
+      "class": "III-V",
+      "put_in": {
+        "latitude": 50.15457098746154,
+        "longitude": -117.40901777643379
+      },
+      "take_out": {
+        "latitude": 50.029066933273896,
+        "longitude": -117.41448722873079
+      }
+    },
+    {
+      "title": "Yoho",
+      "region": "Kootenay Boundary",
+      "class": "V",
+      "put_in": {
+        "latitude": 51.497484846516414,
+        "longitude": -116.48308202937989
+      },
+      "take_out": {
+        "latitude": 51.452741628756144,
+        "longitude": -116.43897065944567
+      }
+    }
+  ]
+}

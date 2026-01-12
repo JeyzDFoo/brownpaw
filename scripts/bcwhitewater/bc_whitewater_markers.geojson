@@ -1,0 +1,6197 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.17493217628152,
+          50.38553085170929
+        ]
+      },
+      "properties": {
+        "title": "Adam River",
+        "region": "Vancouver Island",
+        "class": "III+ with one optional V-",
+        "location_type": "put_in",
+        "description": "Put in at an FSR bridge over the Adam",
+        "url": "https://www.bcwhitewater.org/reaches/adam-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.22916115162377,
+          50.42586294581173
+        ]
+      },
+      "properties": {
+        "title": "Adam River",
+        "region": "Vancouver Island",
+        "class": "III+ with one optional V-",
+        "location_type": "take_out",
+        "description": "Take out at a big eddy on the right. Steep bushwhack up to an old logging spur. Scout the takeout before putting on.",
+        "url": "https://www.bcwhitewater.org/reaches/adam-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -137.75854073989296,
+          60.72663877540569
+        ]
+      },
+      "properties": {
+        "title": "Alsek River",
+        "region": "Northwest",
+        "class": "III-IV (V through Turnback Canyon)",
+        "location_type": "put_in",
+        "description": "Serpentine Creek is another put-in option if you have a 4x4 capable shuttle vehicle.",
+        "url": "https://www.bcwhitewater.org/reaches/alsek-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -138.47940675851322,
+          59.18446633301613
+        ]
+      },
+      "properties": {
+        "title": "Alsek River",
+        "region": "Northwest",
+        "class": "III-IV (V through Turnback Canyon)",
+        "location_type": "take_out",
+        "description": "You can pull out here and hike or float (at high flows) to the air strip.",
+        "url": "https://www.bcwhitewater.org/reaches/alsek-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.33138082469796,
+          49.921005974597705
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Bottom Mile",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "The put-in is roughly 1.5km up from the bridge at the first place where the road comes close to the river.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-bottom-mile"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.32434650975937,
+          49.913767217102986
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Bottom Mile",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "You can takeout at the powerhouse or downstream at the bridges.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-bottom-mile"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.36019837666694,
+          49.9341821781166
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Box Canyon",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Put-in at the bridge to run 50/50 or walk downstream on the trail on river left to seal launch into the canyon below.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-box-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.33838183700979,
+          49.91842372105015
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Box Canyon",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Park in one of the pullouts near the obvious debris flow corner.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-box-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.41290920756585,
+          49.94545859264775
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Mine Run",
+        "region": "South Coast",
+        "class": "IV-V at medium levels.",
+        "location_type": "put_in",
+        "description": "If you get the hike right, you'll end up here, mid-way through one of the bigger rapids of the run. If you get it wrong, you will probably be on a cliff.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-mine-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.37876653992988,
+          49.93482617544325
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Mine Run",
+        "region": "South Coast",
+        "class": "IV-V at medium levels.",
+        "location_type": "take_out",
+        "description": "Takeout above the dam on river right.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-mine-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.52690324286743,
+          49.993031388028896
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Play Run",
+        "region": "South Coast",
+        "class": "III+ (IV-)",
+        "location_type": "put_in",
+        "description": "The road up here is very overgrown.",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-play-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.42257954591106,
+          49.95034296079942
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Creek - Play Run",
+        "region": "South Coast",
+        "class": "III+ (IV-)",
+        "location_type": "take_out",
+        "description": "There used to be a clearly marked trail with flagging tape but this may now not be obvious... check before you paddle down or you risk paddling into the Mine run!",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-creek-play-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.37859689354241,
+          49.93436798324751
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Mini Mine",
+        "region": "South Coast",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-mini-mine"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.36011543282024,
+          49.93429465991204
+        ]
+      },
+      "properties": {
+        "title": "Ashlu Mini Mine",
+        "region": "South Coast",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/ashlu-mini-mine"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.19963140454149,
+          49.152287858353276
+        ]
+      },
+      "properties": {
+        "title": "Ashnola River",
+        "region": "Thompson Okanagan",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "The upper put-in.",
+        "url": "https://www.bcwhitewater.org/reaches/ashnola-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.99644338358796,
+          49.197161759675055
+        ]
+      },
+      "properties": {
+        "title": "Ashnola River",
+        "region": "Thompson Okanagan",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "Great camping.",
+        "url": "https://www.bcwhitewater.org/reaches/ashnola-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.69734565365962,
+          55.42601678018167
+        ]
+      },
+      "properties": {
+        "title": "Babine River",
+        "region": "Northwest",
+        "class": "III+-IV",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/babine-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.6894799721552,
+          55.69532332621293
+        ]
+      },
+      "properties": {
+        "title": "Babine River",
+        "region": "Northwest",
+        "class": "III+-IV",
+        "location_type": "take_out",
+        "description": "Take out for shorter trip",
+        "url": "https://www.bcwhitewater.org/reaches/babine-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.49194543830694,
+          51.4879342998577
+        ]
+      },
+      "properties": {
+        "title": "Beaver River (Kinbasket Canyon)",
+        "region": "Kootenay Boundary",
+        "class": "IV/IV+",
+        "location_type": "put_in",
+        "description": "A muddy and rutted road leads to the bridge that serves as a put in.",
+        "url": "https://www.bcwhitewater.org/reaches/beaver-river-kinbasket-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.43387271985935,
+          51.52687261329979
+        ]
+      },
+      "properties": {
+        "title": "Beaver River (Kinbasket Canyon)",
+        "region": "Kootenay Boundary",
+        "class": "IV/IV+",
+        "location_type": "take_out",
+        "description": "A big parking lot and a short but steep hike out.",
+        "url": "https://www.bcwhitewater.org/reaches/beaver-river-kinbasket-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.61331542070252,
+          49.449435831324024
+        ]
+      },
+      "properties": {
+        "title": "Bedwell River",
+        "region": "Vancouver Island",
+        "class": "IV+ (P)",
+        "location_type": "put_in",
+        "description": "Bedwell River put in river left just above You Creek confluence. Small camp option amongst the spruce trees.",
+        "url": "https://www.bcwhitewater.org/reaches/bedwell-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.91018931239242,
+          49.15459764558244
+        ]
+      },
+      "properties": {
+        "title": "Bedwell River",
+        "region": "Vancouver Island",
+        "class": "IV+ (P)",
+        "location_type": "take_out",
+        "description": "Government wharf",
+        "url": "https://www.bcwhitewater.org/reaches/bedwell-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.26549093093072,
+          50.39742683254215
+        ]
+      },
+      "properties": {
+        "title": "Benson River - Lower",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/benson-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.35992296233556,
+          50.418686751571585
+        ]
+      },
+      "properties": {
+        "title": "Benson River - Lower",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/benson-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.22746775788042,
+          50.34510051115677
+        ]
+      },
+      "properties": {
+        "title": "Benson River - Upper",
+        "region": "Vancouver Island",
+        "class": "IV+ at low water",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/benson-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.23183687783352,
+          50.359560355209084
+        ]
+      },
+      "properties": {
+        "title": "Benson River - Upper",
+        "region": "Vancouver Island",
+        "class": "IV+ at low water",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/benson-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.95782092776437,
+          51.7257474667083
+        ]
+      },
+      "properties": {
+        "title": "Big Creek - Lower",
+        "region": "Cariboo",
+        "class": "V with a big portage",
+        "location_type": "put_in",
+        "description": "Erickson bridge put in. Much of surrounding area is private land.",
+        "url": "https://www.bcwhitewater.org/reaches/big-creek-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.5622092188851,
+          51.82600219130151
+        ]
+      },
+      "properties": {
+        "title": "Big Creek - Lower",
+        "region": "Cariboo",
+        "class": "V with a big portage",
+        "location_type": "take_out",
+        "description": "Alternate takeout if you want to run Farwell Canyon rapid",
+        "url": "https://www.bcwhitewater.org/reaches/big-creek-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.44862055824535,
+          51.84974976663554
+        ]
+      },
+      "properties": {
+        "title": "Big Mouth Creek",
+        "region": "Kootenay Boundary",
+        "class": "III-IV",
+        "location_type": "put_in",
+        "description": "Theres a nice pullout and a short bc bushwack to the river",
+        "url": "https://www.bcwhitewater.org/reaches/big-mouth-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.61718681117684,
+          51.83910764353905
+        ]
+      },
+      "properties": {
+        "title": "Big Mouth Creek",
+        "region": "Kootenay Boundary",
+        "class": "III-IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/big-mouth-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.86466799072028,
+          49.778408890267855
+        ]
+      },
+      "properties": {
+        "title": "Big Silver Creek - Middle",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "The access above the put in waterfall.",
+        "url": "https://www.bcwhitewater.org/reaches/big-silver-creek-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.8607523335164,
+          49.693193704900665
+        ]
+      },
+      "properties": {
+        "title": "Big Silver Creek - Middle",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "The takeout for \"Middle Big Silver.\"",
+        "url": "https://www.bcwhitewater.org/reaches/big-silver-creek-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.86458582093694,
+          49.778357365781204
+        ]
+      },
+      "properties": {
+        "title": "Big Silver Creek - Upper",
+        "region": "South Coast",
+        "class": "IV-IV+ at medium levels",
+        "location_type": "put_in",
+        "description": "The access above the put in waterfall.\r\n",
+        "url": "https://www.bcwhitewater.org/reaches/big-silver-creek-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.85321825705407,
+          49.74505636110928
+        ]
+      },
+      "properties": {
+        "title": "Big Silver Creek - Upper",
+        "region": "South Coast",
+        "class": "IV-IV+ at medium levels",
+        "location_type": "take_out",
+        "description": "Stop somewhere along this flat section and bushwhack up to the road. The next canyon is supposedly not runnable.",
+        "url": "https://www.bcwhitewater.org/reaches/big-silver-creek-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.70649849932718,
+          50.383974288149005
+        ]
+      },
+      "properties": {
+        "title": "Birkenhead River - Lower",
+        "region": "South Coast",
+        "class": "III(+), IV if doing the first rapids",
+        "location_type": "put_in",
+        "description": "There is some rough parking here, this gives you a small entry rapid above Harry Dick's",
+        "url": "https://www.bcwhitewater.org/reaches/birkenhead-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.71913415407931,
+          50.32200444685634
+        ]
+      },
+      "properties": {
+        "title": "Birkenhead River - Lower",
+        "region": "South Coast",
+        "class": "III(+), IV if doing the first rapids",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/birkenhead-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.73312127354203,
+          50.49710322598645
+        ]
+      },
+      "properties": {
+        "title": "Birkenhead River - Upper",
+        "region": "South Coast",
+        "class": "IV-V at medium, V at medium-high and up.",
+        "location_type": "put_in",
+        "description": "Put in at the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/birkenhead-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.69159753891276,
+          50.45057948222782
+        ]
+      },
+      "properties": {
+        "title": "Birkenhead River - Upper",
+        "region": "South Coast",
+        "class": "IV-V at medium, V at medium-high and up.",
+        "location_type": "take_out",
+        "description": "Takeout river left.",
+        "url": "https://www.bcwhitewater.org/reaches/birkenhead-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.88725903415047,
+          51.52997966188693
+        ]
+      },
+      "properties": {
+        "title": "Blaeberry River - Split Creek to Thompson Falls",
+        "region": "Kootenay Boundary",
+        "class": "III+ to IV",
+        "location_type": "put_in",
+        "description": "Enter the river here. If you want it a silly seal launch down the bank, through the trees is the most exciting, least necessary part of the run.",
+        "url": "https://www.bcwhitewater.org/reaches/blaeberry-river-split-creek-to-thompson-falls"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.95470458056106,
+          51.51608121184316
+        ]
+      },
+      "properties": {
+        "title": "Blaeberry River - Split Creek to Thompson Falls",
+        "region": "Kootenay Boundary",
+        "class": "III+ to IV",
+        "location_type": "take_out",
+        "description": "Take out before the 2 ugly crack rapids that are often filled with wood",
+        "url": "https://www.bcwhitewater.org/reaches/blaeberry-river-split-creek-to-thompson-falls"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.95932321273528,
+          51.51195693785857
+        ]
+      },
+      "properties": {
+        "title": "Blaeberry River - Thompson Falls Section",
+        "region": "Kootenay Boundary",
+        "class": "IV+ to V",
+        "location_type": "put_in",
+        "description": "The easiest access to the canyons below Thompson falls is to put in on river left just above Thompson falls and ferry over to river right to portage the falls. You can put back in by climbing down to a ledge just below the falls and seal launching in. ",
+        "url": "https://www.bcwhitewater.org/reaches/blaeberry-river-thompson-falls-section"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.9695948181056,
+          51.47750231886209
+        ]
+      },
+      "properties": {
+        "title": "Blaeberry River - Thompson Falls Section",
+        "region": "Kootenay Boundary",
+        "class": "IV+ to V",
+        "location_type": "take_out",
+        "description": "The easiest takeout is river left just before the bridge at the IOB campground. ",
+        "url": "https://www.bcwhitewater.org/reaches/blaeberry-river-thompson-falls-section"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.09064777241625,
+          50.83216800150677
+        ]
+      },
+      "properties": {
+        "title": "Blanket Creek (Sutherland Falls)",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "The easiest place to hike in if you're coming in when the park is closed. ",
+        "url": "https://www.bcwhitewater.org/reaches/blanket-creek-sutherland-falls"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.69766467198804,
+          50.956162945301486
+        ]
+      },
+      "properties": {
+        "title": "Bobbie Burns Creek into Spillimacheen River",
+        "region": "Kootenay Boundary",
+        "class": "III+ to IV (V)",
+        "location_type": "put_in",
+        "description": "While I haven't used this put in yet, it does look like a promising alternative to avoid the bushwack. It would add considerable time to the trip with a lot more flatwater and a longer shuttle. A shuttle driver would be ideal for this put in (to drive back to the highway via river left on their way to the takeout), however it is possible to use the river right road to connect this put in with either takeout. The river right road between the 2 put ins is not in great shape and having maps of some sort is recommended to avoid getting lost (B.C. backroads mapbooks are great!).",
+        "url": "https://www.bcwhitewater.org/reaches/bobbie-burns-creek-into-spillimacheen-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.4410156124992,
+          50.89931372583493
+        ]
+      },
+      "properties": {
+        "title": "Bobbie Burns Creek into Spillimacheen River",
+        "region": "Kootenay Boundary",
+        "class": "III+ to IV (V)",
+        "location_type": "take_out",
+        "description": "Park at a small pullout where the river is closest to the road. The best trail is slightly downstream of the pullout.",
+        "url": "https://www.bcwhitewater.org/reaches/bobbie-burns-creek-into-spillimacheen-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.20021801574042,
+          49.538988180615746
+        ]
+      },
+      "properties": {
+        "title": "Boston Bar Creek",
+        "region": "South Coast",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "Gravel pull off southbound. Unfortunately, the river is on the other side of the highway, where there is not a great pull out.",
+        "url": "https://www.bcwhitewater.org/reaches/boston-bar-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.19885885876045,
+          49.504956988074696
+        ]
+      },
+      "properties": {
+        "title": "Boston Bar Creek",
+        "region": "South Coast",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "Check flows visually here. This creek is very close to the pass, and flows are hit or miss.",
+        "url": "https://www.bcwhitewater.org/reaches/boston-bar-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.0812917747652,
+          56.24687445818654
+        ]
+      },
+      "properties": {
+        "title": "Bowser River",
+        "region": "Northwest",
+        "class": "II-III with one long IV+ rapid",
+        "location_type": "put_in",
+        "description": "From the end of the public Granduc Road, walk down the old mine dumps to the lakeshore.",
+        "url": "https://www.bcwhitewater.org/reaches/bowser-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.34337416402118,
+          56.37448857722737
+        ]
+      },
+      "properties": {
+        "title": "Bowser River",
+        "region": "Northwest",
+        "class": "II-III with one long IV+ rapid",
+        "location_type": "take_out",
+        "description": "Possible takeout on the Bowser River?",
+        "url": "https://www.bcwhitewater.org/reaches/bowser-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.17180751818053,
+          50.86395660397244
+        ]
+      },
+      "properties": {
+        "title": "Bridge River",
+        "region": "South Coast",
+        "class": "III+-IV",
+        "location_type": "put_in",
+        "description": "Put in on Yalakom River and paddle the last few drops",
+        "url": "https://www.bcwhitewater.org/reaches/bridge-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.93487024831904,
+          50.75211027192188
+        ]
+      },
+      "properties": {
+        "title": "Bridge River",
+        "region": "South Coast",
+        "class": "III+-IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/bridge-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.21549213807575,
+          50.78671281341522
+        ]
+      },
+      "properties": {
+        "title": "Bridge River - Terzaghi Dam to Yalakom",
+        "region": "South Coast",
+        "class": "III-IV (IV+ at big releases)",
+        "location_type": "put_in",
+        "description": "There is a large Rec site area here with plenty of parking.",
+        "url": "https://www.bcwhitewater.org/reaches/bridge-river-terzaghi-dam-to-yalakom"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.17256802383571,
+          50.8635727779662
+        ]
+      },
+      "properties": {
+        "title": "Bridge River - Terzaghi Dam to Yalakom",
+        "region": "South Coast",
+        "class": "III-IV (IV+ at big releases)",
+        "location_type": "take_out",
+        "description": "You are most likely going to be continuing downstream here anyway but you can also park near the confluence.",
+        "url": "https://www.bcwhitewater.org/reaches/bridge-river-terzaghi-dam-to-yalakom"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.44720052899478,
+          55.221269105422806
+        ]
+      },
+      "properties": {
+        "title": "Bulkley Canyon",
+        "region": "Northwest",
+        "class": "III+ to IV-",
+        "location_type": "put_in",
+        "description": "At the boat launch immediately upstream of the Suskwa FSR bridge over the Bulkley RIver on river right .",
+        "url": "https://www.bcwhitewater.org/reaches/bulkley-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.66904061013011,
+          55.25032845205703
+        ]
+      },
+      "properties": {
+        "title": "Bulkley Canyon",
+        "region": "Northwest",
+        "class": "III+ to IV-",
+        "location_type": "take_out",
+        "description": "Approximately 750m upstream of the Skeena Confluence at Anderson Flats Boat Launch near Hazelton.",
+        "url": "https://www.bcwhitewater.org/reaches/bulkley-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.12466476250263,
+          50.092791377993734
+        ]
+      },
+      "properties": {
+        "title": "Callaghan Creek",
+        "region": "South Coast",
+        "class": "IV-V at medium levels.",
+        "location_type": "put_in",
+        "description": "Trail brings you to here.",
+        "url": "https://www.bcwhitewater.org/reaches/callaghan-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.10088857640886,
+          50.064288852519496
+        ]
+      },
+      "properties": {
+        "title": "Callaghan Creek",
+        "region": "South Coast",
+        "class": "IV-V at medium levels.",
+        "location_type": "take_out",
+        "description": "Takeout at the campground by the gauge (river left). Please do not camp here without paying.",
+        "url": "https://www.bcwhitewater.org/reaches/callaghan-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.60963010358174,
+          49.20337557839636
+        ]
+      },
+      "properties": {
+        "title": "Cameron River",
+        "region": "Vancouver Island",
+        "class": "IV at medium levels",
+        "location_type": "put_in",
+        "description": "Put in at the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/cameron-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.66022943308322,
+          49.2240434054774
+        ]
+      },
+      "properties": {
+        "title": "Cameron River",
+        "region": "Vancouver Island",
+        "class": "IV at medium levels",
+        "location_type": "take_out",
+        "description": "Park in this clearcut for the takeout. There's a trail down to the river.",
+        "url": "https://www.bcwhitewater.org/reaches/cameron-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.11083702131504,
+          49.35617155996326
+        ]
+      },
+      "properties": {
+        "title": "Capilano River",
+        "region": "South Coast",
+        "class": "III",
+        "location_type": "put_in",
+        "description": "Launch just below the weir at the hatchery.",
+        "url": "https://www.bcwhitewater.org/reaches/capilano-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.11806937683511,
+          49.3326155502823
+        ]
+      },
+      "properties": {
+        "title": "Capilano River",
+        "region": "South Coast",
+        "class": "III",
+        "location_type": "take_out",
+        "description": "You can park river right below the highway bridge at a trailhead.",
+        "url": "https://www.bcwhitewater.org/reaches/capilano-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.52777812965041,
+          52.66282507802268
+        ]
+      },
+      "properties": {
+        "title": "Cariboo River - Lower Run",
+        "region": "Cariboo",
+        "class": "II to III (III+ at high water)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cariboo-river-lower-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.67719297168233,
+          52.6642960335152
+        ]
+      },
+      "properties": {
+        "title": "Cariboo River - Lower Run",
+        "region": "Cariboo",
+        "class": "II to III (III+ at high water)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cariboo-river-lower-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.44661189264767,
+          52.69488752550703
+        ]
+      },
+      "properties": {
+        "title": "Cariboo River - Upper Run",
+        "region": "Cariboo",
+        "class": "III+ to IV- (IV in high water)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cariboo-river-upper-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.5281315546423,
+          52.663046396246074
+        ]
+      },
+      "properties": {
+        "title": "Cariboo River - Upper Run",
+        "region": "Cariboo",
+        "class": "III+ to IV- (IV in high water)",
+        "location_type": "take_out",
+        "description": "Take out at the bridge or if you don't like the look of the scramble find somewhere lower down.",
+        "url": "https://www.bcwhitewater.org/reaches/cariboo-river-upper-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1925621307075,
+          49.28807879391633
+        ]
+      },
+      "properties": {
+        "title": "Cascade Creek",
+        "region": "South Coast",
+        "class": "IV-V (V+)",
+        "location_type": "put_in",
+        "description": "You can see the trail along river right we followed.\r\n",
+        "url": "https://www.bcwhitewater.org/reaches/cascade-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.05363259731148,
+          50.64393766689699
+        ]
+      },
+      "properties": {
+        "title": "Cayoosh Creek",
+        "region": "South Coast",
+        "class": "IV+ at medium levels.",
+        "location_type": "put_in",
+        "description": "Put in at this bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/cayoosh-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.99717332476553,
+          50.65511726156225
+        ]
+      },
+      "properties": {
+        "title": "Cayoosh Creek",
+        "region": "South Coast",
+        "class": "IV+ at medium levels.",
+        "location_type": "take_out",
+        "description": "Takeout at the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/cayoosh-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.18114749241857,
+          49.889993694834345
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus \u2013 Paradise Valley",
+        "region": "South Coast",
+        "class": "II (III)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-paradise-valley"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.15726544647153,
+          49.79966004055339
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus \u2013 Paradise Valley",
+        "region": "South Coast",
+        "class": "II (III)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-paradise-valley"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.03593797280388,
+          50.07981223342665
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Balls To The Wall",
+        "region": "South Coast",
+        "class": "IV-IV+",
+        "location_type": "put_in",
+        "description": "House Rock put in - also the take out for the Upper Cheak",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-balls-to-the-wall"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.09873897991818,
+          50.05786074070866
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Balls To The Wall",
+        "region": "South Coast",
+        "class": "IV-IV+",
+        "location_type": "take_out",
+        "description": "Take out near the Cal-Cheak camp site.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-balls-to-the-wall"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.10400827864882,
+          50.06543452287113
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Cal-Cheak (Callaghan into Cheakamus)",
+        "region": "South Coast",
+        "class": "III",
+        "location_type": "put_in",
+        "description": "This put in has a few more waves including a reasonable one at the right water levels.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-cal-cheak-callaghan-into-cheakamus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.10547163425548,
+          50.04461029845314
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Cal-Cheak (Callaghan into Cheakamus)",
+        "region": "South Coast",
+        "class": "III",
+        "location_type": "take_out",
+        "description": "There is flagging tape, but if you don't know where this is, inspect it beforehand.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-cal-cheak-callaghan-into-cheakamus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.97140003227253,
+          50.03398790398796
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Cheakamus Lake Down",
+        "region": "South Coast",
+        "class": "Continuous III+",
+        "location_type": "put_in",
+        "description": "Alternate put in at a bridge on the Helm Creek trail, avoids some wood.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-cheakamus-lake-down"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.02923446527608,
+          50.05737455239341
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Cheakamus Lake Down",
+        "region": "South Coast",
+        "class": "Continuous III+",
+        "location_type": "take_out",
+        "description": "Take out behind two big rocks river left. Waterfall (V) just downstream. ",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-cheakamus-lake-down"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.10489276747388,
+          50.04429238841291
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Daisy Lake Canyon",
+        "region": "South Coast",
+        "class": "V at medium levels.",
+        "location_type": "put_in",
+        "description": "This put-in skips the class 3-4 Calcheak run.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-daisy-lake-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.11994630863938,
+          50.02264800236972
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Daisy Lake Canyon",
+        "region": "South Coast",
+        "class": "V at medium levels.",
+        "location_type": "take_out",
+        "description": "There is a trail in the forest that goes up to the highway.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-daisy-lake-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.14399925801739,
+          49.97586387715606
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Dam Run",
+        "region": "South Coast",
+        "class": "III",
+        "location_type": "put_in",
+        "description": "Park in the (very) small pullout immediately before the highway bridge and walk to the river from here.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-dam-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.16884012148714,
+          49.94037868810082
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Dam Run",
+        "region": "South Coast",
+        "class": "III",
+        "location_type": "take_out",
+        "description": "Exit the river here and take the short trail up to the parking lot.",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-dam-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.03703719044026,
+          50.0715955963438
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Upper",
+        "region": "South Coast",
+        "class": "IV at 2.5, continuous.  Gets harder as levels rise.",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.03527175976033,
+          50.07995686531277
+        ]
+      },
+      "properties": {
+        "title": "Cheakamus River - Upper",
+        "region": "South Coast",
+        "class": "IV at 2.5, continuous.  Gets harder as levels rise.",
+        "location_type": "take_out",
+        "description": "Take out at the old river gauge",
+        "url": "https://www.bcwhitewater.org/reaches/cheakamus-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.99767423855839,
+          49.349099890553646
+        ]
+      },
+      "properties": {
+        "title": "Chehalis River - Lower (aka Statlu-Chehalis)",
+        "region": "South Coast",
+        "class": "III-IV-",
+        "location_type": "put_in",
+        "description": "An alternate put in on the Chehalis River, if Statlu Creek is too low or too difficult for your group. Steep trail down to the river.",
+        "url": "https://www.bcwhitewater.org/reaches/chehalis-river-lower-aka-statlu-chehalis"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.93626360817922,
+          49.29872123494627
+        ]
+      },
+      "properties": {
+        "title": "Chehalis River - Lower (aka Statlu-Chehalis)",
+        "region": "South Coast",
+        "class": "III-IV-",
+        "location_type": "take_out",
+        "description": "Gauge is located here upstream on river right.",
+        "url": "https://www.bcwhitewater.org/reaches/chehalis-river-lower-aka-statlu-chehalis"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.03077016444018,
+          49.40118705919471
+        ]
+      },
+      "properties": {
+        "title": "Chehalis River - Upper",
+        "region": "South Coast",
+        "class": "IV with optional V",
+        "location_type": "put_in",
+        "description": "Informal campground on Chehalis Lake",
+        "url": "https://www.bcwhitewater.org/reaches/chehalis-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.00052150571995,
+          49.34876669027531
+        ]
+      },
+      "properties": {
+        "title": "Chehalis River - Upper",
+        "region": "South Coast",
+        "class": "IV with optional V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chehalis-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.82576227189944,
+          48.837608475765876
+        ]
+      },
+      "properties": {
+        "title": "Chemainus River - Copper Canyon",
+        "region": "Vancouver Island",
+        "class": "III-IV+ at medium levels.",
+        "location_type": "put_in",
+        "description": "Put in here in Chemainus River Park.",
+        "url": "https://www.bcwhitewater.org/reaches/chemainus-river-copper-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.75689890608973,
+          48.90403213747004
+        ]
+      },
+      "properties": {
+        "title": "Chemainus River - Copper Canyon",
+        "region": "Vancouver Island",
+        "class": "III-IV+ at medium levels.",
+        "location_type": "take_out",
+        "description": "Take out river right here.",
+        "url": "https://www.bcwhitewater.org/reaches/chemainus-river-copper-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.69819835444642,
+          51.562674186291986
+        ]
+      },
+      "properties": {
+        "title": "Chilcotin River  (Chilko-Chilcotin-Fraser)",
+        "region": "Cariboo",
+        "class": "II-IV",
+        "location_type": "put_in",
+        "description": "Taseko River put in",
+        "url": "https://www.bcwhitewater.org/reaches/chilcotin-river-chilko-chilcotin-fraser"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.2838904672642,
+          51.5206411502796
+        ]
+      },
+      "properties": {
+        "title": "Chilcotin River  (Chilko-Chilcotin-Fraser)",
+        "region": "Cariboo",
+        "class": "II-IV",
+        "location_type": "take_out",
+        "description": "Typical Chilko-Chilcotin-Fraser takeout on the Fraser River",
+        "url": "https://www.bcwhitewater.org/reaches/chilcotin-river-chilko-chilcotin-fraser"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.8793431109396,
+          51.88671950165431
+        ]
+      },
+      "properties": {
+        "title": "Chilko - Bidwell to Taseko",
+        "region": "Cariboo",
+        "class": "IV-",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilko-bidwell-to-taseko"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.67806188869622,
+          52.00807450870204
+        ]
+      },
+      "properties": {
+        "title": "Chilko - Bidwell to Taseko",
+        "region": "Cariboo",
+        "class": "IV-",
+        "location_type": "take_out",
+        "description": "There's an old boat ramp here which makes easy access back up to the campground.",
+        "url": "https://www.bcwhitewater.org/reaches/chilko-bidwell-to-taseko"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.62854667814483,
+          49.099915264257845
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack Canyon - Camp Foley to Slesse",
+        "region": "South Coast",
+        "class": "III-IV low, IV- medium, IV high",
+        "location_type": "put_in",
+        "description": "Put in at the bridge, either upstream/river left or downstream/river right",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-canyon-camp-foley-to-slesse"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.71158157380475,
+          49.07760170289947
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack Canyon - Camp Foley to Slesse",
+        "region": "South Coast",
+        "class": "III-IV low, IV- medium, IV high",
+        "location_type": "take_out",
+        "description": "Watch for anglers and their hooks and lines",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-canyon-camp-foley-to-slesse"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.87477571490227,
+          49.07851916034116
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River - Pointa Vista to Vedder Bridge",
+        "region": "South Coast",
+        "class": "II",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-pointa-vista-to-vedder-bridge"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.95933028038664,
+          49.0946505611694
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River - Pointa Vista to Vedder Bridge",
+        "region": "South Coast",
+        "class": "II",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-pointa-vista-to-vedder-bridge"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.47943026446355,
+          49.091580398173704
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River \u2013 Post Creek to Camp Foley",
+        "region": "South Coast",
+        "class": "III+",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-post-creek-to-camp-foley"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.62910217625878,
+          49.09993799336439
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River \u2013 Post Creek to Camp Foley",
+        "region": "South Coast",
+        "class": "III+",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-post-creek-to-camp-foley"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.71358904160883,
+          49.076876485737785
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River - Slesse to Tamihi",
+        "region": "South Coast",
+        "class": "III, one IV- @ Tamihi",
+        "location_type": "put_in",
+        "description": "Watch for anglers and their gear",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-slesse-to-tamihi"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.83731455956826,
+          49.071735282917416
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River - Slesse to Tamihi",
+        "region": "South Coast",
+        "class": "III, one IV- @ Tamihi",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-slesse-to-tamihi"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.837013139095,
+          49.071740693913625
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River - Tamihi to Pointa Vista",
+        "region": "South Coast",
+        "class": "III, one IV- @ Tamihi",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-tamihi-to-pointa-vista"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.87483171791206,
+          49.078575696494795
+        ]
+      },
+      "properties": {
+        "title": "Chilliwack River - Tamihi to Pointa Vista",
+        "region": "South Coast",
+        "class": "III, one IV- @ Tamihi",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/chilliwack-river-tamihi-to-pointa-vista"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.151589939236,
+          52.01207153207639
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Gatling Gorge",
+        "region": "Thompson Okanagan",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-gatling-gorge"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.05523544583141,
+          51.81898713487067
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Gatling Gorge",
+        "region": "Thompson Okanagan",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "You can't take-out here any more because the road is out, continue down the Sabretooth section.",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-gatling-gorge"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.03453811698193,
+          51.70840526175357
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Play Run",
+        "region": "Thompson Okanagan",
+        "class": "III+ (IV)",
+        "location_type": "put_in",
+        "description": "Please do not block the ramp and do not drive down to the river if the gate is open.",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-play-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.06826980265507,
+          51.64954929142269
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Play Run",
+        "region": "Thompson Okanagan",
+        "class": "III+ (IV)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-play-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.0271034067058,
+          51.8261023081113
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Upper",
+        "region": "Thompson Okanagan",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "45 minute walk to Moul Falls then some extra to get down to the river",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.0278102174853,
+          51.715412946449845
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Upper",
+        "region": "Thompson Okanagan",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "Take out before the entry rapid to The Kettle",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.19303868026401,
+          52.14217872989656
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Upper Upper",
+        "region": "Thompson Okanagan",
+        "class": "IV- with optional V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-upper-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.17624398444703,
+          52.06562809188392
+        ]
+      },
+      "properties": {
+        "title": "Clearwater River - Upper Upper",
+        "region": "Thompson Okanagan",
+        "class": "IV- with optional V",
+        "location_type": "take_out",
+        "description": "There is parking + a toilet here, a short walk up from the river.",
+        "url": "https://www.bcwhitewater.org/reaches/clearwater-river-upper-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.88420792039554,
+          50.460938490878334
+        ]
+      },
+      "properties": {
+        "title": "Clendinning Creek",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Land the float plane here.",
+        "url": "https://www.bcwhitewater.org/reaches/clendinning-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.62244037476933,
+          54.32435294358564
+        ]
+      },
+      "properties": {
+        "title": "Clore River - Grand Canyon",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Land the float plane here.",
+        "url": "https://www.bcwhitewater.org/reaches/clore-river-grand-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.94074590081205,
+          54.322183623467424
+        ]
+      },
+      "properties": {
+        "title": "Clore River - Grand Canyon",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Below Flintstone Canyon.",
+        "url": "https://www.bcwhitewater.org/reaches/clore-river-grand-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.53442443472176,
+          60.099603658136914
+        ]
+      },
+      "properties": {
+        "title": "Coal River - Lower",
+        "region": "Northeast",
+        "class": "I-III (IV)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/coal-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.95281714058851,
+          59.65939140922745
+        ]
+      },
+      "properties": {
+        "title": "Coal River - Lower",
+        "region": "Northeast",
+        "class": "I-III (IV)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/coal-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.24979122564346,
+          49.482305739639
+        ]
+      },
+      "properties": {
+        "title": "Coquihalla River",
+        "region": "South Coast",
+        "class": "III+",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/coquihalla-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.31800172876096,
+          49.385461773013475
+        ]
+      },
+      "properties": {
+        "title": "Coquihalla River",
+        "region": "South Coast",
+        "class": "III+",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/coquihalla-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.77154221811408,
+          49.337914653868836
+        ]
+      },
+      "properties": {
+        "title": "Coquitlam",
+        "region": "South Coast",
+        "class": "III (IV-)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/coquitlam"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.78213271042051,
+          49.2648934809946
+        ]
+      },
+      "properties": {
+        "title": "Coquitlam",
+        "region": "South Coast",
+        "class": "III (IV-)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/coquitlam"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.95618013287674,
+          48.78318110300276
+        ]
+      },
+      "properties": {
+        "title": "Cowichan River - Skutz Falls to Marie Canyon",
+        "region": "Vancouver Island",
+        "class": "III (IV)",
+        "location_type": "put_in",
+        "description": "Optional put in to run Skutz Falls (IV)",
+        "url": "https://www.bcwhitewater.org/reaches/cowichan-river-skutz-falls-to-marie-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.89192551688977,
+          48.7710843601709
+        ]
+      },
+      "properties": {
+        "title": "Cowichan River - Skutz Falls to Marie Canyon",
+        "region": "Vancouver Island",
+        "class": "III (IV)",
+        "location_type": "take_out",
+        "description": "Extends the run with some class II",
+        "url": "https://www.bcwhitewater.org/reaches/cowichan-river-skutz-falls-to-marie-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.03870024011601,
+          52.15062563004264
+        ]
+      },
+      "properties": {
+        "title": "Cummins River",
+        "region": "Kootenay Boundary",
+        "class": "II-III (with portages)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/cummins-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.42525695526342,
+          50.209686646750015
+        ]
+      },
+      "properties": {
+        "title": "Dipper Creek",
+        "region": "South Coast",
+        "class": "V+",
+        "location_type": "put_in",
+        "description": "An alternative put in. Very low volume until the Carnival Confluence. Not yet explored? Might not be good.",
+        "url": "https://www.bcwhitewater.org/reaches/dipper-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.38860915166508,
+          50.174752381869155
+        ]
+      },
+      "properties": {
+        "title": "Dipper Creek",
+        "region": "South Coast",
+        "class": "V+",
+        "location_type": "take_out",
+        "description": "The end. Bash up to the Squamish logging road. Or, follow the animal trail back up to the Vertigo parking lot. Or continue down the Squamish canyons.",
+        "url": "https://www.bcwhitewater.org/reaches/dipper-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.15315552774939,
+          49.762373320040496
+        ]
+      },
+      "properties": {
+        "title": "Douglas Creek",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/douglas-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.17899423171397,
+          51.46516984843919
+        ]
+      },
+      "properties": {
+        "title": "Downie Canyon",
+        "region": "Kootenay Boundary",
+        "class": "IV with a portage",
+        "location_type": "put_in",
+        "description": "Use the bridge",
+        "url": "https://www.bcwhitewater.org/reaches/downie-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.20350752786452,
+          51.48820599706235
+        ]
+      },
+      "properties": {
+        "title": "Downie Canyon",
+        "region": "Kootenay Boundary",
+        "class": "IV with a portage",
+        "location_type": "take_out",
+        "description": "Park just off the bridge ",
+        "url": "https://www.bcwhitewater.org/reaches/downie-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.80020131533686,
+          57.239654767898486
+        ]
+      },
+      "properties": {
+        "title": "Duti River",
+        "region": "Northwest",
+        "class": "IV+, depending on the level",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/duti-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.25002357586632,
+          58.54719071373205
+        ]
+      },
+      "properties": {
+        "title": "Eagle River",
+        "region": "Northwest",
+        "class": "I-III with one portage",
+        "location_type": "put_in",
+        "description": "Float plane drop off",
+        "url": "https://www.bcwhitewater.org/reaches/eagle-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.2181691092919,
+          59.592764069803934
+        ]
+      },
+      "properties": {
+        "title": "Eagle River",
+        "region": "Northwest",
+        "class": "I-III with one portage",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/eagle-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.39098640845246,
+          55.10452295828111
+        ]
+      },
+      "properties": {
+        "title": "East Boulder Creek",
+        "region": "North Coast",
+        "class": "IV+ to V, level dependent.",
+        "location_type": "put_in",
+        "description": "Put in above the falls.",
+        "url": "https://www.bcwhitewater.org/reaches/east-boulder-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.38113534775677,
+          55.105910058286156
+        ]
+      },
+      "properties": {
+        "title": "East Boulder Creek",
+        "region": "North Coast",
+        "class": "IV+ to V, level dependent.",
+        "location_type": "take_out",
+        "description": "Park here. River access is obvious.",
+        "url": "https://www.bcwhitewater.org/reaches/east-boulder-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.48975032786585,
+          50.13911089239369
+        ]
+      },
+      "properties": {
+        "title": "Elaho River - Fear Canyon",
+        "region": "South Coast",
+        "class": "IV-V depending on level",
+        "location_type": "put_in",
+        "description": "The upper section is changing because of on-going blasting to improve fish passage. Scout accordingly.",
+        "url": "https://www.bcwhitewater.org/reaches/elaho-river-fear-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.42851546396514,
+          50.11402482721064
+        ]
+      },
+      "properties": {
+        "title": "Elaho River - Fear Canyon",
+        "region": "South Coast",
+        "class": "IV-V depending on level",
+        "location_type": "take_out",
+        "description": "There's a small pullout just downstream of the bridge near the gauge.",
+        "url": "https://www.bcwhitewater.org/reaches/elaho-river-fear-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.5745839075214,
+          50.370230965054134
+        ]
+      },
+      "properties": {
+        "title": "Elaho River - Upper",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Easy put in.",
+        "url": "https://www.bcwhitewater.org/reaches/elaho-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.57467104347265,
+          50.336388578099644
+        ]
+      },
+      "properties": {
+        "title": "Elaho River - Upper",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "If you head down past here the road is nowhere close to the river.",
+        "url": "https://www.bcwhitewater.org/reaches/elaho-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.42913255607775,
+          50.11447657824644
+        ]
+      },
+      "properties": {
+        "title": "Elaho-Squamish",
+        "region": "South Coast",
+        "class": "III (IV-)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/elaho-squamish"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.33708048277299,
+          50.0630099181038
+        ]
+      },
+      "properties": {
+        "title": "Elaho-Squamish",
+        "region": "South Coast",
+        "class": "III (IV-)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/elaho-squamish"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -115.0998958077181,
+          49.280541384106044
+        ]
+      },
+      "properties": {
+        "title": "Elk River - Middle",
+        "region": "Kootenay Boundary",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "This is the put-in if you don't run the falls.",
+        "url": "https://www.bcwhitewater.org/reaches/elk-river-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -115.09328041321079,
+          49.26230617408925
+        ]
+      },
+      "properties": {
+        "title": "Elk River - Middle",
+        "region": "Kootenay Boundary",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "Take out here.",
+        "url": "https://www.bcwhitewater.org/reaches/elk-river-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -115.10662654225634,
+          49.29684918666058
+        ]
+      },
+      "properties": {
+        "title": "Elk River - Upper",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Launch at the bridge above the dam.",
+        "url": "https://www.bcwhitewater.org/reaches/elk-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.60059332382014,
+          49.1240779606882
+        ]
+      },
+      "properties": {
+        "title": "Foley Creek",
+        "region": "South Coast",
+        "class": "III(+) with potential IV moves with wood.",
+        "location_type": "put_in",
+        "description": "There is possibility to put in a few rapids higher up on Foley Creek and run some slightly harder white-water.  This will depend on wood. ",
+        "url": "https://www.bcwhitewater.org/reaches/foley-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.63676292093567,
+          49.106581076325625
+        ]
+      },
+      "properties": {
+        "title": "Foley Creek",
+        "region": "South Coast",
+        "class": "III(+) with potential IV moves with wood.",
+        "location_type": "take_out",
+        "description": "You could probably find a way to take-out and get to the FSR but let's face it, you're going to continue down and do the Chilliwack Canyon aren't you?",
+        "url": "https://www.bcwhitewater.org/reaches/foley-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.41603715275176,
+          49.70756162687161
+        ]
+      },
+      "properties": {
+        "title": "Fraser River \u2013 Alexandra Bridge to Yale",
+        "region": "South Coast",
+        "class": ": Two III-IV drops (difficult to portage) and lots of flatwater.",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/fraser-river-alexandra-bridge-to-yale"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.42997228546113,
+          49.56059862401011
+        ]
+      },
+      "properties": {
+        "title": "Fraser River \u2013 Alexandra Bridge to Yale",
+        "region": "South Coast",
+        "class": ": Two III-IV drops (difficult to portage) and lots of flatwater.",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/fraser-river-alexandra-bridge-to-yale"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.39129388568517,
+          53.48308548329027
+        ]
+      },
+      "properties": {
+        "title": "Gamsby River",
+        "region": "North Coast",
+        "class": "III-V",
+        "location_type": "put_in",
+        "description": "Land the float plane here.",
+        "url": "https://www.bcwhitewater.org/reaches/gamsby-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.209109407342,
+          54.01649444673828
+        ]
+      },
+      "properties": {
+        "title": "Gilttoyees Creek",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Heli drop on a beach in this area.",
+        "url": "https://www.bcwhitewater.org/reaches/gilttoyees-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.9894827131092,
+          53.89147979756484
+        ]
+      },
+      "properties": {
+        "title": "Gilttoyees Creek",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "UTM coordinates are: Zone 09U; 5971320 m North; 0500850 m East",
+        "url": "https://www.bcwhitewater.org/reaches/gilttoyees-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.52773177734214,
+          51.64250964933859
+        ]
+      },
+      "properties": {
+        "title": "Goldstream Falls",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Park under the hysdro lines and bushwack to the river",
+        "url": "https://www.bcwhitewater.org/reaches/goldstream-falls"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.61615986435405,
+          51.66683077997655
+        ]
+      },
+      "properties": {
+        "title": "Goldstream Falls",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Walk up the bridge drainage system back to the highway. ",
+        "url": "https://www.bcwhitewater.org/reaches/goldstream-falls"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.36321262120126,
+          48.745878876528906
+        ]
+      },
+      "properties": {
+        "title": "Gordon River - Flood Run",
+        "region": "Vancouver Island",
+        "class": "III-IV (V).",
+        "location_type": "put_in",
+        "description": "This is the fourth bridge (counting from the ocean) over the river.",
+        "url": "https://www.bcwhitewater.org/reaches/gordon-river-flood-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.41567662600359,
+          48.696523789117265
+        ]
+      },
+      "properties": {
+        "title": "Gordon River - Flood Run",
+        "region": "Vancouver Island",
+        "class": "III-IV (V).",
+        "location_type": "take_out",
+        "description": "This is also the put-in for the Upper Gordon.",
+        "url": "https://www.bcwhitewater.org/reaches/gordon-river-flood-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.43119958180225,
+          48.67507528818655
+        ]
+      },
+      "properties": {
+        "title": "Gordon River - Middle Gordon",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "If you don't want to use or can't find the other put in.",
+        "url": "https://www.bcwhitewater.org/reaches/gordon-river-middle-gordon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.46186863998759,
+          48.65340531034812
+        ]
+      },
+      "properties": {
+        "title": "Gordon River - Middle Gordon",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Take out at the Bugaboo Creek confluence. A notable waterfall is found at the confluence. There is a fixed rope to assit in climbing out of the canyon. We recommend just running out the lower Gordon to avoid the hike out, unless the river is low.",
+        "url": "https://www.bcwhitewater.org/reaches/gordon-river-middle-gordon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.41561249441448,
+          48.696541518627185
+        ]
+      },
+      "properties": {
+        "title": "Gordon River - Upper Gordon",
+        "region": "Vancouver Island",
+        "class": "IV at medium water.",
+        "location_type": "put_in",
+        "description": "Put in at the third bridge (from the ocean) over the Gordon. There is a large boulder with a memorial bolted on it downstream of the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/gordon-river-upper-gordon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.43497045685471,
+          48.672110269313066
+        ]
+      },
+      "properties": {
+        "title": "Gordon River - Upper Gordon",
+        "region": "Vancouver Island",
+        "class": "IV at medium water.",
+        "location_type": "take_out",
+        "description": "Take out 200 meters below the confluence with Loup Creek.",
+        "url": "https://www.bcwhitewater.org/reaches/gordon-river-upper-gordon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.94912800332483,
+          58.04344981402443
+        ]
+      },
+      "properties": {
+        "title": "Grand Canyon of the Stikine",
+        "region": "Northwest",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "There may not be a more iconic in kayaking lore put-in than this.",
+        "url": "https://www.bcwhitewater.org/reaches/grand-canyon-of-the-stikine"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.98092451868834,
+          58.010096541737454
+        ]
+      },
+      "properties": {
+        "title": "Grand Canyon of the Stikine",
+        "region": "Northwest",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Take out at the Tahltan confluence where the river is close to the road.",
+        "url": "https://www.bcwhitewater.org/reaches/grand-canyon-of-the-stikine"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.29171391809763,
+          48.63678834647126
+        ]
+      },
+      "properties": {
+        "title": "Granite Creek",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "The put in bridge is the first bridge above the take out.",
+        "url": "https://www.bcwhitewater.org/reaches/granite-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.28858661126228,
+          48.59741295286716
+        ]
+      },
+      "properties": {
+        "title": "Granite Creek",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "The river is signed Renfrew Creek at this bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/granite-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.87576744219069,
+          50.17837942961984
+        ]
+      },
+      "properties": {
+        "title": "Green River - Middle",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Put in at this bridge over the river, accessed by turning off at Wedge Woods.",
+        "url": "https://www.bcwhitewater.org/reaches/green-river-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.85386219963112,
+          50.23787756230885
+        ]
+      },
+      "properties": {
+        "title": "Green River - Middle",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Take out at the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/green-river-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.92409821715329,
+          50.91296286299354
+        ]
+      },
+      "properties": {
+        "title": "Gun Creek",
+        "region": "South Coast",
+        "class": "III-IV.  Slightly stressful because of wood, and a lack of good eddies.",
+        "location_type": "put_in",
+        "description": "Jewel Creek parking lot for the South Chilcotin Mountain Park is the easiest put in. Options above and below here.",
+        "url": "https://www.bcwhitewater.org/reaches/gun-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.77369283572129,
+          50.89441787995645
+        ]
+      },
+      "properties": {
+        "title": "Gun Creek",
+        "region": "South Coast",
+        "class": "III-IV.  Slightly stressful because of wood, and a lack of good eddies.",
+        "location_type": "take_out",
+        "description": "Take out a the BC Hydro Gun Creek campsite.  It's a nice free campsite to sleep at too.",
+        "url": "https://www.bcwhitewater.org/reaches/gun-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.23043684028059,
+          48.64052529331178
+        ]
+      },
+      "properties": {
+        "title": "Harris Creek - Canyon",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Driving upstream from the take out, start paddling when the river is close to the road.",
+        "url": "https://www.bcwhitewater.org/reaches/harris-creek-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.24964762340551,
+          48.63498663009847
+        ]
+      },
+      "properties": {
+        "title": "Harris Creek - Canyon",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Take out at the bridge. It is obvious.",
+        "url": "https://www.bcwhitewater.org/reaches/harris-creek-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.0050086855407,
+          49.799742213518925
+        ]
+      },
+      "properties": {
+        "title": "Heber River - Lower",
+        "region": "Vancouver Island",
+        "class": "IV-V (P)",
+        "location_type": "put_in",
+        "description": "Put in where the river is closest to the road, down a steep bank.",
+        "url": "https://www.bcwhitewater.org/reaches/heber-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.05081069419944,
+          49.77401437845353
+        ]
+      },
+      "properties": {
+        "title": "Heber River - Lower",
+        "region": "Vancouver Island",
+        "class": "IV-V (P)",
+        "location_type": "take_out",
+        "description": "Takeout at the baseball diamond",
+        "url": "https://www.bcwhitewater.org/reaches/heber-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.54859920417655,
+          54.08573104928752
+        ]
+      },
+      "properties": {
+        "title": "Hirsch Creek",
+        "region": "North Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "If you made it to the right spot, you'll be 50m upstream of the first rapid, \"Wake Up Call.\"",
+        "url": "https://www.bcwhitewater.org/reaches/hirsch-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.60265235010166,
+          54.063806163885175
+        ]
+      },
+      "properties": {
+        "title": "Hirsch Creek",
+        "region": "North Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Take out at the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/hirsch-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.41232972919649,
+          51.483236309763925
+        ]
+      },
+      "properties": {
+        "title": "Homathko River",
+        "region": "Central Coast",
+        "class": "V (V+)",
+        "location_type": "put_in",
+        "description": "The put-in on Tatlayoko Lake.",
+        "url": "https://www.bcwhitewater.org/reaches/homathko-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.86815411989264,
+          50.953232042956216
+        ]
+      },
+      "properties": {
+        "title": "Homathko River",
+        "region": "Central Coast",
+        "class": "V (V+)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/homathko-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.81985779347565,
+          50.775681026256876
+        ]
+      },
+      "properties": {
+        "title": "Hurley River - Canyon",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "If the Cadwallader has enough water, this might be the best put in option.",
+        "url": "https://www.bcwhitewater.org/reaches/hurley-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.84721247895516,
+          50.851279313431434
+        ]
+      },
+      "properties": {
+        "title": "Hurley River - Canyon",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Take out at the bridge over the Bridge River, just below the confluence with the Hurley.",
+        "url": "https://www.bcwhitewater.org/reaches/hurley-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.26991506120058,
+          57.44657240607668
+        ]
+      },
+      "properties": {
+        "title": "Iskut River",
+        "region": "Northwest",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Easy bridge put on.",
+        "url": "https://www.bcwhitewater.org/reaches/iskut-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.34803653198338,
+          56.94070553102901
+        ]
+      },
+      "properties": {
+        "title": "Iskut River",
+        "region": "Northwest",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Hike up this river to the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/iskut-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.1833258423253,
+          57.531185239631355
+        ]
+      },
+      "properties": {
+        "title": "Iskut River - Kinaskan Lake down",
+        "region": "Northwest",
+        "class": "II",
+        "location_type": "put_in",
+        "description": "Kinaskan Lake Campground",
+        "url": "https://www.bcwhitewater.org/reaches/iskut-river-kinaskan-lake-down"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.24241609900494,
+          57.478039258751494
+        ]
+      },
+      "properties": {
+        "title": "Iskut River - Kinaskan Lake down",
+        "region": "Northwest",
+        "class": "II",
+        "location_type": "take_out",
+        "description": "1km trail back to highway.",
+        "url": "https://www.bcwhitewater.org/reaches/iskut-river-kinaskan-lake-down"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.27460679059627,
+          51.04420492811019
+        ]
+      },
+      "properties": {
+        "title": "Jordan River",
+        "region": "Kootenay Boundary",
+        "class": "IV+",
+        "location_type": "put_in",
+        "description": "Drive till you hit the washout and hop in. ",
+        "url": "https://www.bcwhitewater.org/reaches/jordan-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.24431370060493,
+          51.024087932500976
+        ]
+      },
+      "properties": {
+        "title": "Jordan River",
+        "region": "Kootenay Boundary",
+        "class": "IV+",
+        "location_type": "take_out",
+        "description": "Use the parking lot across the bridge. Be courteous to mountain bikers and gravel trucks.  ",
+        "url": "https://www.bcwhitewater.org/reaches/jordan-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.5764447427118,
+          54.16471520514449
+        ]
+      },
+      "properties": {
+        "title": "Khtada River",
+        "region": "North Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Hike up river left and aim for here.",
+        "url": "https://www.bcwhitewater.org/reaches/khtada-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.71529928020959,
+          51.25534573153283
+        ]
+      },
+      "properties": {
+        "title": "Kicking Horse - Palliser to Kicking Horse Rest Area",
+        "region": "Kootenay Boundary",
+        "class": "III+/IV",
+        "location_type": "put_in",
+        "description": "Putting in here places you just upstream of all the whitewater this section has to offer. Alternate put ins that skip some of the easier class 2-3 can be accessed by turning off the highway 1 exit further west, however the shuttle is the same length as the highway is divided.",
+        "url": "https://www.bcwhitewater.org/reaches/kicking-horse-palliser-to-kicking-horse-rest-area"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.82346829140525,
+          51.28779259500328
+        ]
+      },
+      "properties": {
+        "title": "Kicking Horse - Palliser to Kicking Horse Rest Area",
+        "region": "Kootenay Boundary",
+        "class": "III+/IV",
+        "location_type": "take_out",
+        "description": "Take out here to avoid running the \"Middle-Middle\" or \"Unraftable\" section",
+        "url": "https://www.bcwhitewater.org/reaches/kicking-horse-palliser-to-kicking-horse-rest-area"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.86386901485935,
+          51.297485552049864
+        ]
+      },
+      "properties": {
+        "title": "Kicking Horse River - Lower Canyon to Downtown Golden",
+        "region": "Kootenay Boundary",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "Do Not Block The Gate! \r\nHike in to here from the highway. Drop kayaks and gear at the gated access road, drive vehicles up to park at the top of the hill in the huge gravel pullout, and walk down the CP access road and across the train tracks. \r\nThis put in is on CP private property. Please exercise common sense and courtesy while using this put in. Do Not Block The Gate.",
+        "url": "https://www.bcwhitewater.org/reaches/kicking-horse-river-lower-canyon-to-downtown-golden"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.9550035726894,
+          51.29691838080291
+        ]
+      },
+      "properties": {
+        "title": "Kicking Horse River - Lower Canyon to Downtown Golden",
+        "region": "Kootenay Boundary",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "This is the most commonly used takeout by locals, however the run ends in town so there are many options, including riverside bars and restaurants and even a micro-brewery. Put some of that fancy waterproof money in your life jacket and enjoy a drink while shuttle is run.",
+        "url": "https://www.bcwhitewater.org/reaches/kicking-horse-river-lower-canyon-to-downtown-golden"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.61928964409958,
+          51.209057371416975
+        ]
+      },
+      "properties": {
+        "title": "Kicking Horse - Yoho Park Boundary to Palliser",
+        "region": "Kootenay Boundary",
+        "class": "II+",
+        "location_type": "put_in",
+        "description": "Commercial rafting put it, use with consideration and do not block access with vehicles.",
+        "url": "https://www.bcwhitewater.org/reaches/kicking-horse-yoho-park-boundary-to-palliser"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.71531131402429,
+          51.25538487546058
+        ]
+      },
+      "properties": {
+        "title": "Kicking Horse - Yoho Park Boundary to Palliser",
+        "region": "Kootenay Boundary",
+        "class": "II+",
+        "location_type": "take_out",
+        "description": "A slightly convoluted logging road that exits highway 1 eastbound ends up at the river. There are also commercial rafting lunch spots and put ins along this logging road. Staying right at every turn lands you at the best recreational put in.",
+        "url": "https://www.bcwhitewater.org/reaches/kicking-horse-yoho-park-boundary-to-palliser"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.66384953364016,
+          54.568839518795244
+        ]
+      },
+      "properties": {
+        "title": "Kitsumkalum (Kalum) River",
+        "region": "North Coast",
+        "class": "III+ to IV.  Pushy at high water - a swim would be unpleasant.",
+        "location_type": "take_out",
+        "description": "Takeout. If you have high clearance, you can park at the river. Otherwise you'll have to walk.",
+        "url": "https://www.bcwhitewater.org/reaches/kitsumkalum-kalum-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.4331425817474,
+          57.72842420372001
+        ]
+      },
+      "properties": {
+        "title": "Klastline",
+        "region": "Northwest",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Fly into this lake from Dease Lake. Catch a float plane ride from B.C.-Yukon Air.",
+        "url": "https://www.bcwhitewater.org/reaches/klastline"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.98107651908657,
+          58.01065678586747
+        ]
+      },
+      "properties": {
+        "title": "Klastline",
+        "region": "Northwest",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Park the takeout vehicle out of the way here. Watch out for mice and be prepared for blackflies",
+        "url": "https://www.bcwhitewater.org/reaches/klastline"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.28376060855956,
+          54.57116726030924
+        ]
+      },
+      "properties": {
+        "title": "Kleanza Creek",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Hike for 1 km from wash out to bridge",
+        "url": "https://www.bcwhitewater.org/reaches/kleanza-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.38238614168154,
+          54.59745795405365
+        ]
+      },
+      "properties": {
+        "title": "Kleanza Creek",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Take out at camp ground",
+        "url": "https://www.bcwhitewater.org/reaches/kleanza-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.81225265980288,
+          50.458542666997545
+        ]
+      },
+      "properties": {
+        "title": "Kokish River",
+        "region": "Vancouver Island",
+        "class": "V at medium levels.",
+        "location_type": "put_in",
+        "description": "Put in at the bridge over the river at the outlet of Ida Lake.",
+        "url": "https://www.bcwhitewater.org/reaches/kokish-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.8754707441421,
+          50.51925517457056
+        ]
+      },
+      "properties": {
+        "title": "Kokish River",
+        "region": "Vancouver Island",
+        "class": "V at medium levels.",
+        "location_type": "take_out",
+        "description": "Take out at the main road over the river (the road that goes to Telegraph Cove.",
+        "url": "https://www.bcwhitewater.org/reaches/kokish-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.69533861960628,
+          48.6686574685522
+        ]
+      },
+      "properties": {
+        "title": "Koksilah River - Canyon",
+        "region": "Vancouver Island",
+        "class": "III-IV",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/koksilah-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.67167019066378,
+          48.72887900863543
+        ]
+      },
+      "properties": {
+        "title": "Koksilah River - Canyon",
+        "region": "Vancouver Island",
+        "class": "III-IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/koksilah-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.17495904897268,
+          48.638246588557195
+        ]
+      },
+      "properties": {
+        "title": "Lens Creek",
+        "region": "Vancouver Island",
+        "class": "IV-V at low to medium flows",
+        "location_type": "put_in",
+        "description": "Easy put in at this bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/lens-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.23311750796039,
+          48.59770528226369
+        ]
+      },
+      "properties": {
+        "title": "Lens Creek",
+        "region": "Vancouver Island",
+        "class": "IV-V at low to medium flows",
+        "location_type": "take_out",
+        "description": "Take out at this bridge. Access is easy.",
+        "url": "https://www.bcwhitewater.org/reaches/lens-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.53829827319916,
+          50.09172394401631
+        ]
+      },
+      "properties": {
+        "title": "Lillooet River - Between the Lakes",
+        "region": "South Coast",
+        "class": "Class II/III+ (IV)",
+        "location_type": "put_in",
+        "description": "If you have a lot of vehicles, enjoy a 4km float across the lake to the river from here.",
+        "url": "https://www.bcwhitewater.org/reaches/lillooet-river-between-the-lakes"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.22327307340433,
+          49.78896993149621
+        ]
+      },
+      "properties": {
+        "title": "Lillooet River - Between the Lakes",
+        "region": "South Coast",
+        "class": "Class II/III+ (IV)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/lillooet-river-between-the-lakes"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.4064977401776,
+          50.43185876790497
+        ]
+      },
+      "properties": {
+        "title": "Link River",
+        "region": "Vancouver Island",
+        "class": "III below the slides",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/link-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.39128326109693,
+          50.43873263060985
+        ]
+      },
+      "properties": {
+        "title": "Link River",
+        "region": "Vancouver Island",
+        "class": "III below the slides",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/link-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.09575893655892,
+          49.72381319614249
+        ]
+      },
+      "properties": {
+        "title": "Lower Mamquam",
+        "region": "South Coast",
+        "class": "II+",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/lower-mamquam"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.14557361045516,
+          49.731115986349096
+        ]
+      },
+      "properties": {
+        "title": "Lower Mamquam",
+        "region": "South Coast",
+        "class": "II+",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/lower-mamquam"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.97026634176169,
+          50.43859620069313
+        ]
+      },
+      "properties": {
+        "title": "Lower Pingston",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "A scrambley trail down from the road on the south side of the bridge",
+        "url": "https://www.bcwhitewater.org/reaches/lower-pingston"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.95529136693196,
+          50.4406145991353
+        ]
+      },
+      "properties": {
+        "title": "Lower Pingston",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Takeout, beach, and beautiful campsite. Also the place to drive to park and huck the lower falls",
+        "url": "https://www.bcwhitewater.org/reaches/lower-pingston"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.01787153857398,
+          49.34289540294182
+        ]
+      },
+      "properties": {
+        "title": "Lynn Creek",
+        "region": "South Coast",
+        "class": "III at low levels, IV when the water is high.",
+        "location_type": "put_in",
+        "description": "Park here and walk down to the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/lynn-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.0340632929633,
+          49.31265817766288
+        ]
+      },
+      "properties": {
+        "title": "Lynn Creek",
+        "region": "South Coast",
+        "class": "III at low levels, IV when the water is high.",
+        "location_type": "take_out",
+        "description": "Takeout at Bridgeman Park.",
+        "url": "https://www.bcwhitewater.org/reaches/lynn-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.78542905640421,
+          50.42688616999007
+        ]
+      },
+      "properties": {
+        "title": "Mahatta River",
+        "region": "Vancouver Island",
+        "class": "IV with one harder rapid",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/mahatta-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.80118322863592,
+          50.46093051720953
+        ]
+      },
+      "properties": {
+        "title": "Mahatta River",
+        "region": "Vancouver Island",
+        "class": "IV with one harder rapid",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/mahatta-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.99507130820876,
+          49.71738556391722
+        ]
+      },
+      "properties": {
+        "title": "Mamquam River - Upper",
+        "region": "South Coast",
+        "class": "III-IV",
+        "location_type": "put_in",
+        "description": "There's a small campsite on river left opposite skookum creek where it's easy to put on",
+        "url": "https://www.bcwhitewater.org/reaches/mamquam-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.01834726235523,
+          49.718651795342566
+        ]
+      },
+      "properties": {
+        "title": "Mamquam River - Upper",
+        "region": "South Coast",
+        "class": "III-IV",
+        "location_type": "take_out",
+        "description": "Take out BEFORE the dam site on river left. There is a warning sign and a rope across the river but if the dam is open there is NO EDDY at the sign.",
+        "url": "https://www.bcwhitewater.org/reaches/mamquam-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.43278807756766,
+          50.53026903272891
+        ]
+      },
+      "properties": {
+        "title": "Marble River",
+        "region": "Vancouver Island",
+        "class": "II-III with optional V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/marble-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -127.58126406812623,
+          50.59845435016268
+        ]
+      },
+      "properties": {
+        "title": "Marble River",
+        "region": "Vancouver Island",
+        "class": "II-III with optional V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/marble-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.57395033131186,
+          59.266743241445795
+        ]
+      },
+      "properties": {
+        "title": "McDame Creek",
+        "region": "Northwest",
+        "class": "II-III",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/mcdame-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.41151732304257,
+          59.27411704238247
+        ]
+      },
+      "properties": {
+        "title": "McDame Creek",
+        "region": "Northwest",
+        "class": "II-III",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/mcdame-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.30069158936342,
+          54.14747063252119
+        ]
+      },
+      "properties": {
+        "title": "McGregor Canyon",
+        "region": "Omineca",
+        "class": "IV+-V",
+        "location_type": "put_in",
+        "description": "Easiest Access to the McGregor Canyon. Will involve a few kms of flatwater",
+        "url": "https://www.bcwhitewater.org/reaches/mcgregor-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.47329459707304,
+          54.26598644766483
+        ]
+      },
+      "properties": {
+        "title": "McGregor Canyon",
+        "region": "Omineca",
+        "class": "IV+-V",
+        "location_type": "take_out",
+        "description": "If the road goes all the way here this could work as the furthest uptream takeout. However, the road directly opposite was more alder and swamp than road anymore, so it is doubtful that this river left road would be in much better shape. (although it would be difficult for it to be in worse shape)",
+        "url": "https://www.bcwhitewater.org/reaches/mcgregor-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.43916649059086,
+          50.59232076435188
+        ]
+      },
+      "properties": {
+        "title": "Meager Creek - Lower",
+        "region": "South Coast",
+        "class": "IV(+), very continuous",
+        "location_type": "put_in",
+        "description": "Put in where the road drops back to river level.",
+        "url": "https://www.bcwhitewater.org/reaches/meager-creek-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.37170267078518,
+          50.59593239015095
+        ]
+      },
+      "properties": {
+        "title": "Meager Creek - Lower",
+        "region": "South Coast",
+        "class": "IV(+), very continuous",
+        "location_type": "take_out",
+        "description": "Take out at confluence of Perkins Creek and Lillooet River. Short bushwhack up to the road.",
+        "url": "https://www.bcwhitewater.org/reaches/meager-creek-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.82680031921022,
+          50.17210505091427
+        ]
+      },
+      "properties": {
+        "title": "Middle Memekay River",
+        "region": "Vancouver Island",
+        "class": "III+ with one IV",
+        "location_type": "put_in",
+        "description": "Approximate location of easiest put in",
+        "url": "https://www.bcwhitewater.org/reaches/middle-memekay-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.77473643340416,
+          50.21366942825898
+        ]
+      },
+      "properties": {
+        "title": "Middle Memekay River",
+        "region": "Vancouver Island",
+        "class": "III+ with one IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/middle-memekay-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.73121229031113,
+          49.49758863107826
+        ]
+      },
+      "properties": {
+        "title": "Moyeha River",
+        "region": "Vancouver Island",
+        "class": "Scenic I-III packrafting, or manky IV-V creeking",
+        "location_type": "put_in",
+        "description": "Widening or pond of Moyeha River, below which the river is channelized but steep.",
+        "url": "https://www.bcwhitewater.org/reaches/moyeha-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.90685988620731,
+          49.42019100774428
+        ]
+      },
+      "properties": {
+        "title": "Moyeha River",
+        "region": "Vancouver Island",
+        "class": "Scenic I-III packrafting, or manky IV-V creeking",
+        "location_type": "take_out",
+        "description": "Possible water taxi pick up point. Discuss with boat captain ahead of time, there are no docks.",
+        "url": "https://www.bcwhitewater.org/reaches/moyeha-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.11929710752351,
+          50.850403749479796
+        ]
+      },
+      "properties": {
+        "title": "Muelville Creek falls",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Park here and carry down the hiking trail to the falls",
+        "url": "https://www.bcwhitewater.org/reaches/muelville-creek-falls"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.63135659558662,
+          50.00935542260862
+        ]
+      },
+      "properties": {
+        "title": "Nahatlach River \u2013 Francis Lake to Apocynum Campground",
+        "region": "South Coast",
+        "class": "III+(IV)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/nahatlach-river-francis-lake-to-apocynum-campground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.55008879678971,
+          49.99649978704426
+        ]
+      },
+      "properties": {
+        "title": "Nahatlach River \u2013 Francis Lake to Apocynum Campground",
+        "region": "South Coast",
+        "class": "III+(IV)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/nahatlach-river-francis-lake-to-apocynum-campground"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.55016061564871,
+          49.996888560311476
+        ]
+      },
+      "properties": {
+        "title": "Nahatlatch River - Canyon",
+        "region": "South Coast",
+        "class": "IV at medium levels.",
+        "location_type": "put_in",
+        "description": "Apocynum Campground put-in.",
+        "url": "https://www.bcwhitewater.org/reaches/nahatlatch-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.51766152930722,
+          49.981676781065175
+        ]
+      },
+      "properties": {
+        "title": "Nahatlatch River - Canyon",
+        "region": "South Coast",
+        "class": "IV at medium levels.",
+        "location_type": "take_out",
+        "description": "Take out here.",
+        "url": "https://www.bcwhitewater.org/reaches/nahatlatch-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.0798649390592,
+          57.137479433775155
+        ]
+      },
+      "properties": {
+        "title": "Nass River",
+        "region": "Northwest",
+        "class": "III-V",
+        "location_type": "put_in",
+        "description": "The source.  Land a plane or take the long way and drive + hike.",
+        "url": "https://www.bcwhitewater.org/reaches/nass-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.9181417912286,
+          55.80301415283938
+        ]
+      },
+      "properties": {
+        "title": "Nass River",
+        "region": "Northwest",
+        "class": "III-V",
+        "location_type": "take_out",
+        "description": "Takeout at the bridge from the \"Middle\" Nass.",
+        "url": "https://www.bcwhitewater.org/reaches/nass-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.14784164484642,
+          49.21864724000278
+        ]
+      },
+      "properties": {
+        "title": "Norrish Creek",
+        "region": "South Coast",
+        "class": "IV-IV+ at medium levels.  Mainly class III-IV but one unportagable rapid is tricky and dangerous.",
+        "location_type": "put_in",
+        "description": "About 7km up the Norrish Creek FSR, look for an old road dropping towards the river.",
+        "url": "https://www.bcwhitewater.org/reaches/norrish-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.14951314653817,
+          49.17559426217355
+        ]
+      },
+      "properties": {
+        "title": "Norrish Creek",
+        "region": "South Coast",
+        "class": "IV-IV+ at medium levels.  Mainly class III-IV but one unportagable rapid is tricky and dangerous.",
+        "location_type": "take_out",
+        "description": "The road to the takeout is gated, so park a few hundred meters west of the bridge. The gauge is found on the downstream river left side of the road bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/norrish-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.58313833160268,
+          50.236394926846884
+        ]
+      },
+      "properties": {
+        "title": "North Stein River",
+        "region": "South Coast",
+        "class": "V+",
+        "location_type": "take_out",
+        "description": "The easiest takeout is in Lytton at a public boat launch ",
+        "url": "https://www.bcwhitewater.org/reaches/north-stein-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.98664805603244,
+          49.71680605209053
+        ]
+      },
+      "properties": {
+        "title": "Pamela Creek",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Start at the convenient bridge over the Pamela.",
+        "url": "https://www.bcwhitewater.org/reaches/pamela-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.04522125763279,
+          49.71690874622084
+        ]
+      },
+      "properties": {
+        "title": "Pamela Creek",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Park in the clear cut - the river is just down through the forest.",
+        "url": "https://www.bcwhitewater.org/reaches/pamela-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.69536489800575,
+          51.07326921372598
+        ]
+      },
+      "properties": {
+        "title": "Perry River",
+        "region": "Thompson Okanagan",
+        "class": "III-IV",
+        "location_type": "put_in",
+        "description": "An obvious pull out. Follow the atv trail down until it becomes a creek that leads you to the river. ",
+        "url": "https://www.bcwhitewater.org/reaches/perry-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.69531682108499,
+          51.00010581899849
+        ]
+      },
+      "properties": {
+        "title": "Perry River",
+        "region": "Thompson Okanagan",
+        "class": "III-IV",
+        "location_type": "take_out",
+        "description": "Be mindful of the private landowners here. Don\u2019t be the reason Koby Trinker gets mean emails from them. Be clean and quiet. No burnouts and no camping. ",
+        "url": "https://www.bcwhitewater.org/reaches/perry-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.00041146381295,
+          50.48924562852429
+        ]
+      },
+      "properties": {
+        "title": "Pingston - Middle",
+        "region": "Kootenay Boundary",
+        "class": "IV with a short V section at the end",
+        "location_type": "put_in",
+        "description": "Park on river left at the discontinued bridge",
+        "url": "https://www.bcwhitewater.org/reaches/pingston-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.97103567131835,
+          50.438797774778465
+        ]
+      },
+      "properties": {
+        "title": "Pingston - Middle",
+        "region": "Kootenay Boundary",
+        "class": "IV with a short V section at the end",
+        "location_type": "take_out",
+        "description": "Park on either side of the bridge, but the easiest access to the river is on river right ",
+        "url": "https://www.bcwhitewater.org/reaches/pingston-middle"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.92427156009498,
+          49.870680964282144
+        ]
+      },
+      "properties": {
+        "title": "Pitt River - Upper",
+        "region": "South Coast",
+        "class": "IV+ with a portage",
+        "location_type": "put_in",
+        "description": "The Upper Pitt can also be reached via the Rubble Creek Trailhead and paddling across Garibaldi Lake. ",
+        "url": "https://www.bcwhitewater.org/reaches/pitt-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.15048984035259,
+          50.0430405231632
+        ]
+      },
+      "properties": {
+        "title": "Prospect Creek",
+        "region": "Thompson Okanagan",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "Possible alternate put in. River below appears to be continuous class III+ full of wood with at least one waterfall.",
+        "url": "https://www.bcwhitewater.org/reaches/prospect-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.02982794909633,
+          50.136043439491914
+        ]
+      },
+      "properties": {
+        "title": "Prospect Creek",
+        "region": "Thompson Okanagan",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/prospect-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.09499658011188,
+          49.664614702350775
+        ]
+      },
+      "properties": {
+        "title": "Puntledge River - Upper",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Put in on river left just below diversion dam.",
+        "url": "https://www.bcwhitewater.org/reaches/puntledge-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.00075913431814,
+          49.696374643430204
+        ]
+      },
+      "properties": {
+        "title": "Puntledge River - Upper",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "A commonly used takeout option for the Lower Puntledge",
+        "url": "https://www.bcwhitewater.org/reaches/puntledge-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.57172814602603,
+          52.615747502984874
+        ]
+      },
+      "properties": {
+        "title": "Quesnel River",
+        "region": "Cariboo",
+        "class": "III+ to IV- (IV at High water)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/quesnel-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.67320531020871,
+          52.66298430869037
+        ]
+      },
+      "properties": {
+        "title": "Quesnel River",
+        "region": "Cariboo",
+        "class": "III+ to IV- (IV at High water)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/quesnel-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.4573090211826,
+          50.00464296404215
+        ]
+      },
+      "properties": {
+        "title": "Rogers Creek",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Bushwhack to the river from here.",
+        "url": "https://www.bcwhitewater.org/reaches/rogers-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.45691030366184,
+          49.99144843090096
+        ]
+      },
+      "properties": {
+        "title": "Rogers Creek",
+        "region": "South Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "Take out below the bridge to avoid the property owner upstream on river right.",
+        "url": "https://www.bcwhitewater.org/reaches/rogers-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.86789381224821,
+          50.27162394153217
+        ]
+      },
+      "properties": {
+        "title": "Rutherford Creek",
+        "region": "South Coast",
+        "class": "Continuous class IV-V, class V at higher levels.",
+        "location_type": "take_out",
+        "description": "Rutherford Creek take out, at the Route 99 highway crossing. Look for the powerhouse, you can't miss it. Also the location of the Rutherford Creek artificial whitewater course.",
+        "url": "https://www.bcwhitewater.org/reaches/rutherford-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.09599211754873,
+          50.452354401544966
+        ]
+      },
+      "properties": {
+        "title": "Ryan River - Upper",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Put in location - you can start lower than here if you get tired of hiking.",
+        "url": "https://www.bcwhitewater.org/reaches/ryan-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.01342284827524,
+          50.47211659830535
+        ]
+      },
+      "properties": {
+        "title": "Ryan River - Upper",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Approximate take out location and the site of the washed out bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/ryan-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9691053977545,
+          50.671019430388725
+        ]
+      },
+      "properties": {
+        "title": "Seton River",
+        "region": "South Coast",
+        "class": "II+",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/seton-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.93156192369408,
+          50.68007201406931
+        ]
+      },
+      "properties": {
+        "title": "Seton River",
+        "region": "South Coast",
+        "class": "II+",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/seton-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.00903013044062,
+          49.328960135473636
+        ]
+      },
+      "properties": {
+        "title": "Seymour River Canyon",
+        "region": "South Coast",
+        "class": "Highly level dependent - ranges from fun class IV to raging class V.",
+        "location_type": "take_out",
+        "description": "There are stairs up to the road from here.",
+        "url": "https://www.bcwhitewater.org/reaches/seymour-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.01394307575987,
+          49.32183926621744
+        ]
+      },
+      "properties": {
+        "title": "Seymour River - Lower run",
+        "region": "South Coast",
+        "class": "II (III- at high levels)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/seymour-river-lower-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.02427266886413,
+          49.30337069535105
+        ]
+      },
+      "properties": {
+        "title": "Seymour River - Lower run",
+        "region": "South Coast",
+        "class": "II (III- at high levels)",
+        "location_type": "take_out",
+        "description": "Rocky bank just below rail road bridge",
+        "url": "https://www.bcwhitewater.org/reaches/seymour-river-lower-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.97121344552471,
+          49.42409775839812
+        ]
+      },
+      "properties": {
+        "title": "Seymour River \u2013 Upper Run",
+        "region": "South Coast",
+        "class": "III-",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/seymour-river-upper-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.00266232622252,
+          49.34610199164533
+        ]
+      },
+      "properties": {
+        "title": "Seymour River \u2013 Upper Run",
+        "region": "South Coast",
+        "class": "III-",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/seymour-river-upper-run"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.41518694537343,
+          49.321547983633934
+        ]
+      },
+      "properties": {
+        "title": "Silverhope Creek",
+        "region": "South Coast",
+        "class": "IV-IV+ to V, depending on the put in and take out used.",
+        "location_type": "put_in",
+        "description": "Gives access to the class V upper stretch of the river. There is a lot of wood immediately out of the lake, so you might want to scout the start to see if it's worth putting in here, or a little further down.",
+        "url": "https://www.bcwhitewater.org/reaches/silverhope-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.471514467828,
+          49.36235980158895
+        ]
+      },
+      "properties": {
+        "title": "Silverhope Creek",
+        "region": "South Coast",
+        "class": "IV-IV+ to V, depending on the put in and take out used.",
+        "location_type": "take_out",
+        "description": "The bottom-most takeout for Silverhope.",
+        "url": "https://www.bcwhitewater.org/reaches/silverhope-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.5614637282546,
+          49.18890228804892
+        ]
+      },
+      "properties": {
+        "title": "Similkameen Canyon",
+        "region": "Thompson Okanagan",
+        "class": "III+/IV-/IV",
+        "location_type": "put_in",
+        "description": "A novelty waterfall coming out of a tunnel under the highway.",
+        "url": "https://www.bcwhitewater.org/reaches/similkameen-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.53589143736309,
+          49.23740336238646
+        ]
+      },
+      "properties": {
+        "title": "Similkameen Canyon",
+        "region": "Thompson Okanagan",
+        "class": "III+/IV-/IV",
+        "location_type": "take_out",
+        "description": "Using this take-out makes the run a lot shorter, 1.5 hours and avoids running the harder last canyon and avoids a lot of flat water.\r\n\r\nThe last bit of the road to the campsite is steep and you need AWD/4WD to get down and definitely back up it!\r\n\r\nYou can park higher and walk down/up easily.",
+        "url": "https://www.bcwhitewater.org/reaches/similkameen-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.25863716234626,
+          49.416831441486124
+        ]
+      },
+      "properties": {
+        "title": "Similkameen River - Bromley to Stemwinder",
+        "region": "Thompson Okanagan",
+        "class": "II (III)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/similkameen-river-bromley-to-stemwinder"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.14097907033025,
+          49.37261729010771
+        ]
+      },
+      "properties": {
+        "title": "Similkameen River - Bromley to Stemwinder",
+        "region": "Thompson Okanagan",
+        "class": "II (III)",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/similkameen-river-bromley-to-stemwinder"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.08046925232362,
+          49.209407754200214
+        ]
+      },
+      "properties": {
+        "title": "Skagit River - Wilderness Section",
+        "region": "South Coast",
+        "class": "II-III",
+        "location_type": "put_in",
+        "description": "Put in on either Sumallo or Skagit Rivers",
+        "url": "https://www.bcwhitewater.org/reaches/skagit-river-wilderness-section"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.16820095323465,
+          49.117914930005185
+        ]
+      },
+      "properties": {
+        "title": "Skagit River - Wilderness Section",
+        "region": "South Coast",
+        "class": "II-III",
+        "location_type": "take_out",
+        "description": "Take out for class II-III roadless section. Put in for class I section.",
+        "url": "https://www.bcwhitewater.org/reaches/skagit-river-wilderness-section"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -115.7686104267668,
+          49.91140228700576
+        ]
+      },
+      "properties": {
+        "title": "Skookumchuck Creek",
+        "region": "Kootenay Boundary",
+        "class": "III+-IV",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/skookumchuck-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.95211537526694,
+          49.739113659689735
+        ]
+      },
+      "properties": {
+        "title": "Skookum Creek",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Hike to the river from here, fall-line, just downstream of a small stream.",
+        "url": "https://www.bcwhitewater.org/reaches/skookum-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.99542946184391,
+          49.71908252868238
+        ]
+      },
+      "properties": {
+        "title": "Skookum Creek",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Skookum Creek take out bridge, just above its confluence with the Mamquam.",
+        "url": "https://www.bcwhitewater.org/reaches/skookum-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.6631965798987,
+          49.038742280786494
+        ]
+      },
+      "properties": {
+        "title": "Slesse Creek",
+        "region": "South Coast",
+        "class": "III with a short IV- canyon",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/slesse-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.71098493952317,
+          49.07783765360773
+        ]
+      },
+      "properties": {
+        "title": "Slesse Creek",
+        "region": "South Coast",
+        "class": "III with a short IV- canyon",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/slesse-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.57594182277533,
+          53.07067976645132
+        ]
+      },
+      "properties": {
+        "title": "Small River",
+        "region": "Omineca",
+        "class": "III-IV (optional V at put in)",
+        "location_type": "put_in",
+        "description": "Put in here for Class 4 (at the start) and class 3",
+        "url": "https://www.bcwhitewater.org/reaches/small-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.61414504284406,
+          53.05974695998685
+        ]
+      },
+      "properties": {
+        "title": "Small River",
+        "region": "Omineca",
+        "class": "III-IV (optional V at put in)",
+        "location_type": "take_out",
+        "description": "park near the top of the rest area for the shortest walk from the river",
+        "url": "https://www.bcwhitewater.org/reaches/small-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.43909555142855,
+          49.89663144705108
+        ]
+      },
+      "properties": {
+        "title": "Snowcap Creek",
+        "region": "South Coast",
+        "class": "III-V",
+        "location_type": "put_in",
+        "description": "Put in at Glacier Lake.",
+        "url": "https://www.bcwhitewater.org/reaches/snowcap-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.40029758317546,
+          49.928621756875344
+        ]
+      },
+      "properties": {
+        "title": "Snowcap Creek",
+        "region": "South Coast",
+        "class": "III-V",
+        "location_type": "take_out",
+        "description": "Take out at the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/snowcap-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.87180921108039,
+          50.22990389886007
+        ]
+      },
+      "properties": {
+        "title": "Soo River",
+        "region": "South Coast",
+        "class": "IV at medium levels, somewhat continuous.  Tolerates high water very well, but becomes class V.",
+        "location_type": "put_in",
+        "description": "Hike in from here",
+        "url": "https://www.bcwhitewater.org/reaches/soo-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.86106126608786,
+          50.2553533049647
+        ]
+      },
+      "properties": {
+        "title": "Soo River",
+        "region": "South Coast",
+        "class": "IV at medium levels, somewhat continuous.  Tolerates high water very well, but becomes class V.",
+        "location_type": "take_out",
+        "description": "The take out.",
+        "url": "https://www.bcwhitewater.org/reaches/soo-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.88645623908833,
+          50.22067736725165
+        ]
+      },
+      "properties": {
+        "title": "Soo River - Railroad Canyon",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Trail leads to an easy put-in below the rail bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/soo-river-railroad-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.43431269095818,
+          50.90131385786077
+        ]
+      },
+      "properties": {
+        "title": "Spillimacheen",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Park at the campsite on the right side of the road. Cross the road and look for flagging tape that marks an old skid road (just downstream from the campsite). Follow the trail down to the river. This is not a long walk in, but the last part is quite steep.",
+        "url": "https://www.bcwhitewater.org/reaches/spillimacheen"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.4065384627383,
+          50.904315858466475
+        ]
+      },
+      "properties": {
+        "title": "Spillimacheen",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/spillimacheen"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.3726941209913,
+          50.203931540227785
+        ]
+      },
+      "properties": {
+        "title": "Squamish River - Upper",
+        "region": "South Coast",
+        "class": "III-IV boating through some significant canyons.",
+        "location_type": "put_in",
+        "description": "A steep and loose draw gives access to the canyon.",
+        "url": "https://www.bcwhitewater.org/reaches/squamish-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.39824871837362,
+          50.163028220357944
+        ]
+      },
+      "properties": {
+        "title": "Squamish River - Upper",
+        "region": "South Coast",
+        "class": "III-IV boating through some significant canyons.",
+        "location_type": "take_out",
+        "description": "The hook in the canyon here is obvious and the walk up to the road is reasonable. See the description for more info.",
+        "url": "https://www.bcwhitewater.org/reaches/squamish-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0800736831647,
+          49.358251724849055
+        ]
+      },
+      "properties": {
+        "title": "Statlu Creek - Statlu Canyon",
+        "region": "South Coast",
+        "class": "V at medium levels.",
+        "location_type": "put_in",
+        "description": "Third bridge over Statlu, the put in. 5 km from the first bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/statlu-creek-statlu-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.02519937070934,
+          49.34737733236014
+        ]
+      },
+      "properties": {
+        "title": "Statlu Creek - Statlu Canyon",
+        "region": "South Coast",
+        "class": "V at medium levels.",
+        "location_type": "take_out",
+        "description": "There is usually a locked gate here where the road heads up the Statlu. Use the bridge piling as a visual gauge.",
+        "url": "https://www.bcwhitewater.org/reaches/statlu-creek-statlu-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.10276727487923,
+          49.70204676400101
+        ]
+      },
+      "properties": {
+        "title": "Stawamus River",
+        "region": "South Coast",
+        "class": "III (V)",
+        "location_type": "put_in",
+        "description": "Just below a small dam. The biggest rapids are not far below here.",
+        "url": "https://www.bcwhitewater.org/reaches/stawamus-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.12412952831758,
+          49.70011355974913
+        ]
+      },
+      "properties": {
+        "title": "Stawamus River",
+        "region": "South Coast",
+        "class": "III (V)",
+        "location_type": "take_out",
+        "description": "Take out anywhere along the dyke. The river braids and has a lot of logjams below the end of the dyke.",
+        "url": "https://www.bcwhitewater.org/reaches/stawamus-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1688855490699,
+          50.167223217435776
+        ]
+      },
+      "properties": {
+        "title": "Stein River - Multiday Trip",
+        "region": "South Coast",
+        "class": "IV-IV+, V at high water",
+        "location_type": "put_in",
+        "description": "The float plane option.",
+        "url": "https://www.bcwhitewater.org/reaches/stein-river-multiday-trip"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.58448769974021,
+          50.226593617979006
+        ]
+      },
+      "properties": {
+        "title": "Stein River - Multiday Trip",
+        "region": "South Coast",
+        "class": "IV-IV+, V at high water",
+        "location_type": "take_out",
+        "description": "Lytton Boat Launch.",
+        "url": "https://www.bcwhitewater.org/reaches/stein-river-multiday-trip"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -130.9812426906062,
+          58.01019442830017
+        ]
+      },
+      "properties": {
+        "title": "Stikine - Tahltan to Telegraph",
+        "region": "Northwest",
+        "class": "II-III",
+        "location_type": "put_in",
+        "description": "Gravel bar at confluence of Tahltan and Stikine Rivers",
+        "url": "https://www.bcwhitewater.org/reaches/stikine-tahltan-to-telegraph"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -131.16300618853373,
+          57.90015657012168
+        ]
+      },
+      "properties": {
+        "title": "Stikine - Tahltan to Telegraph",
+        "region": "Northwest",
+        "class": "II-III",
+        "location_type": "take_out",
+        "description": "Takeout at confluence of Telegraph Creek and Stikine River in town of Telegraph Creek",
+        "url": "https://www.bcwhitewater.org/reaches/stikine-tahltan-to-telegraph"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.8645535343269,
+          50.436056739999145
+        ]
+      },
+      "properties": {
+        "title": "St. Leon Creek",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Park here and hike down to the river.\r\n",
+        "url": "https://www.bcwhitewater.org/reaches/st-leon-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.88576429559276,
+          50.440479636663326
+        ]
+      },
+      "properties": {
+        "title": "St. Leon Creek",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "The take out is where highway 23 crosses St. Leon Creek.",
+        "url": "https://www.bcwhitewater.org/reaches/st-leon-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.81430184461826,
+          49.03309928916232
+        ]
+      },
+      "properties": {
+        "title": "Tamihi Creek (Lower)",
+        "region": "South Coast",
+        "class": "IV+ with a mandatory portage",
+        "location_type": "put_in",
+        "description": "There isn't a super obvious place to start, there was wood in the first manky rapid so we bush-whacked in below it.",
+        "url": "https://www.bcwhitewater.org/reaches/tamihi-creek-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.84093458972163,
+          49.07060937743637
+        ]
+      },
+      "properties": {
+        "title": "Tamihi Creek (Lower)",
+        "region": "South Coast",
+        "class": "IV+ with a mandatory portage",
+        "location_type": "take_out",
+        "description": "Take out on river right below the bridge.",
+        "url": "https://www.bcwhitewater.org/reaches/tamihi-creek-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.77755390408495,
+          49.00911660241147
+        ]
+      },
+      "properties": {
+        "title": "Tamihi Creek - Upper",
+        "region": "South Coast",
+        "class": "IV+ / V",
+        "location_type": "put_in",
+        "description": "Not sure if accurate yet",
+        "url": "https://www.bcwhitewater.org/reaches/tamihi-creek-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.81342107720917,
+          49.03178982771445
+        ]
+      },
+      "properties": {
+        "title": "Tamihi Creek - Upper",
+        "region": "South Coast",
+        "class": "IV+ / V",
+        "location_type": "take_out",
+        "description": "Scout this first, there is a class V / VI rapid at the bridge you wouldn't want to run.",
+        "url": "https://www.bcwhitewater.org/reaches/tamihi-creek-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.5019969940787,
+          49.96646267104771
+        ]
+      },
+      "properties": {
+        "title": "Tatlow Creek",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "Aim to put in directly across from the small creek that enters Tatlow on river right, above the start of the canyon.",
+        "url": "https://www.bcwhitewater.org/reaches/tatlow-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.49088757083634,
+          49.97221440618338
+        ]
+      },
+      "properties": {
+        "title": "Tatlow Creek",
+        "region": "South Coast",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "There is an old bridge at the take out.",
+        "url": "https://www.bcwhitewater.org/reaches/tatlow-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.401256231525,
+          50.26895486730609
+        ]
+      },
+      "properties": {
+        "title": "Thompson River",
+        "region": "South Coast",
+        "class": "III, big water.",
+        "location_type": "put_in",
+        "description": "Put in at this ravine. It's an obvious rafting put in. Be careful as the parking is along a busy, major highway.",
+        "url": "https://www.bcwhitewater.org/reaches/thompson-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.58397603520875,
+          50.22610223796568
+        ]
+      },
+      "properties": {
+        "title": "Thompson River",
+        "region": "South Coast",
+        "class": "III, big water.",
+        "location_type": "take_out",
+        "description": "Lower, public access boat ramp.",
+        "url": "https://www.bcwhitewater.org/reaches/thompson-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3902415134786,
+          50.34834833189939
+        ]
+      },
+      "properties": {
+        "title": "Thompson River \u2013 Goldpan to Frog",
+        "region": "Thompson Okanagan",
+        "class": "III-",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/thompson-river-goldpan-to-frog"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.40231128389411,
+          50.26862380067135
+        ]
+      },
+      "properties": {
+        "title": "Thompson River \u2013 Goldpan to Frog",
+        "region": "Thompson Okanagan",
+        "class": "III-",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/thompson-river-goldpan-to-frog"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.38202480694797,
+          49.49575793355635
+        ]
+      },
+      "properties": {
+        "title": "Tingle Creek",
+        "region": "South Coast",
+        "class": "II-III",
+        "location_type": "put_in",
+        "description": "Beautiful sand bars beneath granite monoliths of The Defendant and Judge Howay.",
+        "url": "https://www.bcwhitewater.org/reaches/tingle-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.31265022914386,
+          49.37170938826344
+        ]
+      },
+      "properties": {
+        "title": "Tingle Creek",
+        "region": "South Coast",
+        "class": "II-III",
+        "location_type": "take_out",
+        "description": "A variety of exit options exist.  Boat pick up or flatwater lake paddling.",
+        "url": "https://www.bcwhitewater.org/reaches/tingle-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.1880414031553,
+          50.486394043394796
+        ]
+      },
+      "properties": {
+        "title": "Toby Creek - 7 Canyons",
+        "region": "Kootenay Boundary",
+        "class": "Mostly class IV/IV+ with one definite class V that can be portaged",
+        "location_type": "put_in",
+        "description": "The river runs next to the road for quite a distance with many alternate put ins. The higher you go the longer and mellower of a warm up you get.",
+        "url": "https://www.bcwhitewater.org/reaches/toby-creek-7-canyons"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.04521016900395,
+          50.52070187920003
+        ]
+      },
+      "properties": {
+        "title": "Toby Creek - 7 Canyons",
+        "region": "Kootenay Boundary",
+        "class": "Mostly class IV/IV+ with one definite class V that can be portaged",
+        "location_type": "take_out",
+        "description": "Park on River right before crossing the bridge on your way up to the put in. ",
+        "url": "https://www.bcwhitewater.org/reaches/toby-creek-7-canyons"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.97985721883646,
+          49.60179124578366
+        ]
+      },
+      "properties": {
+        "title": "Trent River",
+        "region": "Vancouver Island",
+        "class": "V for the waterfall; III for the paddle out",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/trent-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.93519495386687,
+          49.638108765888944
+        ]
+      },
+      "properties": {
+        "title": "Trent River",
+        "region": "Vancouver Island",
+        "class": "V for the waterfall; III for the paddle out",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/trent-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.73253002863464,
+          49.58304618282017
+        ]
+      },
+      "properties": {
+        "title": "Trout Creek",
+        "region": "Thompson Okanagan",
+        "class": "IV+",
+        "location_type": "put_in",
+        "description": "Put in at the back of the rodeo grounds",
+        "url": "https://www.bcwhitewater.org/reaches/trout-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.63290967456125,
+          49.5633663294488
+        ]
+      },
+      "properties": {
+        "title": "Trout Creek",
+        "region": "Thompson Okanagan",
+        "class": "IV+",
+        "location_type": "take_out",
+        "description": "Paddle out into the lake and turn right to get to the beach by the parking lot.",
+        "url": "https://www.bcwhitewater.org/reaches/trout-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.81747699245224,
+          59.28249025798172
+        ]
+      },
+      "properties": {
+        "title": "Troutline Creek",
+        "region": "Northwest",
+        "class": "I-II; V+ Canyon Below",
+        "location_type": "put_in",
+        "description": "Put in for upper float",
+        "url": "https://www.bcwhitewater.org/reaches/troutline-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.727871918307,
+          59.26879534207231
+        ]
+      },
+      "properties": {
+        "title": "Troutline Creek",
+        "region": "Northwest",
+        "class": "I-II; V+ Canyon Below",
+        "location_type": "take_out",
+        "description": "Take out for upper float. Put in for lower canyons.",
+        "url": "https://www.bcwhitewater.org/reaches/troutline-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.83762508660553,
+          49.5173177527962
+        ]
+      },
+      "properties": {
+        "title": "Tsable River - Prickly Canyon",
+        "region": "Vancouver Island",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/tsable-river-prickly-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.67554211098928,
+          49.50403035629125
+        ]
+      },
+      "properties": {
+        "title": "Tulameen River",
+        "region": "South Coast",
+        "class": "II-III (IV for \"Tulameanie Drop\"",
+        "location_type": "put_in",
+        "description": "For  slightly shorter run.",
+        "url": "https://www.bcwhitewater.org/reaches/tulameen-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.51181037318437,
+          49.46310288105843
+        ]
+      },
+      "properties": {
+        "title": "Tulameen River",
+        "region": "South Coast",
+        "class": "II-III (IV for \"Tulameanie Drop\"",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/tulameen-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -134.92116320334483,
+          59.7655259454217
+        ]
+      },
+      "properties": {
+        "title": "Tutshi River",
+        "region": "Northwest",
+        "class": "III-IV at low water, IV-V at high water",
+        "location_type": "put_in",
+        "description": "Hike from the road into here.",
+        "url": "https://www.bcwhitewater.org/reaches/tutshi-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -134.8887357237279,
+          59.796172244312885
+        ]
+      },
+      "properties": {
+        "title": "Tutshi River",
+        "region": "Northwest",
+        "class": "III-IV at low water, IV-V at high water",
+        "location_type": "take_out",
+        "description": "Takeout shortly below Final Rinse.",
+        "url": "https://www.bcwhitewater.org/reaches/tutshi-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.00725924398867,
+          49.732616494202034
+        ]
+      },
+      "properties": {
+        "title": "Ucona River - Upper",
+        "region": "Vancouver Island",
+        "class": "IV with optional V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/ucona-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.02660319712834,
+          49.71700818431617
+        ]
+      },
+      "properties": {
+        "title": "Ucona River - Upper",
+        "region": "Vancouver Island",
+        "class": "IV with optional V",
+        "location_type": "take_out",
+        "description": "Approximate location of parking for the take out. Scout takeout ahead of time.",
+        "url": "https://www.bcwhitewater.org/reaches/ucona-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.11091644313345,
+          49.80960517584873
+        ]
+      },
+      "properties": {
+        "title": "Upana River",
+        "region": "Vancouver Island",
+        "class": "IV+ to V",
+        "location_type": "put_in",
+        "description": "Multiple put in options along this roadside section",
+        "url": "https://www.bcwhitewater.org/reaches/upana-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.06972540378784,
+          49.799162581002605
+        ]
+      },
+      "properties": {
+        "title": "Upana River",
+        "region": "Vancouver Island",
+        "class": "IV+ to V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/upana-river"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.12374534928387,
+          50.119584184350856
+        ]
+      },
+      "properties": {
+        "title": "Upper Callaghan",
+        "region": "South Coast",
+        "class": "III+ with one IV- easy waterfall",
+        "location_type": "put_in",
+        "description": "Hike up the trail on river left until you see 2 benches.... look for the pink flagging tape and follow it down to a small put-on.   This allows you to run the funnest rapid above the bridge without needing to do the long walk into Madaley Creek.",
+        "url": "https://www.bcwhitewater.org/reaches/upper-callaghan"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.1247947335093,
+          50.09277453950108
+        ]
+      },
+      "properties": {
+        "title": "Upper Callaghan",
+        "region": "South Coast",
+        "class": "III+ with one IV- easy waterfall",
+        "location_type": "take_out",
+        "description": "This take-out is the same as the put-on for the main Callaghan run.  There is a good path back to the road.",
+        "url": "https://www.bcwhitewater.org/reaches/upper-callaghan"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.0034841335207,
+          50.539025737482746
+        ]
+      },
+      "properties": {
+        "title": "Upper Pingston",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/upper-pingston"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.00054962669121,
+          50.48952144897373
+        ]
+      },
+      "properties": {
+        "title": "Upper Pingston",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "This is also the Middle Pingston put-in.",
+        "url": "https://www.bcwhitewater.org/reaches/upper-pingston"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.20017555903621,
+          50.26303643371716
+        ]
+      },
+      "properties": {
+        "title": "Upper Soo",
+        "region": "South Coast",
+        "class": "III (with a major portage, and quite a bit of flat water)",
+        "location_type": "put_in",
+        "description": "It is accessed via a long hike from Callaghan Lake.",
+        "url": "https://www.bcwhitewater.org/reaches/upper-soo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.91143482157476,
+          50.2263244008808
+        ]
+      },
+      "properties": {
+        "title": "Upper Soo",
+        "region": "South Coast",
+        "class": "III (with a major portage, and quite a bit of flat water)",
+        "location_type": "take_out",
+        "description": "This is the put-in to the Railway Canyon Section of the Soo!",
+        "url": "https://www.bcwhitewater.org/reaches/upper-soo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.92835176568519,
+          49.5088775028521
+        ]
+      },
+      "properties": {
+        "title": "Upper Tulameen",
+        "region": "South Coast",
+        "class": "III-V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/upper-tulameen"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.7566939350838,
+          49.5420359744173
+        ]
+      },
+      "properties": {
+        "title": "Upper Tulameen",
+        "region": "South Coast",
+        "class": "III-V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/upper-tulameen"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -126.01971399456508,
+          50.14396356126878
+        ]
+      },
+      "properties": {
+        "title": "White River - Canyon",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.99206234044529,
+          50.176021479668435
+        ]
+      },
+      "properties": {
+        "title": "White River - Canyon",
+        "region": "Vancouver Island",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-canyon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.97006172528226,
+          50.22105379489531
+        ]
+      },
+      "properties": {
+        "title": "White River - Lower",
+        "region": "Vancouver Island",
+        "class": "III",
+        "location_type": "put_in",
+        "description": "Put in just below a 5m riverwide ramp drop",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.91794592391582,
+          50.307687624426876
+        ]
+      },
+      "properties": {
+        "title": "White River - Lower",
+        "region": "Vancouver Island",
+        "class": "III",
+        "location_type": "take_out",
+        "description": "A commonly used takeout at a private campground",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-lower"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.22543875821344,
+          55.94300863616078
+        ]
+      },
+      "properties": {
+        "title": "White River (Nass tributary)",
+        "region": "Northwest",
+        "class": "IV",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-nass-tributary"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -129.08094721240892,
+          55.96646971558846
+        ]
+      },
+      "properties": {
+        "title": "White River (Nass tributary)",
+        "region": "Northwest",
+        "class": "IV",
+        "location_type": "take_out",
+        "description": "bushwhack to Highway 37",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-nass-tributary"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.99205484646006,
+          50.17600453227223
+        ]
+      },
+      "properties": {
+        "title": "White River - Upper",
+        "region": "Vancouver Island",
+        "class": "III-IV (P)",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.96956469220099,
+          50.22120858440175
+        ]
+      },
+      "properties": {
+        "title": "White River - Upper",
+        "region": "Vancouver Island",
+        "class": "III-IV (P)",
+        "location_type": "take_out",
+        "description": "Potential take out up a steep trail. More likely to just continue down the Lower White (III).",
+        "url": "https://www.bcwhitewater.org/reaches/white-river-upper"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.37742569365855,
+          54.41021926543877
+        ]
+      },
+      "properties": {
+        "title": "Williams Creek",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "put_in",
+        "description": "Approximate Race Course section put in.\r\n",
+        "url": "https://www.bcwhitewater.org/reaches/williams-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -128.4785626472915,
+          54.442332664915625
+        ]
+      },
+      "properties": {
+        "title": "Williams Creek",
+        "region": "North Coast",
+        "class": "IV-V",
+        "location_type": "take_out",
+        "description": "The gauge is painted on the river left side of the road bridge",
+        "url": "https://www.bcwhitewater.org/reaches/williams-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.40901777643379,
+          50.15457098746154
+        ]
+      },
+      "properties": {
+        "title": "Wilson/Fitzstubbs Creek",
+        "region": "Kootenay Boundary",
+        "class": "III-V",
+        "location_type": "put_in",
+        "description": "After a long drive around the canyon the road comes back closer to the river. Look for an slightly hidden overgrown atv trail on the left. Park here and follow the trail 500m to the river.",
+        "url": "https://www.bcwhitewater.org/reaches/wilson-fitzstubbs-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.41448722873079,
+          50.029066933273896
+        ]
+      },
+      "properties": {
+        "title": "Wilson/Fitzstubbs Creek",
+        "region": "Kootenay Boundary",
+        "class": "III-V",
+        "location_type": "take_out",
+        "description": "A lovely alternate takeout to end your day in the warm waters of slocan lake.",
+        "url": "https://www.bcwhitewater.org/reaches/wilson-fitzstubbs-creek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.48308202937989,
+          51.497484846516414
+        ]
+      },
+      "properties": {
+        "title": "Yoho",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "put_in",
+        "description": "",
+        "url": "https://www.bcwhitewater.org/reaches/yoho"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.43897065944567,
+          51.452741628756144
+        ]
+      },
+      "properties": {
+        "title": "Yoho",
+        "region": "Kootenay Boundary",
+        "class": "V",
+        "location_type": "take_out",
+        "description": "Small pull-out about 100m downstream of the gauge",
+        "url": "https://www.bcwhitewater.org/reaches/yoho"
+      }
+    }
+  ]
+}

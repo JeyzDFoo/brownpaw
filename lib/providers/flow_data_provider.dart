@@ -264,3 +264,56 @@ class DailyMeansParams {
   @override
   int get hashCode => stationId.hashCode ^ days.hashCode;
 }
+
+/// Provider for getting the most recent daily discharge for a station
+/// This is used for showing current levels in list views
+final latestDailyDischargeProvider = FutureProvider.family<double?, String>((
+  ref,
+  stationId,
+) async {
+  if (stationId.isEmpty) return null;
+
+  try {
+    // Normalize the station ID format
+    final stationPath = _normalizeStationId(stationId);
+
+    print('🌊 Fetching latest discharge for: $stationPath');
+
+    // Get the current year's data
+    final currentYear = DateTime.now().year;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('station_data')
+        .doc(stationPath)
+        .collection('readings')
+        .doc(currentYear.toString())
+        .get();
+
+    if (!doc.exists) {
+      print('❌ No readings found for current year: $currentYear');
+      return null;
+    }
+
+    final data = doc.data();
+    final dailyReadings = data?['daily_readings'] as Map<String, dynamic>?;
+
+    if (dailyReadings == null || dailyReadings.isEmpty) {
+      print('❌ No daily_readings found');
+      return null;
+    }
+
+    // Sort dates and get the most recent one
+    final sortedDates = dailyReadings.keys.toList()..sort();
+    final mostRecentDate = sortedDates.last;
+
+    final reading = dailyReadings[mostRecentDate] as Map<String, dynamic>?;
+    final discharge = reading?['mean_discharge'] as double?;
+
+    print('✅ Latest discharge ($mostRecentDate): $discharge m³/s');
+
+    return discharge;
+  } catch (e) {
+    print('❌ Error fetching latest discharge for $stationId: $e');
+    return null;
+  }
+});

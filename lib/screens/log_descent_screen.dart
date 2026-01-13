@@ -6,7 +6,6 @@ import '../models/river_run.dart';
 import '../providers/river_runs_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/favorites_provider.dart';
-import '../providers/realtime_flow_provider.dart';
 import '../providers/descents_provider.dart';
 import '../providers/recent_runs_provider.dart';
 import '../widgets/difficulty_selector.dart';

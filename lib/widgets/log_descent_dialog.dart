@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/descents_provider.dart';
-import '../providers/realtime_flow_provider.dart';
 
 class LogDescentDialog extends ConsumerStatefulWidget {
   final String runId;
@@ -129,11 +128,6 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
       print('❌ Error fetching flow: $e');
       // Silently fail - user can manually enter flow
     }
-  }
-
-  Future<void> _updateFlowForDate(DateTime date) async {
-    // This method is no longer used but kept for backwards compatibility
-    await _fetchMostRecentFlow();
   }
 
   Future<void> _saveDescent() async {

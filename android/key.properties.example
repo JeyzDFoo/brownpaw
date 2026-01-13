@@ -1,0 +1,8 @@
+# Android Keystore Properties
+# Copy this file to key.properties and fill in your actual values
+# DO NOT commit key.properties to version control
+
+storePassword=your_keystore_password_here
+keyPassword=your_key_password_here
+keyAlias=brownpaw-release
+storeFile=/path/to/your/keystore.jks

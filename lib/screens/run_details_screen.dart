@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,8 +22,6 @@ class RunDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider).user;
-    final favoritesState = ref.watch(favoritesProvider);
-    final isFavorite = favoritesState.isFavorite(runId);
     final descentCount = ref.watch(runDescentCountProvider(runId));
     return Scaffold(
       appBar: AppBar(title: const Text('Run Details')),
@@ -927,7 +926,28 @@ class RunDetailsScreen extends ConsumerWidget {
     final longitude = run.putInCoordinates!['longitude']!;
 
     try {
-      final availableMaps = await MapLauncher.installedMaps;
+      // Show loading indicator
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+              const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      // Get available maps with timeout
+      final availableMaps = await MapLauncher.installedMaps.timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw TimeoutException('Failed to detect map apps');
+        },
+      );
+
+      // Close loading indicator
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
 
       if (availableMaps.isEmpty) {
         if (context.mounted) {
@@ -970,7 +990,15 @@ class RunDetailsScreen extends ConsumerWidget {
                   ),
                   ...availableMaps.map(
                     (map) => ListTile(
-                      leading: Image.asset(map.icon, width: 30, height: 30),
+                      leading: SizedBox(
+                        width: 30,
+                        height: 30,
+                        child: Image.asset(
+                          map.icon,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.map),
+                        ),
+                      ),
                       title: Text(map.mapName),
                       onTap: () async {
                         Navigator.pop(context);
@@ -988,6 +1016,11 @@ class RunDetailsScreen extends ConsumerWidget {
         );
       }
     } catch (e) {
+      // Close loading indicator if still open
+      if (context.mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,

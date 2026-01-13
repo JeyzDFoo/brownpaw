@@ -20,11 +20,9 @@ service cloud.firestore {
       return request.resource.data[field] is timestamp;
     }
 
-    // Hardcoded admin UID list
+    // Check if user has admin custom claim
     function isAdmin() {
-      return isAuthenticated() && 
-        (request.auth.uid == "08y0oUgfD2aWOgScPJRDdyfehsv2" || 
-         request.auth.uid == "Ela2Ijh7kedHFLFMNGuKSaygWE02");
+      return isAuthenticated() && request.auth.token.admin == true;
     }
     
     // Rivers collection - open for authenticated users

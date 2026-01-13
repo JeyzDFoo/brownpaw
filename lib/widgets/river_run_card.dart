@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/river_run.dart';
 import '../providers/favorites_provider.dart';
-import '../providers/realtime_flow_provider.dart';
+import '../providers/flow_data_provider.dart';
 import '../screens/run_details_screen.dart';
 
 class RiverRunCard extends ConsumerWidget {
@@ -14,9 +14,9 @@ class RiverRunCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(isFavoriteProvider(run.riverId));
 
-    // Watch real-time flow data if station ID is available
-    final realtimeFlow = run.stationId != null
-        ? ref.watch(realtimeFlowProvider(run.stationId!))
+    // Watch most recent historical discharge if station ID is available
+    final latestDischarge = run.stationId != null
+        ? ref.watch(latestDailyDischargeProvider(run.stationId!))
         : null;
 
     return Card(
@@ -101,33 +101,21 @@ class RiverRunCard extends ConsumerWidget {
                       ),
                     ],
                     // Display latest discharge if available
-                    if (realtimeFlow?.hasValue == true &&
-                        realtimeFlow!.value?.discharge != null) ...[
+                    if (latestDischarge?.hasValue == true &&
+                        latestDischarge!.value != null) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.water, size: 14, color: Colors.green),
+                          Icon(Icons.water, size: 14, color: Colors.blue),
                           const SizedBox(width: 4),
                           Text(
-                            '${realtimeFlow.value!.discharge!.toStringAsFixed(1)} m³/s',
+                            '${latestDischarge.value!.toStringAsFixed(1)} m³/s',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
-                                  color: Colors.green,
+                                  color: Colors.blue,
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
-                          if (realtimeFlow.value!.trend != null) ...[
-                            const SizedBox(width: 4),
-                            Icon(
-                              realtimeFlow.value!.trend == 'rising'
-                                  ? Icons.trending_up
-                                  : realtimeFlow.value!.trend == 'falling'
-                                  ? Icons.trending_down
-                                  : Icons.trending_flat,
-                              size: 14,
-                              color: Colors.green,
-                            ),
-                          ],
                         ],
                       ),
                     ],

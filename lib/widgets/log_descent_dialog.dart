@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/descents_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 
@@ -39,6 +40,9 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
     // Pre-populate flow if available
     if (widget.initialFlow != null) {
       _flowController.text = widget.initialFlow!.toStringAsFixed(1);
+    } else if (widget.stationId != null) {
+      // Fetch the most recent flow if no initial flow provided
+      _fetchMostRecentFlow();
     }
   }
 
@@ -60,47 +64,76 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
       setState(() {
         _selectedDate = picked;
       });
-      // Update flow for the selected date
-      await _updateFlowForDate(picked);
+    }
+  }
+
+  Future<void> _fetchMostRecentFlow() async {
+    if (widget.stationId == null) return;
+
+    try {
+      print('🌊 Fetching most recent flow for station: ${widget.stationId}');
+
+      // Normalize station ID
+      String stationPath = widget.stationId!;
+      if (!stationPath.startsWith('Provider.')) {
+        if (stationPath.contains('_')) {
+          final parts = stationPath.split('_');
+          final provider = parts.take(parts.length - 1).join('_').toUpperCase();
+          final station = parts.last;
+          stationPath = 'Provider.${provider}_$station';
+        } else {
+          stationPath = 'Provider.ENVIRONMENT_CANADA_$stationPath';
+        }
+      }
+
+      print('📅 Fetching most recent daily average for: $stationPath');
+
+      // Fetch the most recent year's data
+      final year = DateTime.now().year;
+      final doc = await FirebaseFirestore.instance
+          .collection('station_data')
+          .doc(stationPath)
+          .collection('readings')
+          .doc(year.toString())
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data();
+        final dailyReadings = data?['daily_readings'] as Map<String, dynamic>?;
+
+        if (dailyReadings != null && dailyReadings.isNotEmpty) {
+          // Get the most recent date with data
+          final sortedDates = dailyReadings.keys.toList()..sort();
+          final mostRecentDate = sortedDates.last;
+
+          final reading =
+              dailyReadings[mostRecentDate] as Map<String, dynamic>?;
+          final discharge = reading?['mean_discharge'] as double?;
+
+          print('💧 Most recent daily discharge ($mostRecentDate): $discharge');
+
+          if (discharge != null && mounted) {
+            setState(() {
+              _flowController.text = discharge.toStringAsFixed(1);
+            });
+          }
+        } else {
+          print('❌ No daily readings found');
+        }
+      } else {
+        print(
+          '❌ No document found for station path: $stationPath, year: $year',
+        );
+      }
+    } catch (e) {
+      print('❌ Error fetching flow: $e');
+      // Silently fail - user can manually enter flow
     }
   }
 
   Future<void> _updateFlowForDate(DateTime date) async {
-    if (widget.stationId == null) return;
-
-    try {
-      final flowData = await ref.read(
-        realtimeFlowStreamProvider(widget.stationId!).future,
-      );
-
-      if (flowData == null) return;
-
-      // Find the reading closest to the selected date
-      final readings = flowData.flow.readings;
-      if (readings.isEmpty) return;
-
-      // Find reading for the selected date (or closest one)
-      double? flowForDate;
-      Duration? smallestDiff;
-
-      for (final reading in readings) {
-        if (reading.discharge == null) continue;
-
-        final diff = reading.timestamp.difference(date).abs();
-        if (smallestDiff == null || diff < smallestDiff) {
-          smallestDiff = diff;
-          flowForDate = reading.discharge;
-        }
-      }
-
-      if (flowForDate != null && mounted) {
-        setState(() {
-          _flowController.text = flowForDate!.toStringAsFixed(1);
-        });
-      }
-    } catch (e) {
-      // Silently fail - user can manually enter flow
-    }
+    // This method is no longer used but kept for backwards compatibility
+    await _fetchMostRecentFlow();
   }
 
   Future<void> _saveDescent() async {

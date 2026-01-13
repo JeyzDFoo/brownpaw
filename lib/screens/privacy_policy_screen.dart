@@ -105,11 +105,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
           _buildSection(
             context,
             'Data Retention',
-            'We retain your personal information for as long as your account is active or as needed to provide you services. When you delete your account, we delete all associated personal data, including:\n\n'
+            'We retain your personal information for as long as your account is active or as needed to provide you services. When you delete your account, we delete all personal data, including:\n\n'
                 '• Your account information\n\n'
-                '• Your descent logs\n\n'
-                '• Your uploaded photos\n\n'
-                'Some anonymized usage data may be retained for analytics purposes.',
+                '• Your public descent logs\n\n',
           ),
 
           _buildSection(
@@ -122,8 +120,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
             context,
             'Contact Us',
             'If you have any questions about this Privacy Policy, please contact us at:\n\n'
-                'Email: privacy@brownpaw.com\n\n'
-                'We will respond to your inquiry within 30 days.',
+                'Email: hello@brownpaw.com\n\n'
+                'We will respond to your inquiry as soon as we can.',
           ),
 
           const SizedBox(height: 32),

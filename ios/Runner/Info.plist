@@ -66,5 +66,18 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- URL Schemes for Map Apps -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>comgooglemaps</string>
+		<string>waze</string>
+		<string>yandexmaps</string>
+		<string>yandexnavi</string>
+		<string>citymapper</string>
+		<string>mapswithme</string>
+		<string>here-route</string>
+		<string>dgis</string>
+		<string>petal</string>
+	</array>
 </dict>
 </plist>

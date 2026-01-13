@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 // Remove package_info_plus import for now - can be added back later if needed
 // import 'package:package_info_plus/package_info_plus.dart';
 import '../providers/user_provider.dart';
+import 'privacy_policy_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -77,6 +78,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildSectionHeader('About'),
           const SizedBox(height: 8),
           _buildAboutCard(),
+          const SizedBox(height: 16),
+
+          // Privacy Policy
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text('Privacy Policy'),
+              subtitle: const Text('Learn how we protect your data'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PrivacyPolicyScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

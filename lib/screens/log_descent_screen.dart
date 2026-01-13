@@ -8,6 +8,7 @@ import '../providers/user_provider.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../providers/descents_provider.dart';
+import '../providers/recent_runs_provider.dart';
 import '../widgets/difficulty_selector.dart';
 
 class LogDescentScreen extends ConsumerStatefulWidget {
@@ -67,11 +68,16 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
     );
 
     if (run != null) {
+      // Save to recent runs
+      ref.read(recentRunsProvider.notifier).addRecentRun(run.riverId);
+
       setState(() {
         _selectedRunId = run.riverId;
         _selectedRunName = '${run.river} - ${run.name}';
         _selectedStationId = run.stationId;
         _selectedDifficulty = run.difficultyClass;
+        // Auto-populate difficulty with run's difficulty class
+        _userDifficulty = run.difficultyClass;
       });
 
       // Auto-populate flow if station data is available
@@ -83,70 +89,73 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
 
   Future<void> _fetchAndPopulateFlow(String stationId) async {
     try {
-      final now = DateTime.now();
-      final isToday =
-          _selectedDate.year == now.year &&
-          _selectedDate.month == now.month &&
-          _selectedDate.day == now.day;
-
-      // print(
-      //   '🌊 Fetching flow for station: $stationId, date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)} (isToday: $isToday)',
-      // );
+      print(
+        '🌊 Fetching flow for station: $stationId, date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}',
+      );
 
       double? discharge;
 
-      if (isToday) {
-        // Fetch real-time data for today
-        final flowData = await ref.read(realtimeFlowProvider(stationId).future);
-        discharge = flowData?.discharge;
-      } else {
-        // Fetch historical data directly from Firestore for past dates
-        final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-
-        // Normalize station ID
-        String stationPath = stationId;
-        if (!stationId.startsWith('Provider.')) {
-          // Convert "08GA071" or "environment_canada_08GA071" to "Provider.ENVIRONMENT_CANADA_08GA071"
-          if (stationId.contains('_')) {
-            final parts = stationId.split('_');
-            final provider = parts
-                .take(parts.length - 1)
-                .join('_')
-                .toUpperCase();
-            final station = parts.last;
-            stationPath = 'Provider.${provider}_$station';
-          } else {
-            stationPath = 'Provider.ENVIRONMENT_CANADA_$stationId';
-          }
+      // Normalize station ID
+      String stationPath = stationId;
+      if (!stationId.startsWith('Provider.')) {
+        // Convert "08GA071" or "environment_canada_08GA071" to "Provider.ENVIRONMENT_CANADA_08GA071"
+        if (stationId.contains('_')) {
+          final parts = stationId.split('_');
+          final provider = parts.take(parts.length - 1).join('_').toUpperCase();
+          final station = parts.last;
+          stationPath = 'Provider.${provider}_$station';
+        } else {
+          stationPath = 'Provider.ENVIRONMENT_CANADA_$stationId';
         }
+      }
 
-        final year = _selectedDate.year;
-        final doc = await FirebaseFirestore.instance
-            .collection('station_data')
-            .doc(stationPath)
-            .collection('readings')
-            .doc(year.toString())
-            .get();
+      print('📅 Fetching most recent daily average for: $stationPath');
 
-        if (doc.exists) {
-          final data = doc.data();
-          final dailyReadings =
-              data?['daily_readings'] as Map<String, dynamic>?;
-          final reading = dailyReadings?[dateStr] as Map<String, dynamic>?;
+      // Fetch the most recent year's data
+      final year = _selectedDate.year;
+      final doc = await FirebaseFirestore.instance
+          .collection('station_data')
+          .doc(stationPath)
+          .collection('readings')
+          .doc(year.toString())
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data();
+        final dailyReadings = data?['daily_readings'] as Map<String, dynamic>?;
+
+        if (dailyReadings != null && dailyReadings.isNotEmpty) {
+          // Get the most recent date with data
+          final sortedDates = dailyReadings.keys.toList()..sort();
+          final mostRecentDate = sortedDates.last;
+
+          final reading =
+              dailyReadings[mostRecentDate] as Map<String, dynamic>?;
           discharge = reading?['mean_discharge'] as double?;
-        } else {}
+
+          print('💧 Most recent daily discharge ($mostRecentDate): $discharge');
+        } else {
+          print('❌ No daily readings found');
+        }
+      } else {
+        print(
+          '❌ No document found for station path: $stationPath, year: $year',
+        );
       }
 
       if (discharge != null) {
+        print('✅ Setting flow to: ${discharge.toStringAsFixed(1)}');
         setState(() {
           _flowController.text = discharge!.toStringAsFixed(1);
         });
       } else {
+        print('⚠️ No discharge data available, clearing field');
         setState(() {
           _flowController.text = '';
         });
       }
     } catch (e) {
+      print('❌ Error fetching flow: $e');
       setState(() {
         _flowController.text = '';
       });
@@ -314,50 +323,41 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Date and Flow Row
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Date
-                Expanded(
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.calendar_today),
-                    title: const Text('Date'),
-                    subtitle: Text(
-                      DateFormat('MMM d, yyyy').format(_selectedDate),
-                    ),
-                    onTap: () => _selectDate(context),
-                  ),
-                ),
-                const SizedBox(height: 24),
+            // Date
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Date'),
+              subtitle: Text(DateFormat('MMM d, yyyy').format(_selectedDate)),
+              onTap: () => _selectDate(context),
+            ),
 
-                // Difficulty Assessment
-                DifficultySelector(
-                  initialDifficulty: _userDifficulty,
-                  onChanged: (value) {
-                    setState(() {
-                      _userDifficulty = value;
-                    });
-                  },
-                ),
-                const SizedBox(width: 16),
-                // Flow
-                Expanded(
-                  child: TextFormField(
-                    controller: _flowController,
-                    decoration: const InputDecoration(
-                      labelText: 'Flow (m³/s)',
-                      hintText: '25.5',
-                      prefixIcon: Icon(Icons.water),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 16),
+
+            // Flow
+            TextFormField(
+              controller: _flowController,
+              decoration: const InputDecoration(
+                labelText: 'Flow (m³/s)',
+                hintText: '25.5',
+                prefixIcon: Icon(Icons.water),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Difficulty Assessment
+            DifficultySelector(
+              initialDifficulty: _userDifficulty,
+              onChanged: (value) {
+                setState(() {
+                  _userDifficulty = value;
+                });
+              },
             ),
 
             const SizedBox(height: 24),
@@ -663,9 +663,17 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
               child: riverRunsAsync.when(
                 data: (runs) {
                   final favoritesState = ref.watch(favoritesProvider);
+                  final recentRunsAsync = ref.watch(recentRunsListProvider);
+
                   final List<RiverRun> filteredRuns;
+                  List<RiverRun> recentRuns = [];
 
                   if (_searchQuery.isEmpty) {
+                    // Get recent runs to show at top
+                    recentRunsAsync.whenData((recent) {
+                      recentRuns = recent;
+                    });
+
                     // Show favorites when no search query
                     debugPrint(
                       '🔍 Favorites IDs: ${favoritesState.favoriteRunIds}',
@@ -728,7 +736,9 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                     );
                   }
 
-                  if (filteredRuns.isEmpty && _searchQuery.isEmpty) {
+                  if (filteredRuns.isEmpty &&
+                      _searchQuery.isEmpty &&
+                      recentRuns.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -742,7 +752,7 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No favorites yet',
+                            'No favorites or recent runs yet',
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   color: Theme.of(
@@ -814,8 +824,111 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                   return ListView.builder(
                     controller: scrollController,
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: filteredRuns.length,
+                    itemCount:
+                        (_searchQuery.isEmpty && recentRuns.isNotEmpty
+                            ? 1
+                            : 0) +
+                        filteredRuns.length,
                     itemBuilder: (context, index) {
+                      // Show recents section header when no search query
+                      if (_searchQuery.isEmpty && recentRuns.isNotEmpty) {
+                        if (index == 0) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  8,
+                                  16,
+                                  8,
+                                ),
+                                child: Text(
+                                  'Recent',
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ),
+                              ...recentRuns.map(
+                                (run) => ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.secondaryContainer,
+                                    child: Icon(
+                                      Icons.history,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSecondaryContainer,
+                                    ),
+                                  ),
+                                  title: Text(run.name),
+                                  subtitle: Text(
+                                    '${run.river} • ${run.difficultyClass}',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () => Navigator.pop(context, run),
+                                ),
+                              ),
+                              if (filteredRuns.isNotEmpty) ...[
+                                const Divider(height: 24),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    8,
+                                    16,
+                                    8,
+                                  ),
+                                  child: Text(
+                                    'Favorites',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          );
+                        }
+                        // Adjust index for filtered runs
+                        final run = filteredRuns[index - 1];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            child: Icon(
+                              Icons.kayaking,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          title: Text(run.name),
+                          subtitle: Text(
+                            '${run.river} • ${run.difficultyClass}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => Navigator.pop(context, run),
+                        );
+                      }
+
+                      // Normal filtered runs display when searching
                       final run = filteredRuns[index];
                       return ListTile(
                         leading: CircleAvatar(

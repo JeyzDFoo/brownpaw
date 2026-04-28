@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -51,15 +42,15 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCUO8lljlPNaIGSxso72_DJE4EDesXGF6g',
-    appId: '1:1047120968895:android:b785cd4940b8b7ec899a0a',
+    appId: '1:1047120968895:android:4a17f225a7109e91899a0a',
     messagingSenderId: '1047120968895',
     projectId: 'brownclaw',
     storageBucket: 'brownclaw.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB2VSnO5Hz9hLgueozyuXppJh53-rvF0k4',
-    appId: '1:1047120968895:ios:4304b83ecb07fb26899a0a',
+    apiKey: 'AIzaSyCs_Br3aZQLkankC2SOPXj9JknWqdUJVKk',
+    appId: '1:1047120968895:ios:642d054996963fdf899a0a',
     messagingSenderId: '1047120968895',
     projectId: 'brownclaw',
     storageBucket: 'brownclaw.firebasestorage.app',
@@ -67,4 +58,36 @@ class DefaultFirebaseOptions {
     iosClientId: '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
     iosBundleId: 'com.example.brownpaw',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyB3Yk9Dsqllb_JHait3341pxurheSO_EJM',
+    appId: '1:1047120968895:web:5ec959fd59373af4899a0a',
+    messagingSenderId: '1047120968895',
+    projectId: 'brownclaw',
+    authDomain: 'brownclaw.firebaseapp.com',
+    storageBucket: 'brownclaw.firebasestorage.app',
+    measurementId: 'G-Q16GDLS23Y',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCs_Br3aZQLkankC2SOPXj9JknWqdUJVKk',
+    appId: '1:1047120968895:ios:642d054996963fdf899a0a',
+    messagingSenderId: '1047120968895',
+    projectId: 'brownclaw',
+    storageBucket: 'brownclaw.firebasestorage.app',
+    androidClientId: '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
+    iosClientId: '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
+    iosBundleId: 'com.example.brownpaw',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDlXNvCNtgHw7a72eMTxaLbw0ht2g8ljjk',
+    appId: '1:1047120968895:web:fcd868f16b59f506899a0a',
+    messagingSenderId: '1047120968895',
+    projectId: 'brownclaw',
+    authDomain: 'brownclaw.firebaseapp.com',
+    storageBucket: 'brownclaw.firebasestorage.app',
+    measurementId: 'G-X9PXRQVFKK',
+  );
+
 }

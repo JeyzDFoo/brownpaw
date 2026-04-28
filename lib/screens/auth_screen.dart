@@ -1,4 +1,5 @@
-import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:brownpaw/providers/user_provider.dart';
@@ -118,7 +119,7 @@ class AuthScreen extends ConsumerWidget {
               ),
 
               // Apple Sign-In Button (iOS only)
-              if (Platform.isIOS) ...[
+              if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) ...[
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: userData.isLoading

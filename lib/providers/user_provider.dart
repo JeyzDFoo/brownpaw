@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +14,12 @@ final firestoreProvider = Provider<FirebaseFirestore>(
 final storageProvider = Provider<FirebaseStorage>(
   (ref) => FirebaseStorage.instance,
 );
-final googleSignInProvider = Provider<GoogleSignIn>((ref) => GoogleSignIn());
+const _googleWebClientId =
+    '1047120968895-f56596g53nq4fnkf8n78q1hsl97a8fk7.apps.googleusercontent.com';
+
+final googleSignInProvider = Provider<GoogleSignIn>(
+  (ref) => GoogleSignIn(clientId: kIsWeb ? _googleWebClientId : null),
+);
 
 // Auth state stream
 final authStateProvider = StreamProvider<User?>((ref) {
@@ -151,7 +155,7 @@ class UserNotifier extends StateNotifier<UserData> {
 
   Future<void> signInWithApple() async {
     // Only available on iOS
-    if (!Platform.isIOS) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) {
       state = state.copyWith(
         errorMessage: 'Apple Sign In is only available on iOS devices',
       );

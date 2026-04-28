@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
@@ -29,6 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
   static const List<Widget> _screens = [
+    CommunityHomeScreen(),
     LogbookScreen(),
     FavouritesScreen(),
     SettingsScreen(),
@@ -37,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: _selectedIndex == 0
+      floatingActionButton: _selectedIndex == 1
           ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(
@@ -65,6 +67,11 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Logbook'),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),

@@ -254,3 +254,78 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
     }
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Community / Social providers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Recent public descents from all users — community activity feed.
+final communityFeedProvider = StreamProvider<List<Descent>>((ref) {
+  final firestore = ref.watch(firestoreProvider);
+  return firestore
+      .collection('descents')
+      .where('isPublic', isEqualTo: true)
+      .orderBy('createdAt', descending: true)
+      .limit(30)
+      .snapshots()
+      .map((s) => s.docs.map((doc) => Descent.fromFirestore(doc)).toList());
+});
+
+/// A single entry on the community leaderboard.
+class LeaderboardEntry {
+  final String userId;
+  final String? displayName;
+  final int descentCount;
+
+  const LeaderboardEntry({
+    required this.userId,
+    this.displayName,
+    required this.descentCount,
+  });
+}
+
+/// Top paddlers ranked by number of public descents.
+///
+/// Fetches up to 200 recent public descents, aggregates by user, then
+/// resolves display names for the top 10.
+final leaderboardProvider = FutureProvider<List<LeaderboardEntry>>((ref) async {
+  final firestore = ref.watch(firestoreProvider);
+
+  final snapshot = await firestore
+      .collection('descents')
+      .where('isPublic', isEqualTo: true)
+      .limit(200)
+      .get();
+
+  // Aggregate descent counts per user.
+  final counts = <String, int>{};
+  for (final doc in snapshot.docs) {
+    final userId = doc.data()['userId'] as String?;
+    if (userId != null && userId.isNotEmpty) {
+      counts[userId] = (counts[userId] ?? 0) + 1;
+    }
+  }
+
+  final sorted = counts.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+
+  // Resolve display names for the top 10.
+  return Future.wait(
+    sorted.take(10).map((entry) async {
+      try {
+        final userDoc = await firestore
+            .collection('users')
+            .doc(entry.key)
+            .get();
+        final displayName = userDoc.data()?['displayName'] as String?;
+        return LeaderboardEntry(
+          userId: entry.key,
+          displayName: displayName,
+          descentCount: entry.value,
+        );
+      } catch (_) {
+        return LeaderboardEntry(userId: entry.key, descentCount: entry.value);
+      }
+    }),
+  );
+});

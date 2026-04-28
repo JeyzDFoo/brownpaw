@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
-import 'package:brownpaw/screens/map_screen.dart';
+// import 'package:brownpaw/screens/map_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
 import 'package:brownpaw/screens/log_descent_screen.dart';
 
@@ -31,8 +31,6 @@ class _MyHomePageState extends State<MyHomePage> {
   static const List<Widget> _screens = [
     LogbookScreen(),
     FavouritesScreen(),
-    MapScreen(),
-    GuideScreen(),
     SettingsScreen(),
   ];
 
@@ -72,8 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.favorite),
             label: 'Favourites',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Guide'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',

@@ -85,44 +85,64 @@ class _LogDescentDialogState extends ConsumerState<LogDescentDialog> {
         }
       }
 
-      print('📅 Fetching most recent daily average for: $stationPath');
+      print('📅 Fetching daily average for: $stationPath on $_selectedDate');
 
-      // Fetch the most recent year's data
-      final year = DateTime.now().year;
-      final doc = await FirebaseFirestore.instance
-          .collection('station_data')
-          .doc(stationPath)
-          .collection('readings')
-          .doc(year.toString())
-          .get();
+      final targetDateStr =
+          '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
 
-      if (doc.exists) {
+      // Try selected year first, then previous year as fallback
+      final yearsToTry = <int>{_selectedDate.year, _selectedDate.year - 1};
+
+      double? discharge;
+      for (final year in yearsToTry) {
+        final doc = await FirebaseFirestore.instance
+            .collection('station_data')
+            .doc(stationPath)
+            .collection('readings')
+            .doc(year.toString())
+            .get();
+
+        if (!doc.exists) {
+          print('❌ No document found for year $year');
+          continue;
+        }
+
         final data = doc.data();
         final dailyReadings = data?['daily_readings'] as Map<String, dynamic>?;
 
-        if (dailyReadings != null && dailyReadings.isNotEmpty) {
-          // Get the most recent date with data
-          final sortedDates = dailyReadings.keys.toList()..sort();
-          final mostRecentDate = sortedDates.last;
-
-          final reading =
-              dailyReadings[mostRecentDate] as Map<String, dynamic>?;
-          final discharge = reading?['mean_discharge'] as double?;
-
-          print('💧 Most recent daily discharge ($mostRecentDate): $discharge');
-
-          if (discharge != null && mounted) {
-            setState(() {
-              _flowController.text = discharge.toStringAsFixed(1);
-            });
-          }
-        } else {
-          print('❌ No daily readings found');
+        if (dailyReadings == null || dailyReadings.isEmpty) {
+          print('❌ No daily readings found for year $year');
+          continue;
         }
-      } else {
-        print(
-          '❌ No document found for station path: $stationPath, year: $year',
-        );
+
+        // Try exact date first
+        if (dailyReadings.containsKey(targetDateStr)) {
+          final reading = dailyReadings[targetDateStr] as Map<String, dynamic>?;
+          discharge = reading?['mean_discharge'] as double?;
+          print('💧 Exact daily discharge ($targetDateStr): $discharge');
+          break;
+        }
+
+        // Fall back to most recent date on or before selected date
+        final sortedDates =
+            dailyReadings.keys
+                .where((d) => d.compareTo(targetDateStr) <= 0)
+                .toList()
+              ..sort();
+
+        if (sortedDates.isNotEmpty) {
+          final closestDate = sortedDates.last;
+          final reading = dailyReadings[closestDate] as Map<String, dynamic>?;
+          discharge = reading?['mean_discharge'] as double?;
+          print('💧 Nearest prior daily discharge ($closestDate): $discharge');
+          break;
+        }
+      }
+
+      if (discharge != null && mounted) {
+        setState(() {
+          _flowController.text = discharge!.toStringAsFixed(1);
+        });
       }
     } catch (e) {
       print('❌ Error fetching flow: $e');

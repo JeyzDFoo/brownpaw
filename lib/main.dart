@@ -36,10 +36,13 @@ class BrownpawApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      builder: (context, child) => Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: child!,
+      builder: (context, child) => ColoredBox(
+        color: Colors.black,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: child!,
+          ),
         ),
       ),
       home: const AuthWrapper(),
@@ -60,6 +63,6 @@ class AuthWrapper extends ConsumerWidget {
     }
 
     // Show home page if authenticated
-    return const MyHomePage(title: 'BrownPaw');
+    return const MyHomePage(title: 'Brown Paw');
   }
 }

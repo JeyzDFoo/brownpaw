@@ -72,7 +72,9 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
 
       setState(() {
         _selectedRunId = run.riverId;
-        _selectedRunName = '${run.river} - ${run.name}';
+        _selectedRunName = run.river == run.name
+            ? run.name
+            : '${run.river} - ${run.name}';
         _selectedStationId = run.stationId;
         _selectedDifficulty = run.difficultyClass;
         // Auto-populate difficulty with run's difficulty class
@@ -94,10 +96,10 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
 
       double? discharge;
 
-      // Normalize station ID
+      // Normalize station ID for station_data (historical) collection:
+      // format: "Provider.ENVIRONMENT_CANADA_08GA043"
       String stationPath = stationId;
       if (!stationId.startsWith('Provider.')) {
-        // Convert "08GA071" or "environment_canada_08GA071" to "Provider.ENVIRONMENT_CANADA_08GA071"
         if (stationId.contains('_')) {
           final parts = stationId.split('_');
           final provider = parts.take(parts.length - 1).join('_').toUpperCase();
@@ -108,38 +110,134 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
         }
       }
 
-      print('📅 Fetching most recent daily average for: $stationPath');
-
-      // Fetch the most recent year's data
-      final year = _selectedDate.year;
-      final doc = await FirebaseFirestore.instance
-          .collection('station_data')
-          .doc(stationPath)
-          .collection('readings')
-          .doc(year.toString())
-          .get();
-
-      if (doc.exists) {
-        final data = doc.data();
-        final dailyReadings = data?['daily_readings'] as Map<String, dynamic>?;
-
-        if (dailyReadings != null && dailyReadings.isNotEmpty) {
-          // Get the most recent date with data
-          final sortedDates = dailyReadings.keys.toList()..sort();
-          final mostRecentDate = sortedDates.last;
-
-          final reading =
-              dailyReadings[mostRecentDate] as Map<String, dynamic>?;
-          discharge = reading?['mean_discharge'] as double?;
-
-          print('💧 Most recent daily discharge ($mostRecentDate): $discharge');
-        } else {
-          print('❌ No daily readings found');
-        }
+      // Normalize station ID for station_current (realtime) collection:
+      // format: "environment_canada_08GA043"
+      String realtimePath;
+      if (stationId.startsWith('Provider.')) {
+        // "Provider.ENVIRONMENT_CANADA_08GA043" -> "environment_canada_08GA043"
+        realtimePath = stationId.replaceFirst('Provider.', '').toLowerCase();
+      } else if (stationId.contains('_')) {
+        realtimePath = stationId.toLowerCase();
       } else {
+        realtimePath = 'environment_canada_$stationId';
+      }
+
+      final targetDateStr =
+          '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+
+      // --- Realtime path: use station_current if date is within last 30 days ---
+      final now = DateTime.now();
+      final isRecent = _selectedDate.isAfter(
+        now.subtract(const Duration(days: 30)),
+      );
+
+      if (isRecent) {
         print(
-          '❌ No document found for station path: $stationPath, year: $year',
+          '📡 Date is within 30 days — trying realtime data first ($realtimePath)',
         );
+        try {
+          final realtimeDoc = await FirebaseFirestore.instance
+              .collection('station_current')
+              .doc(realtimePath)
+              .get();
+
+          if (realtimeDoc.exists) {
+            final csvData =
+                realtimeDoc.data()?['hourly_readings_csv'] as String?;
+            if (csvData != null && csvData.isNotEmpty) {
+              // Find the reading closest to noon on the selected date
+              final targetNoon = DateTime(
+                _selectedDate.year,
+                _selectedDate.month,
+                _selectedDate.day,
+                12,
+              );
+              final lines = csvData.trim().split('\n');
+              double? bestDischarge;
+              Duration bestDiff = const Duration(days: 999);
+
+              for (var i = 1; i < lines.length; i++) {
+                final parts = lines[i].trim().split(',');
+                if (parts.length < 2) continue;
+                try {
+                  final ts = DateTime.parse(parts[0]).toLocal();
+                  final diff = (ts.difference(targetNoon)).abs();
+                  final d = parts[1] == 'None'
+                      ? null
+                      : double.tryParse(parts[1]);
+                  if (d != null && diff < bestDiff) {
+                    bestDiff = diff;
+                    bestDischarge = d;
+                  }
+                } catch (_) {}
+              }
+
+              if (bestDischarge != null) {
+                print(
+                  '💧 Realtime discharge for $targetDateStr: $bestDischarge',
+                );
+                discharge = bestDischarge;
+              }
+            }
+          }
+        } catch (e) {
+          print('⚠️ Realtime lookup failed, falling back to historical: $e');
+        }
+      }
+
+      // --- Historical path: station_data daily readings ---
+      if (discharge == null) {
+        print(
+          '📅 Fetching historical daily average for: $stationPath on $targetDateStr',
+        );
+        final yearsToTry = <int>{_selectedDate.year, _selectedDate.year - 1};
+
+        for (final year in yearsToTry) {
+          final doc = await FirebaseFirestore.instance
+              .collection('station_data')
+              .doc(stationPath)
+              .collection('readings')
+              .doc(year.toString())
+              .get();
+
+          if (!doc.exists) {
+            print('❌ No document found for year $year');
+            continue;
+          }
+
+          final data = doc.data();
+          final dailyReadings =
+              data?['daily_readings'] as Map<String, dynamic>?;
+
+          if (dailyReadings == null || dailyReadings.isEmpty) {
+            print('❌ No daily readings found for year $year');
+            continue;
+          }
+
+          if (dailyReadings.containsKey(targetDateStr)) {
+            final reading =
+                dailyReadings[targetDateStr] as Map<String, dynamic>?;
+            discharge = reading?['mean_discharge'] as double?;
+            print('💧 Exact daily discharge ($targetDateStr): $discharge');
+            break;
+          }
+
+          final sortedDates =
+              dailyReadings.keys
+                  .where((d) => d.compareTo(targetDateStr) <= 0)
+                  .toList()
+                ..sort();
+
+          if (sortedDates.isNotEmpty) {
+            final closestDate = sortedDates.last;
+            final reading = dailyReadings[closestDate] as Map<String, dynamic>?;
+            discharge = reading?['mean_discharge'] as double?;
+            print(
+              '💧 Nearest prior daily discharge ($closestDate): $discharge',
+            );
+            break;
+          }
+        }
       }
 
       if (discharge != null) {

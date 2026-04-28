@@ -5,63 +5,119 @@ import '../providers/favorites_provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/river_run_card.dart';
 
-class FavouritesScreen extends ConsumerWidget {
+class FavouritesScreen extends ConsumerStatefulWidget {
   const FavouritesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FavouritesScreen> createState() => _FavouritesScreenState();
+}
+
+class _FavouritesScreenState extends ConsumerState<FavouritesScreen> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final favoriteRunsAsync = ref.watch(favoriteRiverRunsProvider);
     final favoritesCount = ref.watch(favoritesCountProvider);
-    final favoritesState = ref.watch(favoritesProvider);
     final user = ref.watch(userProvider).user;
-
-    // Debug output
-    debugPrint('Favourites Screen - User: ${user?.uid}');
-    debugPrint('Favourites State - Count: $favoritesCount');
-    debugPrint('Favourites State - IDs: ${favoritesState.favoriteRunIds}');
-    debugPrint('Favourites State - Loading: ${favoritesState.isLoading}');
-    debugPrint('Favourites State - Error: ${favoritesState.errorMessage}');
 
     if (user == null) {
       return _buildSignInPrompt(context);
     }
 
+    final allRunsAsync = ref.watch(riverRunsStreamProvider);
+    final isSearching = _searchQuery.isNotEmpty;
+
     return Column(
       children: [
-        Expanded(
-          child: favoriteRunsAsync.when(
-            data: (runs) {
-              debugPrint('Favourite runs data: ${runs.length} runs');
-              if (runs.isEmpty) {
-                return _buildEmptyState(context);
-              }
-              return _buildFavoritesList(runs, favoritesCount);
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading favourites',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search all runs...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0),
             ),
+            onChanged: (value) => setState(() => _searchQuery = value),
           ),
+        ),
+        Expanded(
+          child: isSearching
+              ? allRunsAsync.when(
+                  data: (runs) {
+                    final q = _searchQuery.toLowerCase();
+                    final results = runs
+                        .where(
+                          (r) =>
+                              r.name.toLowerCase().contains(q) ||
+                              (r.river?.toLowerCase().contains(q) ?? false),
+                        )
+                        .toList();
+                    if (results.isEmpty) {
+                      return const Center(child: Text('No runs found'));
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: results.length,
+                      itemBuilder: (context, index) =>
+                          RiverRunCard(run: results[index]),
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error: $e')),
+                )
+              : favoriteRunsAsync.when(
+                  data: (runs) {
+                    if (runs.isEmpty) return _buildEmptyState(context);
+                    return _buildFavoritesList(runs, favoritesCount);
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading favourites',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error.toString(),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
         ),
       ],
     );

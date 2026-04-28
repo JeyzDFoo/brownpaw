@@ -77,7 +77,7 @@ class DescentCard extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              descent.runName,
+                              descent.displayName,
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
@@ -262,19 +262,15 @@ class DescentCard extends ConsumerWidget {
   }
 
   void _showDescentDetails(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => DescentDetailsSheet(
-          descent: descent,
-          scrollController: scrollController,
-          ref: ref,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          body: DescentDetailsSheet(
+            descent: descent,
+            scrollController: ScrollController(),
+            ref: ref,
+          ),
         ),
       ),
     );

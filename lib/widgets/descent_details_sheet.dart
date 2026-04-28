@@ -123,38 +123,38 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
       child: Column(
         children: [
-          // Drag handle
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(2),
+          // Back button row with trash icon
+          SafeArea(
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
                 ),
-              ),
-              if (_isSaving) ...[
-                const SizedBox(width: 12),
-                const SizedBox(
-                  width: 12,
-                  height: 12,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                if (_isSaving) ...[
+                  const SizedBox(width: 8),
+                  const SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ],
+                const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  onPressed: _isSaving
+                      ? null
+                      : () => _showDeleteConfirmation(context),
                 ),
               ],
-            ],
+            ),
           ),
-          const SizedBox(height: 8),
 
           // Header with gradient
           Container(
@@ -170,9 +170,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                   ).colorScheme.primaryContainer.withOpacity(0.3),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(28),
-              ),
+              borderRadius: BorderRadius.circular(0),
             ),
             child: Row(
               children: [
@@ -204,7 +202,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.descent.runName,
+                        widget.descent.displayName,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
@@ -602,30 +600,18 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
 
                 const SizedBox(height: 32),
 
-                // Delete Button
+                // Done Button
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isSaving
-                        ? null
-                        : () {
-                            Navigator.pop(context);
-                            _showDeleteConfirmation(context);
-                          },
-                    icon: const Icon(Icons.delete_outline_rounded),
-                    label: const Text('Delete Descent'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.error.withOpacity(0.5),
-                      ),
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
+                    child: const Text('Done'),
                   ),
                 ),
                 const SizedBox(height: 16),

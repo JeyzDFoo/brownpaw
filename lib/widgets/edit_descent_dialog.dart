@@ -118,7 +118,7 @@ class _EditDescentDialogState extends State<EditDescentDialog> {
             children: [
               // Run name (read-only)
               Text(
-                widget.descent.runName,
+                widget.descent.displayName,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),

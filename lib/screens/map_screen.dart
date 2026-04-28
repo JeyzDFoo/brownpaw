@@ -61,44 +61,55 @@ class _MapScreenState extends ConsumerState<MapScreen>
     // Smoothly animate map to selected river, positioning marker above bottom sheet
     final coords = river.coordinates ?? river.putInCoordinates;
     if (coords != null) {
-      final currentCenter = _mapController.camera.center;
-      final currentZoom = _mapController.camera.zoom;
-      final targetPosition = LatLng(
-        coords['latitude']! - 0.01,
-        coords['longitude']!,
-      );
-      const targetZoom = 14.0;
+      try {
+        final currentCenter = _mapController.camera.center;
+        final currentZoom = _mapController.camera.zoom;
+        final targetPosition = LatLng(
+          coords['latitude']! - 0.01,
+          coords['longitude']!,
+        );
+        const targetZoom = 14.0;
 
-      // Create animations for position and zoom
-      _positionAnimation =
-          LatLngTween(begin: currentCenter, end: targetPosition).animate(
-            CurvedAnimation(
-              parent: _animationController,
-              curve: Curves.easeInOutCubic,
-            ),
-          );
+        // Create animations for position and zoom
+        _positionAnimation =
+            LatLngTween(begin: currentCenter, end: targetPosition).animate(
+              CurvedAnimation(
+                parent: _animationController,
+                curve: Curves.easeInOutCubic,
+              ),
+            );
 
-      _zoomAnimation = Tween<double>(begin: currentZoom, end: targetZoom)
-          .animate(
-            CurvedAnimation(
-              parent: _animationController,
-              curve: Curves.easeInOutCubic,
-            ),
-          );
+        _zoomAnimation = Tween<double>(begin: currentZoom, end: targetZoom)
+            .animate(
+              CurvedAnimation(
+                parent: _animationController,
+                curve: Curves.easeInOutCubic,
+              ),
+            );
 
-      // Listen to animation updates
-      void updateMap() {
-        if (_positionAnimation != null && _zoomAnimation != null) {
-          _mapController.move(_positionAnimation!.value, _zoomAnimation!.value);
+        // Listen to animation updates
+        void updateMap() {
+          if (_positionAnimation != null && _zoomAnimation != null) {
+            _mapController.move(
+              _positionAnimation!.value,
+              _zoomAnimation!.value,
+            );
+          }
         }
+
+        _animationController.addListener(updateMap);
+
+        // Start animation and clean up listener when done
+        _animationController.forward(from: 0).then((_) {
+          _animationController.removeListener(updateMap);
+        });
+      } catch (_) {
+        // Map not ready yet — jump directly without animation
+        _mapController.move(
+          LatLng(coords['latitude']! - 0.01, coords['longitude']!),
+          14.0,
+        );
       }
-
-      _animationController.addListener(updateMap);
-
-      // Start animation and clean up listener when done
-      _animationController.forward(from: 0).then((_) {
-        _animationController.removeListener(updateMap);
-      });
     }
 
     setState(() {

@@ -14,6 +14,18 @@ class Descent {
   /// Name of the run (denormalized for easy display)
   final String runName;
 
+  /// Deduplicated display name (handles BC Whitewater import where river == name)
+  String get displayName {
+    final parts = runName.split(' - ');
+    if (parts.length >= 2 && parts.length.isEven) {
+      final mid = parts.length ~/ 2;
+      final first = parts.sublist(0, mid).join(' - ');
+      final second = parts.sublist(mid).join(' - ');
+      if (first == second) return first;
+    }
+    return runName;
+  }
+
   /// User ID who logged this descent
   final String userId;
 

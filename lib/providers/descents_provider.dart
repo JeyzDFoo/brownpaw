@@ -266,7 +266,7 @@ final communityFeedProvider = StreamProvider<List<Descent>>((ref) {
       .collection('descents')
       .where('isPublic', isEqualTo: true)
       .orderBy('createdAt', descending: true)
-      .limit(30)
+      .limit(3)
       .snapshots()
       .map((s) => s.docs.map((doc) => Descent.fromFirestore(doc)).toList());
 });

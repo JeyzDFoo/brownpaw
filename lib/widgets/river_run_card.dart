@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/river_run.dart';
 import '../providers/favorites_provider.dart';
-import '../providers/flow_data_provider.dart';
+import '../providers/realtime_flow_provider.dart';
 import '../screens/run_details_screen.dart';
 
 class RiverRunCard extends ConsumerWidget {
@@ -14,9 +14,9 @@ class RiverRunCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(isFavoriteProvider(run.riverId));
 
-    // Watch most recent historical discharge if station ID is available
-    final latestDischarge = run.stationId != null
-        ? ref.watch(latestDailyDischargeProvider(run.stationId!))
+    // Watch live discharge from station_current if station ID is available
+    final liveFlow = run.stationId != null
+        ? ref.watch(realtimeFlowStreamProvider(run.stationId!))
         : null;
 
     return Card(
@@ -100,25 +100,34 @@ class RiverRunCard extends ConsumerWidget {
                         ],
                       ),
                     ],
-                    // Display latest discharge if available
-                    if (latestDischarge?.hasValue == true &&
-                        latestDischarge!.value != null) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.water, size: 14, color: Colors.blue),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${latestDischarge.value!.toStringAsFixed(1)} m³/s',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                    // Display live discharge if available
+                    Builder(
+                      builder: (context) {
+                        final discharge = liveFlow?.value?.discharge;
+                        if (discharge == null) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.water,
+                                size: 14,
+                                color: Colors.blue,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${discharge.toStringAsFixed(1)} m³/s',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

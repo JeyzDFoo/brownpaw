@@ -12,27 +12,16 @@ final descentsProvider = StateNotifierProvider<DescentsNotifier, DescentsState>(
   },
 );
 
-/// Provider for getting descents for a specific run
-final runDescentsProvider = StreamProvider.family<List<Descent>, String>((
-  ref,
-  runId,
-) {
-  final user = ref.watch(userProvider).user;
-  if (user == null) return Stream.value([]);
-
-  final firestore = ref.watch(firestoreProvider);
-  return firestore
-      .collection('users')
-      .doc(user.uid)
-      .collection('descents')
-      .where('runId', isEqualTo: runId)
-      .orderBy('date', descending: true)
-      .snapshots()
-      .map(
-        (snapshot) =>
-            snapshot.docs.map((doc) => Descent.fromFirestore(doc)).toList(),
-      );
-});
+/// The signed-in user's descents of one run, newest first.
+///
+/// Derived from [allDescentsProvider]; descents live in the top-level
+/// `descents` collection (the old `users/{uid}/descents` path is denied by
+/// the security rules and was always empty).
+final runDescentsProvider = Provider.family<AsyncValue<List<Descent>>, String>(
+  (ref, runId) => ref
+      .watch(allDescentsProvider)
+      .whenData((all) => all.where((d) => d.runId == runId).toList()),
+);
 
 /// Provider for getting descent count for a specific run
 final runDescentCountProvider = Provider.family<AsyncValue<int>, String>((
@@ -116,6 +105,7 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
     String? notes,
     int? rating,
     String? difficulty,
+    List<String>? crew,
     bool isPublic = false,
   }) async {
     final user = _ref.read(userProvider).user;
@@ -140,6 +130,7 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
         notes: notes,
         rating: rating,
         difficulty: difficulty,
+        crew: crew,
         isPublic: isPublic,
         createdAt: DateTime.now(),
       );

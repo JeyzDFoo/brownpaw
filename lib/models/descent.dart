@@ -50,6 +50,9 @@ class Descent {
   /// Photos from the descent
   final List<String>? photos;
 
+  /// Who paddled with you, as typed names.
+  final List<String>? crew;
+
   /// Whether this descent is publicly visible
   final bool isPublic;
 
@@ -71,6 +74,7 @@ class Descent {
     this.rating,
     this.difficulty,
     this.photos,
+    this.crew,
     this.isPublic = false,
     required this.createdAt,
     this.updatedAt,
@@ -91,6 +95,7 @@ class Descent {
       rating: data['rating'],
       difficulty: data['difficulty'],
       photos: data['photos'] != null ? List<String>.from(data['photos']) : null,
+      crew: data['crew'] != null ? List<String>.from(data['crew']) : null,
       isPublic: data['isPublic'] ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: data['updatedAt'] != null
@@ -112,6 +117,7 @@ class Descent {
       'rating': rating,
       'difficulty': difficulty,
       'photos': photos,
+      if (crew != null) 'crew': crew,
       'isPublic': isPublic,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
@@ -130,6 +136,7 @@ class Descent {
     int? rating,
     String? difficulty,
     List<String>? photos,
+    List<String>? crew,
     bool? isPublic,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -146,6 +153,7 @@ class Descent {
       rating: rating ?? this.rating,
       difficulty: difficulty ?? this.difficulty,
       photos: photos ?? this.photos,
+      crew: crew ?? this.crew,
       isPublic: isPublic ?? this.isPublic,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

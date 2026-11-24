@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../domain/flow_lookup.dart';
 import '../models/realtime_flow.dart';
 
 /// The latest readings for one gauge station.
@@ -55,6 +56,51 @@ class GaugeRepository {
     }
   }
 
+  /// The flow to record for a descent on [day]: the hourly reading nearest
+  /// midday when [day] is within the last 30 days, else the daily mean
+  /// (or the closest earlier day's). Null when nothing is available.
+  Future<double?> flowOn(
+    String stationId,
+    DateTime day, {
+    DateTime? now,
+  }) async {
+    if (stationId.isEmpty) return null;
+    final today = now ?? DateTime.now();
+
+    if (today.difference(day).inDays <= 30) {
+      final current = await getCurrent(stationId);
+      final isToday =
+          day.year == today.year &&
+          day.month == today.month &&
+          day.day == today.day;
+      if (current != null) {
+        // For today, the latest reading is what the paddler saw.
+        if (isToday && current.discharge != null) return current.discharge;
+        final flow = flowNearMidday(current.readings, day);
+        if (flow != null) return flow;
+      }
+    }
+
+    try {
+      for (final year in {day.year, day.year - 1}) {
+        final doc = await _firestore
+            .collection('station_data')
+            .doc(historyDocIdFor(stationId))
+            .collection('readings')
+            .doc('$year')
+            .get();
+        final daily = doc.data()?['daily_readings'];
+        if (daily is Map<String, dynamic>) {
+          final flow = dailyMeanOnOrBefore(daily, day);
+          if (flow != null) return flow;
+        }
+      }
+    } catch (e) {
+      debugPrint('GaugeRepository.flowOn($stationId) failed: $e');
+    }
+    return null;
+  }
+
   static StationRealtimeFlow? _parse(String docId, Map<String, dynamic>? data) {
     final csv = data?['hourly_readings_csv'] as String?;
     if (csv == null || csv.isEmpty) return null;
@@ -81,5 +127,17 @@ class GaugeRepository {
       return 'environment_canada_$stationId';
     }
     return stationId;
+  }
+
+  /// Maps a run's station id to its `station_data` document id, which uses
+  /// the form `Provider.ENVIRONMENT_CANADA_08GA043`.
+  static String historyDocIdFor(String stationId) {
+    if (stationId.startsWith('Provider.')) return stationId;
+    if (stationId.contains('_')) {
+      final parts = stationId.split('_');
+      final provider = parts.take(parts.length - 1).join('_').toUpperCase();
+      return 'Provider.${provider}_${parts.last}';
+    }
+    return 'Provider.ENVIRONMENT_CANADA_$stationId';
   }
 }

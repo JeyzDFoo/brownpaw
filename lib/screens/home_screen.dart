@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:brownpaw/router.dart';
+import 'package:brownpaw/widgets/quick_log_sheet.dart';
 
 import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
@@ -28,7 +29,7 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       floatingActionButton: tabIndex == 1
           ? FloatingActionButton.extended(
-              onPressed: () => context.push(AppRoutes.logDescent),
+              onPressed: () => showQuickLog(context),
               icon: const Icon(Icons.add),
               label: const Text('Log Descent'),
             )

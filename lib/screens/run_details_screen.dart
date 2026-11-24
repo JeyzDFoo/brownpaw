@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +12,7 @@ import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../providers/user_provider.dart';
 import '../data/repositories.dart';
-import '../router.dart';
+import '../widgets/quick_log_sheet.dart';
 
 class RunDetailsScreen extends ConsumerWidget {
   final String runId;
@@ -880,7 +879,7 @@ class RunDetailsScreen extends ConsumerWidget {
   void _showLogDescentDialog(BuildContext context, WidgetRef ref) async {
     final run = await ref.read(riverRunsRepositoryProvider).getRun(runId);
     if (run == null || !context.mounted) return;
-    context.push(AppRoutes.logDescent, extra: run);
+    await showQuickLog(context, run: run);
   }
 
   // Navigate to put-in location using available map apps

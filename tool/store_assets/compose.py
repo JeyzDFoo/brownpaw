@@ -190,17 +190,18 @@ def logo(size, color=None):
 
 
 def hero(W, H, headline, sub, names, palette=LIGHT, phone_w=None,
-         text_left=True):
+         text_x=0.10, centre_x=0.725, blob=True):
     """Wide image: brand and headline beside three fanned phones."""
     img = Image.new("RGBA", (W, H), palette["paper"] + (255,))
     u = H / 1646
-    img.alpha_composite(pebble_blob(
-        (W, H), (int(W * 0.47), int(H * 0.12), int(W * 1.1),
+    if blob:
+        img.alpha_composite(pebble_blob(
+        (W, H), (int(W * (centre_x - 0.255)), int(H * 0.12), int(W * 1.1),
                  int(H * 1.5)), palette["faint"]))
     d = ImageDraw.Draw(img)
 
     # Text block, left of centre.
-    x = W * 0.10
+    x = W * text_x
     mark = logo(150 * u)
     tf = font(900, 128 * u)
     lines = headline.split("\n")
@@ -223,7 +224,7 @@ def hero(W, H, headline, sub, names, palette=LIGHT, phone_w=None,
 
     # Three phones, the middle one forward.
     pw = phone_w or 520 * u
-    centre = W * 0.725
+    centre = W * centre_x
     spots = [(-0.95, 0.20, -6), (0.95, 0.20, 6), (0, 0.08, 0)]
     for (name, (dx, dy, rot)) in zip([names[0], names[2], names[1]], spots):
         screen = Image.open(SCREENS / f"{name}.png")
@@ -260,7 +261,8 @@ def search(W, H, phrase, names, palette=LIGHT):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for size, (W, H) in {"iphone-6.9": (1320, 2868),
-                         "iphone-6.5": (1284, 2778)}.items():
+                         "iphone-6.5": (1284, 2778),
+                         "iphone-6.3": (1206, 2622)}.items():
         folder = OUT / size
         folder.mkdir(exist_ok=True)
         for i, (name, title, sub, pal) in enumerate(SHOTS, 1):
@@ -272,6 +274,17 @@ def main():
          "Gauges and a guidebook for the Lower Mainland, in your pocket.",
          ["1_logbook", "4_gauge", "5_guide"]).save(
         OUT / "header-3840x1646.png", optimize=True)
+    # One 16:9 PNG Apple can use for both slots. Its crops keep about the
+    # middle 4425 x 2248, so the design is drawn at that size and centred.
+    W, H, sw, sh = 5244, 2950, 4425, 2248
+    uni = Image.new("RGBA", (W, H), LIGHT["paper"] + (255,))
+    ox, oy = (W - sw) // 2, (H - sh) // 2
+    inner = hero(sw, sh, "The automated\nwhitewater logbook",
+                 "Gauges and a guidebook for the Lower Mainland, in your "
+                 "pocket.", ["1_logbook", "4_gauge", "5_guide"],
+                 text_x=0.04, centre_x=0.70, blob=False)
+    uni.paste(inner, (ox, oy))
+    uni.convert("RGB").save(OUT / "universal-5244x2950.png", optimize=True)
     search(3840, 2560, "Your whitewater logbook",
            ["1_logbook", "4_gauge", "5_guide"]).save(
         OUT / "search-results-3840x2560.png", optimize=True)

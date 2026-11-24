@@ -1,5 +1,7 @@
+import 'package:brownpaw/data/location_service.dart';
 import 'package:brownpaw/data/repositories.dart';
 import 'package:brownpaw/models/descent.dart';
+import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/descents_provider.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/screens/home_screen.dart';
@@ -30,8 +32,36 @@ Descent entry(
   createdAt: date,
 );
 
-Future<void> pumpHome(WidgetTester tester, List<Descent> descents) async {
-  SharedPreferences.setMockInitialValues({});
+class FakeLocation extends LocationService {
+  FakeLocation(this.state, {this.position, this.afterAsk});
+  LocationAccess state;
+  final LatLng? position;
+  final LocationAccess? afterAsk;
+  int asks = 0;
+
+  @override
+  Future<LocationAccess> access() async => state;
+
+  @override
+  Future<LocationAccess> ask() async {
+    asks++;
+    if (afterAsk != null) state = afterAsk!;
+    return state;
+  }
+
+  @override
+  Future<LatLng?> currentPosition() async =>
+      state == LocationAccess.granted ? position : null;
+}
+
+Future<void> pumpHome(
+  WidgetTester tester,
+  List<Descent> descents, {
+  LocationService? location,
+  List<RiverRun>? runs,
+  Map<String, Object> prefs = const {},
+}) async {
+  SharedPreferences.setMockInitialValues(prefs);
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -40,7 +70,10 @@ Future<void> pumpHome(WidgetTester tester, List<Descent> descents) async {
       overrides: [
         allDescentsProvider.overrideWith((ref) => Stream.value(descents)),
         riverRunsStreamProvider.overrideWith(
-          (ref) => Stream.value([tamihi, cheakamus]),
+          (ref) => Stream.value(runs ?? [tamihi, cheakamus]),
+        ),
+        locationServiceProvider.overrideWithValue(
+          location ?? FakeLocation(LocationAccess.unavailable),
         ),
         gaugeRepositoryProvider.overrideWithValue(FakeGauges(24.6)),
       ],
@@ -111,5 +144,115 @@ void main() {
     await tester.tap(find.text('Log your first run'));
     await tester.pumpAndSettle();
     expect(find.byType(QuickLogSheet), findsOneWidget);
+  });
+
+  group('put-in check-in', () {
+    // Tamihi put-in, near Chilliwack River Rd.
+    final atTamihi = tamihi.copyWith(
+      putInCoordinates: const {'latitude': 49.0935, 'longitude': -121.8237},
+    );
+    const nearby = (latitude: 49.0950, longitude: -121.8200); // ~300 m away
+    const farAway = (latitude: 49.2827, longitude: -123.1207); // Vancouver
+
+    testWidgets('at a put-in, offers to log that run with today\'s flow', (
+      tester,
+    ) async {
+      await pumpHome(
+        tester,
+        descents,
+        runs: [atTamihi, cheakamus],
+        location: FakeLocation(LocationAccess.granted, position: nearby),
+      );
+      expect(find.text("You're at the put-in"), findsOneWidget);
+      expect(find.text('Chilliwack · Tamihi to Vedder'), findsOneWidget);
+      expect(
+        find.text("Chilliwack is at 24.6 m³/s. Log today's run?"),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Log it'));
+      await tester.pumpAndSettle();
+      final sheet = tester.widget<QuickLogSheet>(find.byType(QuickLogSheet));
+      expect(sheet.initialRun?.riverId, 'chilliwack-tamihi');
+    });
+
+    testWidgets('Not now hides it', (tester) async {
+      await pumpHome(
+        tester,
+        descents,
+        runs: [atTamihi, cheakamus],
+        location: FakeLocation(LocationAccess.granted, position: nearby),
+      );
+      await tester.tap(find.text('Not now'));
+      await tester.pumpAndSettle();
+      expect(find.text("You're at the put-in"), findsNothing);
+    });
+
+    testWidgets('nothing when no put-in is close', (tester) async {
+      await pumpHome(
+        tester,
+        descents,
+        runs: [atTamihi, cheakamus],
+        location: FakeLocation(LocationAccess.granted, position: farAway),
+      );
+      expect(find.text("You're at the put-in"), findsNothing);
+      expect(find.text('Turn on location'), findsNothing);
+    });
+
+    testWidgets('nothing once that run is logged today', (tester) async {
+      final today = DateTime.now();
+      await pumpHome(
+        tester,
+        [
+          entry(
+            'chilliwack-tamihi',
+            'Chilliwack - Tamihi to Vedder',
+            today,
+            24.6,
+            [],
+          ),
+          ...descents,
+        ],
+        runs: [atTamihi, cheakamus],
+        location: FakeLocation(LocationAccess.granted, position: nearby),
+      );
+      expect(find.text("You're at the put-in"), findsNothing);
+    });
+
+    testWidgets('asks for location in context, never on launch', (
+      tester,
+    ) async {
+      final location = FakeLocation(
+        LocationAccess.askable,
+        position: nearby,
+        afterAsk: LocationAccess.granted,
+      );
+      await pumpHome(
+        tester,
+        descents,
+        runs: [atTamihi, cheakamus],
+        location: location,
+      );
+      expect(location.asks, 0);
+      expect(find.text('Know when you’re at a put-in'), findsOneWidget);
+
+      await tester.tap(find.text('Turn on location'));
+      await tester.pumpAndSettle();
+      expect(location.asks, 1);
+      expect(find.text('Know when you’re at a put-in'), findsNothing);
+      expect(find.text("You're at the put-in"), findsOneWidget);
+    });
+
+    testWidgets('the location card stays away once turned down', (
+      tester,
+    ) async {
+      await pumpHome(
+        tester,
+        descents,
+        location: FakeLocation(LocationAccess.askable),
+        prefs: {'location_prompt_dismissed': true},
+      );
+      expect(find.text('Turn on location'), findsNothing);
+    });
   });
 }

@@ -55,5 +55,13 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Keeps the app opening with no signal (see offline-sw.js).
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('offline-sw.js');
+      });
+    }
+  </script>
 </body>
 </html>

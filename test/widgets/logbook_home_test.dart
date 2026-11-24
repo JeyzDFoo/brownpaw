@@ -3,6 +3,7 @@ import 'package:brownpaw/data/repositories.dart';
 import 'package:brownpaw/models/descent.dart';
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/descents_provider.dart';
+import 'package:brownpaw/providers/offline_cache_provider.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/screens/home_screen.dart';
 import 'package:brownpaw/theme/app_theme.dart';
@@ -87,6 +88,9 @@ Future<void> pumpHome(
 }
 
 void main() {
+  setUp(() => OfflineCache.enabled = false);
+  tearDown(() => OfflineCache.enabled = true);
+
   final year = DateTime.now().year;
   final descents = [
     entry(

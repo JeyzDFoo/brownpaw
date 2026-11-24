@@ -12,14 +12,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Enable offline persistence for faster loads and offline
-  // support (not supported via Settings on web)
-  if (!kIsWeb) {
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
-  }
+  // Keep Firestore data on the device, on the web app too, so runs, your
+  // logbook and gauges you've looked at work with no signal, and entries
+  // logged offline sync later.
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
 
   final container = ProviderContainer();
   _openAlertTaps(container);

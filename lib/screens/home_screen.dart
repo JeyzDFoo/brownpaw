@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:brownpaw/providers/offline_cache_provider.dart';
 import 'package:brownpaw/router.dart';
 import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
@@ -60,7 +62,14 @@ class MyHomePage extends StatelessWidget {
         foregroundColor: theme.colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
       ),
-      body: tab.screen,
+      // Keeps starred and logged gauges cached for when there's no signal.
+      body: Consumer(
+        builder: (context, ref, child) {
+          ref.watch(offlineCacheProvider);
+          return child!;
+        },
+        child: tab.screen,
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _barIndex,
         backgroundColor: theme.colorScheme.surface,

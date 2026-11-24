@@ -25,20 +25,6 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.token.admin == true;
     }
     
-    // Rivers collection - open for authenticated users
-    match /rivers/{riverId} {
-      allow read: if isAuthenticated();
-      // Only hardcoded admin users can create/update/delete rivers
-      allow create, update, delete: if isAdmin();
-      
-      // River runs subcollection - open for authenticated users
-      match /river_runs/{runId} {
-        allow read: if isAuthenticated();
-        // Only hardcoded admin users can create/update/delete river runs
-        allow create, update, delete: if isAdmin();
-      }
-    }
-    
     // River runs collection
     match /river_runs/{runId} {
       // Curated runs carry visibility 'public' (run
@@ -75,30 +61,6 @@ service cloud.firestore {
         && resource.data.createdBy == request.auth.uid
         && resource.data.verified == false
       );
-    }
-    
-    // Gauge stations collection - publicly readable
-    match /gauge_stations/{stationId} {
-      allow read: if true;
-      
-      // Only backend should write station data
-      allow create, update, delete: if false;
-    }
-    
-    // Water stations collection - publicly readable
-    match /water_stations/{stationId} {
-      allow read: if true;
-      
-      // Only backend should write station data
-      allow create, update, delete: if false;
-    }
-    
-    // Station levels collection - real-time flow data (publicly readable)
-    match /station_levels/{stationId} {
-      allow read: if isAuthenticated();
-      
-      // Only backend should write station data
-      allow create, update, delete: if false;
     }
     
     // Station current collection - current flow data (publicly readable)
@@ -141,53 +103,6 @@ service cloud.firestore {
         allow read: if isAuthenticated();
         allow create, update, delete: if false;
       }
-    }
-    
-    // User favorites collection - strict user ownership
-    match /user_favorites/{userId} {
-      allow read: if isOwner(userId);
-      
-      allow create: if isOwner(userId)
-        && request.resource.data.keys().hasAll(['rivers', 'lastUpdated'])
-        && request.resource.data.rivers is list;
-      
-      allow update: if isOwner(userId)
-        && request.resource.data.rivers is list;
-      
-      allow delete: if isOwner(userId);
-      
-      // Subcollection for river details
-      match /river_details/{detailId} {
-        allow read: if isOwner(userId);
-        
-        allow create: if isOwner(userId)
-          && isValidString('stationId')
-          && isValidTimestamp('addedAt');
-        
-        allow update: if isOwner(userId);
-        
-        allow delete: if isOwner(userId);
-      }
-    }
-    
-    // River descents (logbook entries) - PRIVATE user-owned data
-    match /river_descents/{descentId} {
-      // Users can read their own descents, admins can query/read all descents
-      allow read: if isAdmin() || 
-        (isAuthenticated() && request.auth.uid == resource.data.userId);
-      
-      allow create: if isAuthenticated()
-        && isValidString('riverRunId')
-        && isValidString('userId')
-        && request.resource.data.userId == request.auth.uid
-        && isValidTimestamp('timestamp');
-      
-      allow update: if isAuthenticated()
-        && request.auth.uid == resource.data.userId
-        && request.resource.data.userId == resource.data.userId; // Prevent changing ownership
-      
-      allow delete: if isAuthenticated()
-        && request.auth.uid == resource.data.userId;
     }
     
     // Users collection - for premium status and user profiles

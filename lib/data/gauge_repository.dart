@@ -104,17 +104,9 @@ class GaugeRepository {
 
     try {
       for (final year in {day.year, day.year - 1}) {
-        final doc = await _firestore
-            .collection('station_data')
-            .doc(historyDocIdFor(stationId))
-            .collection('readings')
-            .doc('$year')
-            .get();
-        final daily = doc.data()?['daily_readings'];
-        if (daily is Map<String, dynamic>) {
-          final flow = dailyMeanOnOrBefore(daily, day);
-          if (flow != null) return flow;
-        }
+        final daily = await _dailyReadings(stationId, year);
+        final flow = dailyMeanOnOrBefore(daily, day);
+        if (flow != null) return flow;
       }
     } catch (e) {
       debugPrint('GaugeRepository.flowOn($stationId) failed: $e');
@@ -141,20 +133,38 @@ class GaugeRepository {
     final from = to.subtract(Duration(days: days));
     final docs = <Map<String, dynamic>>[];
     try {
-      for (var year = from.year; year <= to.year; year++) {
-        final doc = await _firestore
-            .collection('station_data')
-            .doc(historyDocIdFor(stationId))
-            .collection('readings')
-            .doc('$year')
-            .get();
-        final daily = doc.data()?['daily_readings'];
-        if (daily is Map<String, dynamic>) docs.add(daily);
-      }
+      docs.addAll(
+        await Future.wait([
+          for (var year = from.year; year <= to.year; year++)
+            _dailyReadings(stationId, year),
+        ]),
+      );
     } catch (e) {
       debugPrint('GaugeRepository.dailyFlows($stationId) failed: $e');
     }
     return dailySeries(docs, from, to);
+  }
+
+  /// One year's `daily_readings` for [stationId]. History now lives under
+  /// the same id as `station_current`; days the old script kept under the
+  /// legacy id fill in until the daily Cloud Function has copied them over.
+  Future<Map<String, dynamic>> _dailyReadings(String stationId, int year) async {
+    Future<Map<String, dynamic>> read(String docId) async {
+      final doc = await _firestore
+          .collection('station_data')
+          .doc(docId)
+          .collection('readings')
+          .doc('$year')
+          .get();
+      final daily = doc.data()?['daily_readings'];
+      return daily is Map<String, dynamic> ? daily : const {};
+    }
+
+    final [current, legacy] = await Future.wait([
+      read(docIdFor(stationId)),
+      read(historyDocIdFor(stationId)),
+    ]);
+    return {...legacy, ...current};
   }
 
   static StationRealtimeFlow? _parse(String docId, Map<String, dynamic>? data) {
@@ -190,8 +200,8 @@ class GaugeRepository {
     return stationId;
   }
 
-  /// Maps a run's station id to its `station_data` document id, which uses
-  /// the form `Provider.ENVIRONMENT_CANADA_08GA043`.
+  /// Maps a run's station id to the legacy `station_data` document id the
+  /// old local script used: `Provider.ENVIRONMENT_CANADA_08GA043`.
   static String historyDocIdFor(String stationId) {
     if (stationId.startsWith('Provider.')) return stationId;
     if (stationId.contains('_')) {

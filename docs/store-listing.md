@@ -12,7 +12,8 @@ answers together.
 - **Name:** Brownpaw
 - **Privacy policy:** https://brownclaw.web.app/privacy.html
 - **Account deletion (Play asks for a link):** https://brownclaw.web.app/privacy.html#delete
-- **Support / contact email:** privacy@brownpaw.app (check this inbox works)
+- **Support URL:** https://brownclaw.web.app/support
+- **Support / contact email:** support@brownpaw.app, privacy@brownpaw.app (check both reach you)
 - **Category:** Sports (Apple secondary: Weather)
 - **Price:** Free, no in-app purchases, no ads
 - **Countries:** Canada to start (add the US when the guide reaches it)

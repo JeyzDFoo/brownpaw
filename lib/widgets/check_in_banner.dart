@@ -179,6 +179,9 @@ class _BannerCard extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 44),
                   foregroundColor: foreground,
+                  // The theme fills outlined buttons with the card colour,
+                  // which hid the label on the orange check-in card.
+                  backgroundColor: Colors.transparent,
                   textStyle: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),

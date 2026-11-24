@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'models/river_run.dart';
 import 'providers/user_provider.dart';
 import 'screens/auth_screen.dart';
+import 'screens/community_home_screen.dart';
 import 'screens/gauge_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/log_descent_screen.dart';
@@ -17,14 +18,15 @@ abstract final class AppRoutes {
   static const signIn = '/sign-in';
   static const home = '/';
   static const gauges = '/gauges';
-  static const community = '/community';
+  static const guide = '/guide';
   static const me = '/me';
   static const privacy = '/me/privacy';
+  static const community = '/me/community';
   static const logDescent = '/log';
 
   /// The bottom navigation tabs, in order. The centre Log button is not a
   /// tab: it opens the quick-log sheet over whichever tab is showing.
-  static const tabs = [home, gauges, community, me];
+  static const tabs = [home, gauges, guide, me];
 
   static String run(String runId) => '/runs/${Uri.encodeComponent(runId)}';
 
@@ -95,10 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      GoRoute(
-        path: AppRoutes.community,
-        pageBuilder: (context, state) => tab(2),
-      ),
+      GoRoute(path: AppRoutes.guide, pageBuilder: (context, state) => tab(2)),
       GoRoute(
         path: AppRoutes.me,
         pageBuilder: (context, state) => tab(3),
@@ -107,12 +106,21 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'privacy',
             builder: (context, state) => const PrivacyPolicyScreen(),
           ),
+          GoRoute(
+            path: 'community',
+            builder: (context, state) => Scaffold(
+              appBar: AppBar(title: const Text('Community')),
+              body: const CommunityHomeScreen(),
+            ),
+          ),
         ],
       ),
       // Old tab paths, kept so earlier links still work.
       GoRoute(path: '/logbook', redirect: (_, _) => AppRoutes.home),
       GoRoute(path: '/favourites', redirect: (_, _) => AppRoutes.gauges),
       GoRoute(path: '/settings', redirect: (_, _) => AppRoutes.me),
+      GoRoute(path: '/community', redirect: (_, _) => AppRoutes.community),
+      GoRoute(path: '/map', redirect: (_, _) => AppRoutes.guide),
       GoRoute(
         path: AppRoutes.logDescent,
         // A run can be passed as `extra` to pre-select it, e.g. from a run page.

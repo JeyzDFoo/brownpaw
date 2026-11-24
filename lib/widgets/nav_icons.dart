@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// Tab bar icons drawn in code rather than taken from an icon font, so they
 /// never depend on a font file the browser may have cached from an older
 /// build. Each comes in an outline (unselected) and filled (selected) form.
-enum NavGlyph { logbook, gauges, community, me, add }
+enum NavGlyph { logbook, gauges, guide, me, add }
 
 class NavIcon extends StatelessWidget {
   const NavIcon(this.glyph, {super.key, this.filled = false, this.color});
@@ -57,8 +57,8 @@ class _NavIconPainter extends CustomPainter {
         _logbook(canvas, stroke, fill);
       case NavGlyph.gauges:
         _gauge(canvas, stroke, fill);
-      case NavGlyph.community:
-        _community(canvas, stroke, fill);
+      case NavGlyph.guide:
+        _map(canvas, stroke, fill);
       case NavGlyph.me:
         _person(canvas, stroke, fill, const Offset(12, 0), 1);
       case NavGlyph.add:
@@ -141,9 +141,35 @@ class _NavIconPainter extends CustomPainter {
     canvas.drawPath(body, stroke);
   }
 
-  void _community(Canvas canvas, Paint stroke, Paint fill) {
-    _person(canvas, stroke, fill, const Offset(8, 1.5), 0.82);
-    _person(canvas, stroke, fill, const Offset(16, 1.5), 0.82);
+  // A folded map with a pin. Filled: solid panels behind the folds.
+  void _map(Canvas canvas, Paint stroke, Paint fill) {
+    final outline = Path()
+      ..moveTo(3, 6.5)
+      ..lineTo(8.7, 4.5)
+      ..lineTo(15.3, 6.5)
+      ..lineTo(21, 4.5)
+      ..lineTo(21, 17.5)
+      ..lineTo(15.3, 19.5)
+      ..lineTo(8.7, 17.5)
+      ..lineTo(3, 19.5)
+      ..close();
+    if (filled) {
+      canvas.drawPath(outline, fill);
+      final fold = Paint()
+        ..color = const Color(0x55FFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4;
+      canvas.drawLine(const Offset(8.7, 5.4), const Offset(8.7, 16.6), fold);
+      canvas.drawLine(const Offset(15.3, 7.4), const Offset(15.3, 18.6), fold);
+    } else {
+      canvas.drawLine(const Offset(8.7, 4.5), const Offset(8.7, 17.5), stroke);
+      canvas.drawLine(
+        const Offset(15.3, 6.5),
+        const Offset(15.3, 19.5),
+        stroke,
+      );
+    }
+    canvas.drawPath(outline, stroke);
   }
 
   @override

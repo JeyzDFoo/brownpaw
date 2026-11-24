@@ -72,6 +72,8 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
             'status': 'success',
             'readings': len(readings),
             'discharge': (status.get('latest_reading') or {}).get('discharge'),
+            'reading_time': (status.get('latest_reading') or {}).get('datetime'),
+            'trend': status.get('trend'),
             'station_name': next(
                 (r.get('station_name') for r in readings if r.get('station_name')),
                 None,
@@ -93,27 +95,33 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
 
 
 def write_station_names(db, results):
-    """Writes stations/{provider}_{code} = {name, stationNumber, provider}
-    for every station that reported a name."""
+    """Writes a small summary per station to stations/{provider}_{code}:
+    its official name and latest flow. The app reads this one collection
+    to name gauges and colour map pins without downloading every
+    station's hourly readings."""
     provider = Provider.ENVIRONMENT_CANADA.value
     batch = db.batch()
     count = 0
     for r in results:
-        name = r.get('station_name')
-        if r.get('status') != 'success' or not name:
+        if r.get('status') != 'success':
             continue
-        ref = db.collection('stations').document(f"{provider}_{r['station_id']}")
-        batch.set(ref, {
-            'name': name,
+        summary = {
             'stationNumber': r['station_id'],
             'provider': provider,
-        }, merge=True)
+            'flow': r.get('discharge'),
+            'trend': r.get('trend'),
+            'readingTime': r.get('reading_time'),
+        }
+        if r.get('station_name'):
+            summary['name'] = r['station_name']
+        ref = db.collection('stations').document(f"{provider}_{r['station_id']}")
+        batch.set(ref, summary, merge=True)
         count += 1
         if count % 400 == 0:
             batch.commit()
             batch = db.batch()
     batch.commit()
-    logger.info(f"Station names written: {count}")
+    logger.info(f"Station summaries written: {count}")
 
 
 async def run_update():
@@ -144,8 +152,8 @@ async def run_update():
         ]
         results = await asyncio.gather(*tasks)
     
-    # Keep each station's official name in stations/{doc id}, so the app
-    # can title gauges "Cheakamus River above Millar Creek".
+    # Keep each station's official name and latest flow in
+    # stations/{doc id}, so the app can title gauges and colour map pins.
     try:
         write_station_names(manager.db, results)
     except Exception as e:

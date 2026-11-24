@@ -28,8 +28,10 @@ class SeriesGauges extends FakeGauges {
   final int minutesAgo;
 
   @override
-  Stream<Map<String, String>> watchStationNames() => Stream.value({
-    'environment_canada_08GA030': 'SEYMOUR RIVER NEAR NORTH VANCOUVER',
+  Stream<Map<String, StationSummary>> watchStations() => Stream.value({
+    'environment_canada_08GA030': const StationSummary(
+      name: 'SEYMOUR RIVER NEAR NORTH VANCOUVER',
+    ),
   });
 
   @override

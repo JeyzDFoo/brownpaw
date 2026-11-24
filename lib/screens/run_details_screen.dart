@@ -1,1022 +1,832 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:map_launcher/map_launcher.dart';
-import '../models/river_run.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../data/gauge_repository.dart';
+import '../domain/flow_alert.dart';
+import '../domain/flow_status.dart';
+import '../domain/gauges.dart';
+import '../domain/run_guide.dart';
+import '../domain/run_suggestion.dart' show distanceKm;
 import '../models/descent.dart';
-import '../widgets/flow_information_widget.dart';
-import '../providers/favorites_provider.dart';
+import '../models/river_run.dart';
 import '../providers/descents_provider.dart';
+import '../providers/favorites_provider.dart';
+import '../providers/gauges_provider.dart';
+import '../providers/realtime_flow_provider.dart';
 import '../providers/river_runs_provider.dart';
-import '../providers/user_provider.dart';
-import '../data/repositories.dart';
+import '../router.dart';
+import '../widgets/alert_bell.dart';
+import '../widgets/flow_sparkline.dart';
+import '../widgets/flow_status_chip.dart';
+import '../widgets/map_tiles.dart';
 import '../widgets/quick_log_sheet.dart';
+import 'gauges_screen.dart' show TrendIcon;
 
+/// A run's guide page: how it's running now, getting there, what to watch
+/// for, and what it's like. Content comes from the BC Whitewater guide.
 class RunDetailsScreen extends ConsumerWidget {
-  final String runId;
-
   const RunDetailsScreen({super.key, required this.runId});
+  final String runId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider).user;
-    final descentCount = ref.watch(runDescentCountProvider(runId));
+    final theme = Theme.of(context);
+    final runAsync = ref.watch(riverRunProvider(runId));
+    final favourite = ref.watch(isFavoriteProvider(runId));
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Run Details')),
-      // Floating action button for logging descents
-      floatingActionButton: user != null
-          ? FloatingActionButton.extended(
-              onPressed: () => _showLogDescentDialog(context, ref),
-              icon: const Icon(Icons.add),
-              label: Text(
-                descentCount.when(
-                  data: (count) =>
-                      count > 0 ? 'Log Descent ($count)' : 'Log Descent',
-                  loading: () => 'Log Descent',
-                  error: (_, __) => 'Log Descent',
-                ),
-              ),
-            )
-          : null,
-      body: ref
-          .watch(riverRunProvider(runId))
-          .when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('Error: $error')),
-            data: (run) {
-              if (run == null) {
-                return const Center(child: Text('Run not found'));
-              }
-
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header Section
-                    _buildHeader(context, run),
-
-                    // Quick Stats Row
-                    _buildQuickStats(context, run),
-
-                    // Flow Information with Charts
-                    FlowInformationWidget(riverRun: run),
-
-                    // Logistics Section (Access, Shuttle, Permits)
-                    _buildLogisticsSection(context, run),
-
-                    // Safety & Info Section (Hazards, Scouting)
-                    _buildSafetySection(context, run),
-
-                    // Locations Section
-                    _buildLocationsSection(context, run),
-
-                    // Description Section
-                    _buildDescriptionSection(context, run),
-
-                    // Images Section
-                    if (run.images?.isNotEmpty == true)
-                      _buildImagesSection(context, run),
-
-                    // Public Descents Section
-                    _buildPublicDescentsSection(context, ref),
-
-                    // Source Section
-                    _buildSourceSection(context, run),
-
-                    const SizedBox(height: 24), // Bottom padding
-                  ],
-                ),
-              );
-            },
-          ),
-    );
-  }
-
-  // HEADER SECTION
-  Widget _buildHeader(BuildContext context, RiverRun run) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final user = ref.watch(userProvider).user;
-        final favoritesState = ref.watch(favoritesProvider);
-        final isFavorite = favoritesState.isFavorite(runId);
-
-        return Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primaryContainer,
-                Theme.of(context).colorScheme.secondaryContainer,
-              ],
-            ),
-          ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Province badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        run.region != null
-                            ? '${run.province} • ${run.region}'
-                            : run.province,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Run name
-                    Text(
-                      run.name,
-                      style: Theme.of(context).textTheme.headlineLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Difficulty
-                    Text(
-                      run.difficultyClass,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Action buttons in top right corner
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Navigate to Put-in button
-                    if (run.putInCoordinates != null)
-                      IconButton(
-                        icon: const Icon(Icons.navigation),
-                        onPressed: () => _navigateToPutIn(context, run),
-                        tooltip: 'Navigate to Put-in',
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.surface.withOpacity(0.9),
-                        ),
-                      ),
-                    if (run.putInCoordinates != null) const SizedBox(width: 8),
-                    // Favorite button
-                    IconButton(
-                      icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.red : null,
-                      ),
-                      onPressed: user != null
-                          ? () => ref
-                                .read(favoritesProvider.notifier)
-                                .toggleFavorite(runId)
-                          : null,
-                      tooltip: isFavorite
-                          ? 'Remove from favorites'
-                          : 'Add to favorites',
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.surface.withOpacity(0.9),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // QUICK STATS ROW
-  Widget _buildQuickStats(BuildContext context, RiverRun run) {
-    final stats = <Map<String, dynamic>>[];
-
-    // Always show difficulty
-    stats.add({
-      'label': 'Difficulty',
-      'value': run.difficultyText,
-      'icon': Icons.waves,
-    });
-
-    // Add length if available
-    if (run.length != null) {
-      stats.add({
-        'label': 'Length',
-        'value': run.length!,
-        'icon': Icons.straighten,
-      });
-    }
-
-    // Add time if available
-    if (run.estimatedTime != null) {
-      stats.add({
-        'label': 'Time',
-        'value': run.estimatedTime!,
-        'icon': Icons.schedule,
-      });
-    }
-
-    // Add season if available
-    if (run.season != null) {
-      stats.add({
-        'label': 'Season',
-        'value': run.season!,
-        'icon': Icons.calendar_today,
-      });
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        children: stats
-            .map(
-              (stat) => Expanded(
-                child: _buildStatItem(
-                  context,
-                  stat['label'] as String,
-                  stat['value'] as String,
-                  stat['icon'] as IconData,
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-            ),
-          ),
-          child: Icon(
-            icon,
-            size: 24,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-
-  // IMAGES SECTION
-  Widget _buildImagesSection(BuildContext context, RiverRun run) {
-    if (run.images == null || run.images!.isEmpty)
-      return const SizedBox.shrink();
-
-    return _buildSection(
-      context,
-      'Photos',
-      Icons.photo_library,
-      child: SizedBox(
-        height: 200,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: run.images!.length,
-          itemBuilder: (context, index) {
-            final image = run.images![index];
-            return Container(
-              width: 300,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(
-                      image['url'] ?? '',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Theme.of(context).colorScheme.surfaceVariant,
-                        child: const Icon(Icons.broken_image),
-                      ),
-                    ),
-                    if (image['caption'] != null)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.7),
-                              ],
-                            ),
-                          ),
-                          child: Text(
-                            image['caption']!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  // LOGISTICS SECTION
-  Widget _buildLogisticsSection(BuildContext context, RiverRun run) {
-    final items = <Widget>[];
-
-    if (run.access != null && run.access!.isNotEmpty) {
-      items.add(
-        _buildInfoItem(context, 'Access', run.access!, Icons.directions_car),
-      );
-    }
-
-    if (run.shuttle != null && run.shuttle!.isNotEmpty) {
-      items.add(
-        _buildInfoItem(
-          context,
-          'Shuttle',
-          run.shuttle!,
-          Icons.transfer_within_a_station,
-        ),
-      );
-    }
-
-    if (run.permits != null && run.permits!.isNotEmpty) {
-      items.add(
-        _buildInfoItem(context, 'Permits', run.permits!, Icons.assignment),
-      );
-    }
-
-    if (run.gradient != null && run.gradient!.isNotEmpty) {
-      items.add(
-        _buildInfoItem(context, 'Gradient', run.gradient!, Icons.trending_down),
-      );
-    }
-
-    if (items.isEmpty) return const SizedBox.shrink();
-
-    return _buildSection(
-      context,
-      'Logistics',
-      Icons.info_outline,
-      child: Column(
-        children: items
-            .expand((item) => [item, const SizedBox(height: 12)])
-            .take(items.length * 2 - 1)
-            .toList(),
-      ),
-    );
-  }
-
-  // SAFETY SECTION
-  Widget _buildSafetySection(BuildContext context, RiverRun run) {
-    final items = <Widget>[];
-
-    if (run.hazards != null && run.hazards!.isNotEmpty) {
-      items.add(
-        _buildWarningItem(context, 'Hazards', run.hazards!, Icons.warning),
-      );
-    }
-
-    if (run.scouting != null && run.scouting!.isNotEmpty) {
-      items.add(
-        _buildInfoItem(context, 'Scouting', run.scouting!, Icons.search),
-      );
-    }
-
-    if (items.isEmpty) return const SizedBox.shrink();
-
-    return _buildSection(
-      context,
-      'Safety & Scouting',
-      Icons.security,
-      child: Column(
-        children: items
-            .expand((item) => [item, const SizedBox(height: 12)])
-            .take(items.length * 2 - 1)
-            .toList(),
-      ),
-    );
-  }
-
-  // LOCATIONS SECTION
-  Widget _buildLocationsSection(BuildContext context, RiverRun run) {
-    if (run.putIn == null && run.takeOut == null)
-      return const SizedBox.shrink();
-
-    return _buildSection(
-      context,
-      'Locations',
-      Icons.location_on,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (run.putIn != null) ...[
-            _buildLocationItem(
-              context,
-              'Put In',
-              run.putIn!,
-              run.putInCoordinates,
-            ),
-          ],
-          if (run.putIn != null && run.takeOut != null)
-            const SizedBox(height: 16),
-          if (run.takeOut != null) ...[
-            _buildLocationItem(
-              context,
-              'Take Out',
-              run.takeOut!,
-              run.takeOutCoordinates,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLocationItem(
-    BuildContext context,
-    String label,
-    String description,
-    Map<String, double>? coordinates,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            if (coordinates != null)
-              GestureDetector(
-                onTap: () => _openInMaps(coordinates),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.map,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Open in Maps',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(description),
-        if (coordinates != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            '${coordinates['latitude']!.toStringAsFixed(5)}, ${coordinates['longitude']!.toStringAsFixed(5)}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        actions: [
+          IconButton(
+            tooltip: favourite ? 'Remove from favourites' : 'Add to favourites',
+            isSelected: favourite,
+            icon: const Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite, color: theme.colorScheme.error),
+            onPressed: () =>
+                ref.read(favoritesProvider.notifier).toggleFavorite(runId),
           ),
         ],
-      ],
+      ),
+      body: runAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => const Center(child: Text("Couldn't load this run")),
+        data: (run) => run == null
+            ? const Center(child: Text('Run not found'))
+            : RunGuide(run: run),
+      ),
     );
   }
+}
 
-  // DESCRIPTION SECTION
-  Widget _buildDescriptionSection(BuildContext context, RiverRun run) {
-    String? text;
+/// The body of a run page, separate from the loading so it can be tested
+/// with a run in hand.
+class RunGuide extends ConsumerWidget {
+  const RunGuide({super.key, required this.run});
+  final RiverRun run;
 
-    // Prefer description over fullText since fullText often contains navigation menu items
-    if (run.description?.isNotEmpty == true) {
-      text = run.description!;
-    } else if (run.fullText?.isNotEmpty == true) {
-      // Clean up fullText by removing common navigation menu items
-      text = _cleanFullText(run.fullText!);
-    }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final sections = guideSections(run.fullText);
+    final length = sections['length of run'] ?? run.length;
+    final shuttle =
+        sections['length of shuttle'] ??
+        sections['length of shuttle (one way)'] ??
+        run.shuttle;
+    final grade = run.difficultyText;
 
-    if (text == null || text.isEmpty) return const SizedBox.shrink();
-
-    return _buildSection(
-      context,
-      'Description',
-      Icons.description,
-      child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
-    );
-  }
-
-  // Helper method to clean up fullText content
-  String? _cleanFullText(String fullText) {
-    // Remove common navigation menu items that get scraped
-    final menuItems = [
-      'BCWhitewater',
-      'Projects',
-      'Rivers',
-      'Get Involved',
-      'About',
-      'Our Team',
-      'Partners',
-      'Contact',
-      'Home',
-      'Navigation',
-      'Menu',
+    final hazards = <String>[
+      if (_has(run.scouting)) run.scouting!,
+      if (_has(run.hazards)) run.hazards!,
+      if (_has(sections['special considerations']))
+        sections['special considerations']!,
+    ];
+    final about = <(String?, String)>[
+      if (_has(run.description)) (null, run.description!),
+      if (_has(sections['description'])) (null, sections['description']!),
+      if (_has(sections['character'])) ('Character', sections['character']!),
+      if (_has(sections['scenery'])) ('Scenery', sections['scenery']!),
+    ];
+    final logistics = <(String, String)>[
+      if (_has(run.season)) ('When to go', run.season!),
+      if (_has(sections['gauge and levels']))
+        ('Levels', sections['gauge and levels']!),
+      if (_has(shuttle)) ('Shuttle', shuttle!),
+      if (_has(sections['directions']))
+        ('Getting there', sections['directions']!),
+      if (_has(run.access)) ('Access', run.access!),
+      if (_has(run.permits)) ('Permits', run.permits!),
+      if (_has(sections['camping and food']))
+        ('Camping and food', sections['camping and food']!),
     ];
 
-    String cleaned = fullText;
-    for (String item in menuItems) {
-      cleaned = cleaned.replaceAll(RegExp('\\b$item\\b'), '').trim();
-    }
-
-    // Clean up extra whitespace and newlines
-    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
-
-    // Return null if the cleaned text is too short (likely just menu items)
-    return cleaned.length > 20 ? cleaned : null;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      children: [
+        if (run.river.isNotEmpty && run.river != run.name)
+          Text(
+            run.river,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        Text(
+          runLabel(run),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (grade.isNotEmpty)
+              _Fact(
+                Icons.terrain_outlined,
+                grade.startsWith('Class') ? grade : 'Class $grade',
+              ),
+            if (_has(run.estimatedTime))
+              _Fact(Icons.schedule, run.estimatedTime!),
+            if (_has(length)) _Fact(Icons.straighten, length!),
+          ],
+        ),
+        const SizedBox(height: 18),
+        _Conditions(run: run),
+        const SizedBox(height: 12),
+        _Actions(run: run),
+        if (_point(run.putInCoordinates) != null ||
+            _point(run.takeOutCoordinates) != null) ...[
+          const SizedBox(height: 24),
+          const _Heading('Put-in and take-out'),
+          const SizedBox(height: 10),
+          _AccessMap(run: run),
+          const SizedBox(height: 10),
+          _AccessPoint(
+            label: 'Put-in',
+            color: _putInColor,
+            point: _point(run.putInCoordinates),
+            description: run.putIn,
+          ),
+          const SizedBox(height: 10),
+          _AccessPoint(
+            label: 'Take-out',
+            color: _takeOutColor,
+            point: _point(run.takeOutCoordinates),
+            description: run.takeOut,
+          ),
+        ],
+        if (hazards.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          const _Heading('Hazards and scouting'),
+          const SizedBox(height: 10),
+          _Hazards(items: hazards),
+        ],
+        if (about.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          const _Heading('The run'),
+          const SizedBox(height: 10),
+          for (final (title, body) in about) ...[
+            if (title != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            _ExpandableText(body),
+            const SizedBox(height: 12),
+          ],
+        ],
+        if (logistics.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          const _Heading('Logistics'),
+          const SizedBox(height: 10),
+          for (final (title, body) in logistics) ...[
+            Text(
+              title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            _ExpandableText(body, lines: 4),
+            const SizedBox(height: 12),
+          ],
+        ],
+        if (run.images?.isNotEmpty ?? false) ...[
+          const SizedBox(height: 12),
+          const _Heading('Photos'),
+          const SizedBox(height: 10),
+          _Photos(images: run.images!),
+        ],
+        const SizedBox(height: 24),
+        _YourDescents(run: run),
+        if (_has(run.sourceUrl) || run.source != null) ...[
+          const SizedBox(height: 24),
+          _Source(run: run),
+        ],
+      ],
+    );
   }
+}
 
-  // SOURCE SECTION
-  Widget _buildSourceSection(BuildContext context, RiverRun run) {
-    if (run.source == null) return const SizedBox.shrink();
+const _putInColor = Color(0xFF2E7D32);
+const _takeOutColor = Color(0xFFC62828);
 
+bool _has(String? s) => s != null && s.trim().isNotEmpty;
+
+LatLng? _point(Map<String, double>? c) {
+  final lat = c?['latitude'], lng = c?['longitude'];
+  if (lat == null || lng == null) return null;
+  return LatLng(lat, lng);
+}
+
+Future<void> _open(Uri uri) =>
+    launchUrl(uri, mode: LaunchMode.externalApplication);
+
+class _Heading extends StatelessWidget {
+  const _Heading(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      header: true,
+      child: Text(
+        text.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+class _Fact extends StatelessWidget {
+  const _Fact(this.icon, this.text);
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Text(
-              'Source: ${run.source}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          if (run.sourceUrl != null)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _launchUrl(run.sourceUrl!),
-                child: Text(
-                  run.sourceUrl!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    decoration: TextDecoration.underline,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
+          Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Flexible(child: Text(text, style: theme.textTheme.bodySmall)),
         ],
       ),
     );
   }
+}
 
-  // PUBLIC DESCENTS SECTION
-  Widget _buildPublicDescentsSection(BuildContext context, WidgetRef ref) {
-    final publicDescents = ref.watch(publicDescentsProvider(runId));
+/// Flow now, its status for this run, and the gauge it's read from.
+class _Conditions extends ConsumerWidget {
+  const _Conditions({required this.run});
+  final RiverRun run;
 
-    return publicDescents.when(
-      data: (descents) {
-        if (descents.isEmpty) return const SizedBox.shrink();
-
-        return _buildSection(
-          context,
-          'Recent Descents (${descents.length})',
-          Icons.people,
-          child: Column(
-            children: descents.take(10).map((descent) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildDescentItem(context, descent),
-              );
-            }).toList(),
-          ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
     );
-  }
-
-  Widget _buildDescentItem(BuildContext context, Descent descent) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                DateFormat('MMM d, yyyy').format(descent.date),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              if (descent.rating != null)
-                Row(
-                  children: List.generate(
-                    5,
-                    (index) => Icon(
-                      index < descent.rating! ? Icons.star : Icons.star_border,
-                      size: 14,
-                      color: Colors.amber,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          if (descent.flow != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              'Flow: ${descent.flow!.toStringAsFixed(1)} ${descent.flowUnit ?? "m³/s"}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-          if (descent.notes != null && descent.notes!.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              descent.notes!,
-              style: Theme.of(context).textTheme.bodySmall,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
+    final station = run.stationId;
+    final card = BoxDecoration(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: theme.colorScheme.outlineVariant),
     );
-  }
 
-  // HELPER WIDGETS
-  Widget _buildSection(
-    BuildContext context,
-    String title,
-    IconData icon, {
-    required Widget child,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
+    if (station == null || station.isEmpty) {
+      return Container(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
+        decoration: card,
+        child: Text('No gauge is linked to this run.', style: muted),
+      );
+    }
 
-  Widget _buildInfoItem(
-    BuildContext context,
-    String label,
-    String content,
-    IconData icon,
-  ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
+    final gaugeId = GaugeRepository.docIdFor(station);
+    final gauge = ref.watch(gaugeProvider(gaugeId)).value;
+    final current = ref.watch(realtimeFlowStreamProvider(station));
+    final readings = dischargeReadings(current.value?.readings ?? const []);
+    final flow = readings.isEmpty ? null : readings.last.discharge;
+    final trend = trendOf(readings);
+    final range = goodRange(run);
+    final status = run.hasFlowRanges ? run.flowStatus(flow) : null;
+
+    return Material(
+      color: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => context.push(AppRoutes.gauge(gaugeId)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('NOW', style: muted),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              flow?.toStringAsFixed(1) ?? '–',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text('m³/s', style: theme.textTheme.titleSmall),
+                            if (trend != null) ...[
+                              const SizedBox(width: 6),
+                              TrendIcon(trend, size: 18),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  FlowSparkline(
+                    points: hourlyWindow(readings, 7),
+                    width: 88,
+                    height: 40,
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(content),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (status != null && flow != null)
+                    FlowStatusChip(status: status),
+                  if (range != null)
+                    Text(
+                      range[0].toUpperCase() + range.substring(1),
+                      style: muted,
+                    ),
+                  if (status == null) Text('No flow range yet', style: muted),
+                ],
+              ),
+              const Divider(height: 24),
+              Row(
+                children: [
+                  Icon(
+                    Icons.water_drop_outlined,
+                    size: 18,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      gauge?.title ?? 'Gauge $station',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    readings.isEmpty ? '' : updatedAgo(readings.last.timestamp),
+                    style: muted,
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Actions extends StatelessWidget {
+  const _Actions({required this.run});
+  final RiverRun run;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final putIn = _point(run.putInCoordinates);
+    return Row(
+      children: [
+        Expanded(
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+            onPressed: () => showQuickLog(context, run: run),
+            icon: const Icon(Icons.add),
+            label: const Text('Log this run'),
+          ),
+        ),
+        if (putIn != null) ...[
+          const SizedBox(width: 8),
+          Expanded(
+            child: OutlinedButton.icon(
+              // The app theme's outlined button is a heavy black box;
+              // here it sits beside a pill, so it matches that shape.
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: const StadiumBorder(),
+                foregroundColor: theme.colorScheme.primary,
+                side: BorderSide(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                ),
+                textStyle: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onPressed: () =>
+                  _open(directionsUri(putIn.latitude, putIn.longitude)),
+              icon: const Icon(Icons.directions_car_outlined),
+              label: const Text('Directions'),
+            ),
+          ),
+        ],
+        if (alertRangeFor(run) != null && run.stationId != null)
+          AlertBell(run: run),
       ],
     );
   }
+}
 
-  Widget _buildWarningItem(
-    BuildContext context,
-    String label,
-    String content,
-    IconData icon,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+/// A small, still map of the put-in and take-out. Scrolling the page
+/// never gets caught by the map.
+class _AccessMap extends StatelessWidget {
+  const _AccessMap({required this.run});
+  final RiverRun run;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final points = [
+      ?_point(run.putInCoordinates),
+      ?_point(run.takeOutCoordinates),
+    ];
+    final camera = points.length == 1
+        ? CameraFit.coordinates(
+            coordinates: points,
+            maxZoom: 13,
+            padding: const EdgeInsets.all(40),
+          )
+        : CameraFit.coordinates(
+            coordinates: points,
+            maxZoom: 14,
+            padding: const EdgeInsets.all(36),
+          );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        height: 190,
+        child: Stack(
+          children: [
+            FlutterMap(
+              options: MapOptions(
+                initialCameraFit: camera,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.none,
+                ),
+              ),
+              children: [
+                MapTiles.layer(),
+                MarkerLayer(
+                  markers: [
+                    if (_point(run.putInCoordinates) case final p?)
+                      _pin(p, _putInColor, 'Put-in'),
+                    if (_point(run.takeOutCoordinates) case final p?)
+                      _pin(p, _takeOutColor, 'Take-out'),
+                  ],
+                ),
+              ],
+            ),
+            Positioned(
+              right: 6,
+              bottom: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                color: theme.colorScheme.surface.withValues(alpha: 0.8),
+                child: Text(
+                  '© OpenStreetMap',
+                  style: theme.textTheme.labelSmall,
+                ),
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Marker _pin(LatLng p, Color color, String label) => Marker(
+    point: p,
+    width: 28,
+    height: 28,
+    child: Semantics(
+      label: label,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black26)],
+        ),
+      ),
+    ),
+  );
+}
+
+class _AccessPoint extends StatelessWidget {
+  const _AccessPoint({
+    required this.label,
+    required this.color,
+    required this.point,
+    required this.description,
+  });
+
+  final String label;
+  final Color color;
+  final LatLng? point;
+  final String? description;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.error, size: 20),
-          const SizedBox(width: 12),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.error,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(content),
+                if (_has(description))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      description!,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
               ],
+            ),
+          ),
+          if (point != null)
+            IconButton(
+              tooltip: 'Directions to the $label',
+              icon: const Icon(Icons.directions_outlined),
+              onPressed: () =>
+                  _open(directionsUri(point!.latitude, point!.longitude)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Hazards extends StatelessWidget {
+  const _Hazards({required this.items});
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final warn = theme.colorScheme.error;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: warn.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: warn.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, item) in items.indexed) ...[
+            if (i > 0) const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.warning_amber_rounded, size: 18, color: warn),
+                const SizedBox(width: 8),
+                Expanded(child: Text(item, style: theme.textTheme.bodyMedium)),
+              ],
+            ),
+          ],
+          const SizedBox(height: 10),
+          Text(
+            'Conditions change. Scout anything you can’t see the bottom of.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  // Open the log screen with this run pre-selected
-  void _showLogDescentDialog(BuildContext context, WidgetRef ref) async {
-    final run = await ref.read(riverRunsRepositoryProvider).getRun(runId);
-    if (run == null || !context.mounted) return;
-    await showQuickLog(context, run: run);
-  }
+/// Long text that starts folded, with a "Read more" toggle.
+class _ExpandableText extends StatefulWidget {
+  const _ExpandableText(this.text, {this.lines = 6});
+  final String text;
+  final int lines;
 
-  // Navigate to put-in location using available map apps
-  Future<void> _navigateToPutIn(BuildContext context, RiverRun run) async {
-    if (run.putInCoordinates == null) return;
+  @override
+  State<_ExpandableText> createState() => _ExpandableTextState();
+}
 
-    final latitude = run.putInCoordinates!['latitude']!;
-    final longitude = run.putInCoordinates!['longitude']!;
+class _ExpandableTextState extends State<_ExpandableText> {
+  bool _open = false;
 
-    try {
-      // Show loading indicator
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) =>
-              const Center(child: CircularProgressIndicator()),
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(
+      context,
+    ).textTheme.bodyMedium?.copyWith(height: 1.45);
+    return LayoutBuilder(
+      builder: (context, c) {
+        final painter = TextPainter(
+          text: TextSpan(text: widget.text, style: style),
+          maxLines: widget.lines,
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout(maxWidth: c.maxWidth);
+        final long = painter.didExceedMaxLines;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.text,
+              style: style,
+              maxLines: _open || !long ? null : widget.lines,
+              overflow: _open || !long ? null : TextOverflow.fade,
+            ),
+            if (long)
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 36),
+                ),
+                onPressed: () => setState(() => _open = !_open),
+                child: Text(_open ? 'Show less' : 'Read more'),
+              ),
+          ],
         );
-      }
+      },
+    );
+  }
+}
 
-      // Get available maps with timeout
-      final availableMaps = await MapLauncher.installedMaps.timeout(
-        const Duration(seconds: 5),
-        onTimeout: () {
-          throw TimeoutException('Failed to detect map apps');
-        },
-      );
+class _Photos extends StatelessWidget {
+  const _Photos({required this.images});
+  final List<Map<String, String>> images;
 
-      // Close loading indicator
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-
-      if (availableMaps.isEmpty) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No map applications found on device'),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      height: 150,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: images.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, i) {
+          final url = images[i]['url'];
+          final caption = images[i]['caption'];
+          if (url == null) return const SizedBox.shrink();
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.network(
+              url,
+              width: 210,
+              height: 150,
+              fit: BoxFit.cover,
+              semanticLabel: caption,
+              errorBuilder: (_, _, _) => Container(
+                width: 210,
+                color: theme.colorScheme.surfaceContainerHighest,
+                alignment: Alignment.center,
+                child: const Icon(Icons.image_not_supported_outlined),
+              ),
             ),
           );
-        }
-        return;
-      }
-
-      // If only one map app is available, launch it directly
-      if (availableMaps.length == 1) {
-        await availableMaps.first.showMarker(
-          coords: Coords(latitude, longitude),
-          title: '${run.name} Put-in',
-        );
-        return;
-      }
-
-      // If multiple map apps are available, show selection dialog
-      if (context.mounted) {
-        showModalBottomSheet(
-          context: context,
-          builder: (BuildContext context) {
-            return SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'Choose Map App',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  ...availableMaps.map(
-                    (map) => ListTile(
-                      leading: SizedBox(
-                        width: 30,
-                        height: 30,
-                        child: Image.asset(
-                          map.icon,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.map),
-                        ),
-                      ),
-                      title: Text(map.mapName),
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await map.showMarker(
-                          coords: Coords(latitude, longitude),
-                          title: '${run.name} Put-in',
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      }
-    } catch (e) {
-      // Close loading indicator if still open
-      if (context.mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error launching map: $e')));
-      }
-    }
-  }
-
-  // Launch URL in browser
-  Future<void> _launchUrl(String urlString) async {
-    final url = Uri.parse(urlString);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
-  }
-
-  // Open coordinates in maps app
-  Future<void> _openInMaps(Map<String, double> coordinates) async {
-    final lat = coordinates['latitude'];
-    final lng = coordinates['longitude'];
-    if (lat == null || lng == null) return;
-
-    // Use Apple Maps on iOS, Google Maps on Android
-    final url = Uri.parse('https://maps.apple.com/?q=$lat,$lng');
-    final googleUrl = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+        },
+      ),
     );
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else if (await canLaunchUrl(googleUrl)) {
-      await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-    }
   }
+}
+
+class _YourDescents extends ConsumerWidget {
+  const _YourDescents({required this.run});
+  final RiverRun run;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final descents =
+        ref.watch(runDescentsProvider(run.riverId)).value ?? const <Descent>[];
+    final text = descents.isEmpty
+        ? "You haven't logged this run yet."
+        : () {
+            final last = descents.reduce(
+              (a, b) => a.date.isAfter(b.date) ? a : b,
+            );
+            final times = descents.length == 1
+                ? 'once'
+                : '${descents.length} times';
+            return 'You’ve run this $times. Last on '
+                '${DateFormat.yMMMd().format(last.date)}.';
+          }();
+    return Row(
+      children: [
+        Icon(Icons.menu_book_outlined, color: theme.colorScheme.primary),
+        const SizedBox(width: 10),
+        Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
+      ],
+    );
+  }
+}
+
+class _Source extends StatelessWidget {
+  const _Source({required this.run});
+  final RiverRun run;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final url = run.sourceUrl;
+    final name = (run.source ?? '').toLowerCase().contains('bc')
+        ? 'BC Whitewater'
+        : (url != null && url.contains('bcwhitewater'))
+        ? 'BC Whitewater'
+        : (run.source ?? 'the original guide');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Guide information from $name, with thanks.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        if (_has(url))
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: () => _open(Uri.parse(url!)),
+            child: Text('View on $name'),
+          ),
+      ],
+    );
+  }
+}
+
+/// Distance between put-in and take-out, as the crow flies, in km.
+double? accessDistanceKm(RiverRun run) {
+  final a = _point(run.putInCoordinates), b = _point(run.takeOutCoordinates);
+  if (a == null || b == null) return null;
+  return distanceKm(a.latitude, a.longitude, b.latitude, b.longitude);
 }

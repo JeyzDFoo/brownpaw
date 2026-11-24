@@ -28,6 +28,26 @@ class StationRealtimeFlow {
   }
 }
 
+/// A station's official name and latest flow, small enough to load for
+/// every station at once.
+class StationSummary {
+  const StationSummary({this.name, this.flow, this.readingTime});
+
+  factory StationSummary.fromMap(Map<String, dynamic> data) {
+    final flow = data['flow'];
+    final time = data['readingTime'];
+    return StationSummary(
+      name: data['name'] is String ? data['name'] as String : null,
+      flow: flow is num ? flow.toDouble() : null,
+      readingTime: time is String ? DateTime.tryParse(time) : null,
+    );
+  }
+
+  final String? name;
+  final double? flow;
+  final DateTime? readingTime;
+}
+
 /// Reads live gauge data. The Cloud Function writes each station's recent
 /// hourly readings to `station_current/{provider}_{stationCode}`.
 class GaugeRepository {
@@ -102,16 +122,13 @@ class GaugeRepository {
     return null;
   }
 
-  /// Official station names from `stations/{doc id}`, written by the
-  /// realtime Cloud Function from Environment Canada's metadata.
-  Stream<Map<String, String>> watchStationNames() => _firestore
+  /// Every station's summary from `stations/{doc id}`, written by the
+  /// realtime Cloud Function: official name and latest flow.
+  Stream<Map<String, StationSummary>> watchStations() => _firestore
       .collection('stations')
       .snapshots()
       .map(
-        (s) => {
-          for (final d in s.docs)
-            if (d.data()['name'] is String) d.id: d.data()['name'] as String,
-        },
+        (s) => {for (final d in s.docs) d.id: StationSummary.fromMap(d.data())},
       );
 
   /// Daily mean flows for the last [days] days, oldest first.

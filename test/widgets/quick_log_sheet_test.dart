@@ -35,7 +35,7 @@ class FakeGauges implements GaugeRepository {
       Stream.value(null);
 
   @override
-  Stream<Map<String, String>> watchStationNames() => Stream.value(const {});
+  Stream<Map<String, StationSummary>> watchStations() => Stream.value(const {});
 
   @override
   Future<List<FlowPoint>> dailyFlows(

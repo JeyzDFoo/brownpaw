@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/gauge_repository.dart';
 import '../data/repositories.dart';
 import '../domain/gauges.dart';
 import 'descents_provider.dart';
@@ -14,9 +15,21 @@ final gaugesProvider = Provider<AsyncValue<List<Gauge>>>((ref) {
       .whenData((runs) => gaugesFromRuns(runs, stationNames: names));
 });
 
+/// Station summaries (official name, latest flow) by `station_current` id.
+final stationsProvider = StreamProvider<Map<String, StationSummary>>(
+  (ref) => ref.watch(gaugeRepositoryProvider).watchStations(),
+);
+
 /// Official station names by `station_current` id.
-final stationNamesProvider = StreamProvider<Map<String, String>>(
-  (ref) => ref.watch(gaugeRepositoryProvider).watchStationNames(),
+final stationNamesProvider = Provider<AsyncValue<Map<String, String>>>(
+  (ref) => ref
+      .watch(stationsProvider)
+      .whenData(
+        (stations) => {
+          for (final MapEntry(:key, :value) in stations.entries)
+            if (value.name != null) key: value.name!,
+        },
+      ),
 );
 
 /// Ids of the runs the paddler has favourited.

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:brownpaw/router.dart';
-import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/gauges_screen.dart';
+import 'package:brownpaw/screens/guide_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
 import 'package:brownpaw/widgets/nav_icons.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
 
-/// The tabbed home shell: Logbook · Gauges · [Log] · Community · Me.
+/// The tabbed home shell: Logbook · Gauges · [Log] · Guide · Me.
 ///
 /// Each tab has its own URL (see [AppRoutes.tabs]). The centre Log button
 /// sits in the bar rather than floating over content, and opens the
@@ -23,7 +23,7 @@ class MyHomePage extends StatelessWidget {
   static const _tabs = [
     (title: 'Logbook', screen: LogbookScreen()),
     (title: 'Gauges', screen: GaugesScreen()),
-    (title: 'Community', screen: CommunityHomeScreen()),
+    (title: 'Guide', screen: GuideScreen()),
     (title: 'Me', screen: SettingsScreen()),
   ];
 
@@ -91,13 +91,13 @@ class MyHomePage extends StatelessWidget {
             tooltip: 'Log a run',
           ),
           NavigationDestination(
-            icon: const NavIcon(NavGlyph.community),
+            icon: const NavIcon(NavGlyph.guide),
             selectedIcon: NavIcon(
-              NavGlyph.community,
+              NavGlyph.guide,
               filled: true,
               color: theme.colorScheme.primary,
             ),
-            label: 'Community',
+            label: 'Guide',
           ),
           NavigationDestination(
             icon: const NavIcon(NavGlyph.me),

@@ -58,6 +58,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildSectionHeader('Account'),
             const SizedBox(height: 8),
             _buildUserInfoCard(userState),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.groups_outlined),
+                title: const Text('Community feed'),
+                subtitle: const Text('Recent descents from other paddlers'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(AppRoutes.community),
+              ),
+            ),
             const SizedBox(height: 24),
 
             // Account Actions

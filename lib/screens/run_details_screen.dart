@@ -12,8 +12,7 @@ import '../providers/favorites_provider.dart';
 import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../providers/user_provider.dart';
-import '../providers/realtime_flow_provider.dart';
-import '../widgets/log_descent_dialog.dart';
+import 'log_descent_screen.dart';
 
 class RunDetailsScreen extends ConsumerWidget {
   final String runId;
@@ -876,7 +875,7 @@ class RunDetailsScreen extends ConsumerWidget {
     );
   }
 
-  // Show log descent dialog
+  // Open the log screen with this run pre-selected
   void _showLogDescentDialog(BuildContext context, WidgetRef ref) async {
     final run = await FirebaseFirestore.instance
         .collection('river_runs')
@@ -886,25 +885,9 @@ class RunDetailsScreen extends ConsumerWidget {
 
     if (run == null || !context.mounted) return;
 
-    // Get current flow if available
-    double? currentFlow;
-    if (run.stationId != null) {
-      final flowData = await ref.read(
-        realtimeFlowStreamProvider(run.stationId!).future,
-      );
-      currentFlow = flowData?.flow.latestReading?.discharge;
-    }
-
-    if (!context.mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (context) => LogDescentDialog(
-        runId: runId,
-        runName: run.name,
-        initialFlow: currentFlow,
-        stationId: run.stationId,
-        difficulty: run.difficultyClass,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LogDescentScreen(initialRun: run),
       ),
     );
   }

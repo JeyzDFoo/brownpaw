@@ -70,7 +70,7 @@ class _FavouritesScreenState extends ConsumerState<FavouritesScreen> {
                         .where(
                           (r) =>
                               r.name.toLowerCase().contains(q) ||
-                              (r.river?.toLowerCase().contains(q) ?? false),
+                              r.river.toLowerCase().contains(q),
                         )
                         .toList();
                     if (results.isEmpty) {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'flow_status_style.dart';
+
 /// brownpaw App Theme
 ///
 /// Designed for outdoor use with high contrast and readability.
@@ -41,6 +43,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      extensions: const [FlowStatusColors.light],
 
       // Color Scheme
       colorScheme: const ColorScheme.light(
@@ -299,6 +302,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      extensions: const [FlowStatusColors.dark],
 
       // Color Scheme
       colorScheme: const ColorScheme.dark(

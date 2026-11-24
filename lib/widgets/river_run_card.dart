@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../domain/flow_status.dart';
 import '../models/river_run.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../screens/run_details_screen.dart';
+import 'flow_status_chip.dart';
 
+/// A run in a list: name, class and region, then live flow with a
+/// "Low / Runnable / Good / High" status so it answers "is it in?" at a
+/// glance. The favourite toggle sits at the trailing edge, away from the
+/// thumb's natural tap point on the card.
 class RiverRunCard extends ConsumerWidget {
   final RiverRun run;
 
@@ -12,12 +19,30 @@ class RiverRunCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     final isFavorite = ref.watch(isFavoriteProvider(run.riverId));
 
-    // Watch live discharge from station_current if station ID is available
     final liveFlow = run.stationId != null
-        ? ref.watch(realtimeFlowStreamProvider(run.stationId!))
+        ? ref.watch(realtimeFlowStreamProvider(run.stationId!)).value
         : null;
+    final discharge = liveFlow?.discharge;
+    final trendSymbol = switch (liveFlow?.trend) {
+      'rising' => ' ↑',
+      'falling' => ' ↓',
+      _ => '',
+    };
+
+    final place = (run.region?.isNotEmpty ?? false)
+        ? run.region!
+        : run.province;
+    final subtitle = [
+      run.difficultyClass,
+      place,
+      if (run.length != null) run.length!,
+    ].join(' · ');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -31,111 +56,55 @@ class RiverRunCard extends ConsumerWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
           child: Row(
             children: [
-              // Favorite heart
-              IconButton(
-                icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-                onPressed: () {
-                  ref
-                      .read(favoritesProvider.notifier)
-                      .toggleFavorite(run.riverId);
-                },
-                iconSize: 28,
-                color: isFavorite
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
-              ),
-
-              // Run details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       run.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      run.difficultyClass,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
                     const SizedBox(height: 2),
-                    Text(
-                      [
-                        run.province,
-                        if (run.region?.isNotEmpty == true) run.region,
-                      ].join(' • '),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    if (run.length != null) ...[
-                      const SizedBox(height: 4),
+                    Text(subtitle, style: muted),
+                    if (discharge != null) ...[
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(
-                            Icons.straighten,
-                            size: 14,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 4),
                           Text(
-                            run.length!,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
+                            '${discharge.toStringAsFixed(1)} m³/s$trendSymbol',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
+                          if (run.hasFlowRanges) ...[
+                            const SizedBox(width: 8),
+                            FlowStatusChip(status: run.flowStatus(discharge)),
+                          ],
                         ],
                       ),
                     ],
-                    // Display live discharge if available
-                    Builder(
-                      builder: (context) {
-                        final discharge = liveFlow?.value?.discharge;
-                        if (discharge == null) return const SizedBox.shrink();
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.water,
-                                size: 14,
-                                color: Colors.blue,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${discharge.toStringAsFixed(1)} m³/s',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
                   ],
                 ),
               ),
-
-              // Arrow
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              IconButton(
+                tooltip: isFavorite
+                    ? 'Remove from favourites'
+                    : 'Add to favourites',
+                icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+                color: isFavorite
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.onSurfaceVariant,
+                iconSize: 26,
+                onPressed: () {
+                  ref
+                      .read(favoritesProvider.notifier)
+                      .toggleFavorite(run.riverId);
+                },
               ),
             ],
           ),

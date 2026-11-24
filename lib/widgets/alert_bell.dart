@@ -55,7 +55,10 @@ class _AlertBellState extends ConsumerState<AlertBell> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final on =
-        ref.watch(alertedRunIdsProvider).value?.contains(widget.run.riverId) ??
+        ref
+            .watch(alertedRunIdsProvider)
+            .valueOrNull
+            ?.contains(widget.run.riverId) ??
         false;
     final range = alertRangeFor(widget.run)!;
     return IconButton(

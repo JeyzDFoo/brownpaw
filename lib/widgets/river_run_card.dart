@@ -27,7 +27,7 @@ class RiverRunCard extends ConsumerWidget {
     final isFavorite = ref.watch(isFavoriteProvider(run.riverId));
 
     final liveFlow = run.stationId != null
-        ? ref.watch(realtimeFlowStreamProvider(run.stationId!)).value
+        ? ref.watch(realtimeFlowStreamProvider(run.stationId!)).valueOrNull
         : null;
     final discharge = liveFlow?.discharge;
     final trendSymbol = switch (liveFlow?.trend) {

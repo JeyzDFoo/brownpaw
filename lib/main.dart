@@ -15,10 +15,21 @@ void main() async {
   // Keep Firestore data on the device, on the web app too, so runs, your
   // logbook and gauges you've looked at work with no signal, and entries
   // logged offline sync later.
+  // On the web, share the cache between tabs (and the installed app's
+  // window): with the default single-tab cache, a second tab can't get the
+  // cache and every Firestore read in it fails.
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    webPersistentTabManager: WebPersistentMultipleTabManager(),
   );
+
+  // A widget that fails to build shows a quiet note instead of a grey
+  // box over the whole tab (the default in release builds).
+  ErrorWidget.builder = (details) {
+    debugPrint('Widget error: ${details.exception}');
+    return const _BuildErrorNote();
+  };
 
   final container = ProviderContainer();
   _openAlertTaps(container);
@@ -63,6 +74,24 @@ class BrownpawApp extends ConsumerWidget {
             constraints: const BoxConstraints(maxWidth: 600),
             child: child!,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BuildErrorNote extends StatelessWidget {
+  const _BuildErrorNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Material(
+      type: MaterialType.transparency,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Text(
+          "Something here couldn't be shown.",
+          style: TextStyle(color: Color(0xFF8A8F98), fontSize: 13),
         ),
       ),
     );

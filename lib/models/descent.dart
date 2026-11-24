@@ -89,7 +89,9 @@ class Descent {
       runName: data['runName'] ?? '',
       userId: data['userId'] ?? '',
       date: (data['date'] as Timestamp).toDate(),
-      flow: data['flow']?.toDouble(),
+      flow: data['flow'] is num && (data['flow'] as num).isFinite
+          ? (data['flow'] as num).toDouble()
+          : null,
       flowUnit: data['flowUnit'],
       notes: data['notes'],
       rating: data['rating'],

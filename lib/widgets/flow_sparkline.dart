@@ -24,11 +24,24 @@ LineChartBarData _line(
   belowBarData: BarAreaData(show: filled, color: color.withValues(alpha: 0.12)),
 );
 
+/// A y range with max above min whatever the data: flat, negative (gauge
+/// noise below zero) or a single point.
 ({double min, double max}) _yRange(List<FlowPoint> points, {double pad = 0}) {
   final lo = points.map((p) => p.flow).reduce(math.min);
   final hi = points.map((p) => p.flow).reduce(math.max);
   final span = hi - lo == 0 ? math.max(hi.abs() * 0.1, 1.0) : hi - lo;
-  return (min: math.max(0, lo - span * pad), max: hi + span * pad);
+  final p = hi == lo ? math.max(pad, 0.5) : pad;
+  final min = lo >= 0 ? math.max(0.0, lo - span * p) : lo - span * p;
+  return (min: min, max: math.max(hi + span * p, min + span));
+}
+
+/// Points safe to chart: finite flows, oldest first, no repeated times.
+List<FlowPoint> _chartable(List<FlowPoint> points) {
+  final out = [
+    for (final p in points)
+      if (p.flow.isFinite) p,
+  ]..sort((a, b) => a.time.compareTo(b.time));
+  return out;
 }
 
 /// A small line of recent flow for a gauge tile. Not interactive.
@@ -46,7 +59,10 @@ class FlowSparkline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (points.length < 2) return SizedBox(width: width, height: height);
+    final points = _chartable(this.points);
+    if (points.length < 2 || !points.last.time.isAfter(points.first.time)) {
+      return SizedBox(width: width, height: height);
+    }
     final y = _yRange(points, pad: 0.08);
     return ExcludeSemantics(
       child: SizedBox(
@@ -97,6 +113,10 @@ class GaugeFlowChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final points = _chartable(this.points);
+    if (points.length < 2 || !points.last.time.isAfter(points.first.time)) {
+      return SizedBox(height: height);
+    }
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final y = _yRange(points, pad: 0.1);

@@ -15,6 +15,7 @@ flow alerts read them the same way. Runs point at them with
 """
 
 import logging
+import math
 from datetime import datetime, timedelta, timezone
 from email.utils import format_datetime
 from zoneinfo import ZoneInfo
@@ -54,7 +55,9 @@ def parse_values(values: list) -> dict:
     out = {}
     for v in values:
         value, time = v.get('value'), v.get('time')
-        if not isinstance(value, (int, float)) or not time:
+        # Skip NaN/inf (Python's json accepts them) and booleans.
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or not math.isfinite(value) or not time):
             continue
         try:
             local = datetime.fromisoformat(time)

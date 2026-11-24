@@ -24,7 +24,8 @@ class LogbookScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final descentsAsync = ref.watch(allDescentsProvider);
     final runsById = {
-      for (final r in ref.watch(riverRunsStreamProvider).value ?? <RiverRun>[])
+      for (final r
+          in ref.watch(riverRunsStreamProvider).valueOrNull ?? <RiverRun>[])
         r.riverId: r,
     };
 
@@ -96,7 +97,7 @@ class _CheckInSlot extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final checkIn = ref.watch(putInCheckInProvider).value;
+    final checkIn = ref.watch(putInCheckInProvider).valueOrNull;
     final dismissed = ref.watch(dismissedCheckInsProvider);
     Widget? card;
 

@@ -31,7 +31,7 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
   @override
   Widget build(BuildContext context) {
     final allAsync = ref.watch(gaugesProvider);
-    final mine = ref.watch(yourGaugesProvider).value ?? const <Gauge>[];
+    final mine = ref.watch(yourGaugesProvider).valueOrNull ?? const <Gauge>[];
 
     return allAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -197,7 +197,7 @@ class GaugeRow extends ConsumerWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final current = ref.watch(realtimeFlowStreamProvider(gauge.stationId));
-    final data = current.value;
+    final data = current.valueOrNull;
     final readings = dischargeReadings(data?.readings ?? const []);
     final flow = readings.isEmpty ? null : readings.last.discharge;
     final trend = trendOf(readings);

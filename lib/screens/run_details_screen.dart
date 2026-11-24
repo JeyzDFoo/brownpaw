@@ -302,9 +302,11 @@ class _Conditions extends ConsumerWidget {
     }
 
     final gaugeId = GaugeRepository.docIdFor(station);
-    final gauge = ref.watch(gaugeProvider(gaugeId)).value;
+    final gauge = ref.watch(gaugeProvider(gaugeId)).valueOrNull;
     final current = ref.watch(realtimeFlowStreamProvider(station));
-    final readings = dischargeReadings(current.value?.readings ?? const []);
+    final readings = dischargeReadings(
+      current.valueOrNull?.readings ?? const [],
+    );
     final flow = readings.isEmpty ? null : readings.last.discharge;
     final trend = trendOf(readings);
     final range = goodRange(run);
@@ -758,7 +760,8 @@ class _YourDescents extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final descents =
-        ref.watch(runDescentsProvider(run.riverId)).value ?? const <Descent>[];
+        ref.watch(runDescentsProvider(run.riverId)).valueOrNull ??
+        const <Descent>[];
     final text = descents.isEmpty
         ? "You haven't logged this run yet."
         : () {

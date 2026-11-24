@@ -31,7 +31,7 @@ class GaugeScreen extends ConsumerWidget {
         backgroundColor: theme.colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         actions: [
-          if (gaugeAsync.value case final gauge?)
+          if (gaugeAsync.valueOrNull case final gauge?)
             FavouriteStar(
               runIds: [for (final r in gauge.runs) r.riverId],
               what: 'gauge',
@@ -61,7 +61,9 @@ class _GaugeBody extends ConsumerWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final current = ref.watch(realtimeFlowStreamProvider(gauge.stationId));
-    final readings = dischargeReadings(current.value?.readings ?? const []);
+    final readings = dischargeReadings(
+      current.valueOrNull?.readings ?? const [],
+    );
     final flow = readings.isEmpty ? null : readings.last.discharge;
     final trend = trendOf(readings);
 
@@ -214,7 +216,7 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
         )),
       );
       loading = daily.isLoading;
-      points = [...daily.value ?? const <FlowPoint>[]];
+      points = [...daily.valueOrNull ?? const <FlowPoint>[]];
       // End on the live reading so the chart meets the number above it.
       final live = hourlyWindow(widget.readings, 2);
       if (live.isNotEmpty &&

@@ -18,7 +18,7 @@ import '../widgets/map_tiles.dart';
 
 /// Every run in the guide, with how it's running now.
 final guideEntriesProvider = Provider<AsyncValue<List<GuideEntry>>>((ref) {
-  final stations = ref.watch(stationsProvider).value ?? const {};
+  final stations = ref.watch(stationsProvider).valueOrNull ?? const {};
   return ref
       .watch(riverRunsStreamProvider)
       .whenData((runs) => guideEntries(runs, stations));

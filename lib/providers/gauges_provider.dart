@@ -9,7 +9,7 @@ import 'river_runs_provider.dart';
 
 /// Every gauge that at least one visible run is read against.
 final gaugesProvider = Provider<AsyncValue<List<Gauge>>>((ref) {
-  final names = ref.watch(stationNamesProvider).value ?? const {};
+  final names = ref.watch(stationNamesProvider).valueOrNull ?? const {};
   return ref
       .watch(riverRunsStreamProvider)
       .whenData((runs) => gaugesFromRuns(runs, stationNames: names));
@@ -40,7 +40,7 @@ final favouriteRunIdsProvider = Provider<Set<String>>(
 /// Gauges for runs the paddler has favourited or logged.
 final yourGaugesProvider = Provider<AsyncValue<List<Gauge>>>((ref) {
   final favourites = ref.watch(favouriteRunIdsProvider);
-  final descents = ref.watch(allDescentsProvider).value ?? const [];
+  final descents = ref.watch(allDescentsProvider).valueOrNull ?? const [];
   return ref
       .watch(gaugesProvider)
       .whenData(

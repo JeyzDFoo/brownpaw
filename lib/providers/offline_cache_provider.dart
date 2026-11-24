@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/gauge_repository.dart';
 import '../data/repositories.dart';
 import 'gauges_provider.dart';
 
@@ -15,37 +16,50 @@ import 'gauges_provider.dart';
 /// offline too. Gauge pages say how old the readings are.
 final offlineCacheProvider = Provider<void>((ref) {
   if (!OfflineCache.enabled) return;
-  final gauges = ref.watch(yourGaugesProvider).value ?? const [];
+  final gauges = ref.watch(yourGaugesProvider).valueOrNull ?? const [];
   final repo = ref.watch(gaugeRepositoryProvider);
 
+  // Best effort: nothing here may stop the app showing.
   final subs = <StreamSubscription<Object?>>[];
-  for (final gauge in gauges.take(OfflineCache.maxGauges)) {
-    subs.add(
-      repo
-          .watchCurrent(gauge.id)
-          .listen(
-            (_) {},
-            onError: (Object e) => debugPrint('Offline cache ${gauge.id}: $e'),
-          ),
-    );
-    if (OfflineCache._historyFetched.add(gauge.id)) {
-      repo
-          .dailyFlows(gauge.id, 365)
-          .then<void>(
-            (_) {},
-            onError: (Object e) {
-              OfflineCache._historyFetched.remove(gauge.id);
-              debugPrint('Offline history ${gauge.id}: $e');
-            },
-          );
-    }
-  }
   ref.onDispose(() {
     for (final sub in subs) {
       sub.cancel();
     }
   });
+  for (final gauge in gauges.take(OfflineCache.maxGauges)) {
+    try {
+      _keep(repo, gauge.id, subs);
+    } catch (e) {
+      debugPrint('Offline cache ${gauge.id}: $e');
+    }
+  }
 });
+
+void _keep(
+  GaugeRepository repo,
+  String id,
+  List<StreamSubscription<Object?>> subs,
+) {
+  subs.add(
+    repo
+        .watchCurrent(id)
+        .listen(
+          (_) {},
+          onError: (Object e) => debugPrint('Offline cache $id: $e'),
+        ),
+  );
+  if (OfflineCache._historyFetched.add(id)) {
+    repo
+        .dailyFlows(id, 365)
+        .then<void>(
+          (_) {},
+          onError: (Object e) {
+            OfflineCache._historyFetched.remove(id);
+            debugPrint('Offline history $id: $e');
+          },
+        );
+  }
+}
 
 abstract final class OfflineCache {
   /// Turned off in widget tests, which have no Firestore.

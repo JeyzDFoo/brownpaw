@@ -21,6 +21,7 @@ The parent document records the bookkeeping (`migrated_legacy`,
 """
 
 import logging
+import math
 import os
 import time
 from collections import defaultdict
@@ -61,10 +62,10 @@ def parse_hourly_csv(csv: str) -> list:
             continue
         reading = {'datetime': parts[0]}
         try:
-            if parts[1]:
-                reading['discharge'] = float(parts[1])
-            if parts[2]:
-                reading['level'] = float(parts[2])
+            for key, text in (('discharge', parts[1]), ('level', parts[2])):
+                value = float(text) if text else None
+                if value is not None and math.isfinite(value):
+                    reading[key] = value
         except ValueError:
             continue
         readings.append(reading)

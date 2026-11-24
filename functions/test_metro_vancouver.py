@@ -124,3 +124,12 @@ class UpdateTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def test_parse_values_skips_nan_and_inf():
+    out = mv.parse_values([
+        {'value': float('nan'), 'time': '2026-11-24T10:00:00'},
+        {'value': float('inf'), 'time': '2026-11-24T10:15:00'},
+        {'value': 4.2, 'time': '2026-11-24T10:30:00'},
+    ])
+    assert list(out.values()) == [4.2]

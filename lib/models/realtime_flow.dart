@@ -35,8 +35,8 @@ class RealtimeFlow {
 
       try {
         final timestamp = DateTime.parse(parts[0]);
-        final discharge = parts[1] == 'None' ? null : double.tryParse(parts[1]);
-        final level = parts[2] == 'None' ? null : double.tryParse(parts[2]);
+        final discharge = _number(parts[1]);
+        final level = _number(parts[2]);
 
         readings.add(
           FlowReading(timestamp: timestamp, discharge: discharge, level: level),
@@ -51,6 +51,13 @@ class RealtimeFlow {
     readings.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     return RealtimeFlow(readings: readings);
+  }
+
+  /// A finite number, or null for blanks, 'None', 'nan' and 'inf', which
+  /// would break the charts.
+  static double? _number(String text) {
+    final v = double.tryParse(text.trim());
+    return v != null && v.isFinite ? v : null;
   }
 
   /// Get the most recent reading

@@ -23,7 +23,7 @@ from models import Provider
 
 # A run's station id ends in an Environment Canada code: `08GA012`,
 # `environment_canada_08GA012` or `Provider.ENVIRONMENT_CANADA_08GA012`.
-EC_CODE = re.compile(r'(?:^|_)(\d{2}[A-Z]{2}\d{3})$')
+EC_CODE = re.compile(r'(?:^|_)(\d{2}[A-Z]{2}\d{3})$', re.IGNORECASE)
 
 
 class StationDataManager:
@@ -76,7 +76,7 @@ class StationDataManager:
                 # (metro_vancouver_*, flowworks_*) have their own updaters.
                 match = EC_CODE.search(station_id)
                 if match:
-                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1))
+                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1).upper())
             
             # Check gaugeStation.code field
             gauge_station = data.get('gaugeStation')
@@ -84,7 +84,7 @@ class StationDataManager:
                 code = gauge_station.get('code')
                 match = EC_CODE.search(code) if isinstance(code, str) else None
                 if match:
-                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1))
+                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1).upper())
         
         # Remove empty sets
         return {

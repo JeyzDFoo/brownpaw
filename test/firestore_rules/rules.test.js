@@ -39,7 +39,14 @@ beforeEach(async () => {
     const db = ctx.firestore();
     await setDoc(doc(db, 'users/alice'), { email: 'a@example.com' });
     await setDoc(doc(db, 'river_runs/curated'), {
-      name: 'Curated', verified: true, createdBy: 'admin',
+      name: 'Curated', verified: true, visibility: 'public',
+      createdBy: 'admin',
+    });
+    await setDoc(doc(db, 'river_runs/old-curated'), {
+      name: 'Old curated, no visibility field yet',
+    });
+    await setDoc(doc(db, 'descents/alice-public'), {
+      userId: 'alice', runId: 'curated', isPublic: true,
     });
     await setDoc(doc(db, 'river_runs/alice-run'), {
       name: 'Alice run', verified: false, visibility: 'private',
@@ -111,8 +118,37 @@ describe('river_runs', () => {
     await assertFails(deleteDoc(doc(bob(), 'river_runs/alice-run')));
   });
 
-  test('signed-in paddlers can read runs', async () => {
+  test('signed-in paddlers can read curated runs', async () => {
     await assertSucceeds(getDoc(doc(bob(), 'river_runs/curated')));
+  });
+
+  test('a run without visibility needs the backfill first', async () => {
+    await assertFails(getDoc(doc(bob(), 'river_runs/old-curated')));
+  });
+
+  test('others cannot read a private run', async () => {
+    await assertFails(getDoc(doc(bob(), 'river_runs/alice-run')));
+    await assertSucceeds(getDoc(doc(alice(), 'river_runs/alice-run')));
+  });
+
+  test('the app\'s two run queries are allowed', async () => {
+    await assertSucceeds(getDocs(query(
+      collection(bob(), 'river_runs'), where('visibility', '==', 'public'),
+    )));
+    await assertSucceeds(getDocs(query(
+      collection(alice(), 'river_runs'), where('createdBy', '==', 'alice'),
+    )));
+  });
+
+  test('reading the whole collection is denied', async () => {
+    await assertFails(getDocs(collection(bob(), 'river_runs')));
+  });
+});
+
+describe('descents', () => {
+  test('a public descent is still private to its paddler', async () => {
+    await assertFails(getDoc(doc(bob(), 'descents/alice-public')));
+    await assertSucceeds(getDoc(doc(alice(), 'descents/alice-public')));
   });
 });
 

@@ -221,6 +221,8 @@ def upload_to_firestore(data_file: str, dry_run: bool = False):
             else:
                 # Upload to Firestore
                 doc_ref = db.collection('river_runs').document(slug)
+                # Curated: readable by every paddler (see firestore.rules).
+                river_run.setdefault('visibility', 'public')
                 doc_ref.set(river_run)
                 print(f"  ✓ Uploaded successfully")
             

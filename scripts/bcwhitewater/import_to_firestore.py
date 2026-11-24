@@ -121,6 +121,8 @@ def import_to_firestore(json_file='bc_whitewater_all_data.json', dry_run=False):
                     print(f"  Description: {firestore_doc['description'][:100]}...")
             else:
                 # Write to Firestore
+                # Curated: readable by every paddler (see firestore.rules).
+                firestore_doc.setdefault('visibility', 'public')
                 db.collection('river_runs').document(doc_id).set(firestore_doc)
                 print(f"[{i}/{len(reaches)}] ✓ Imported: {firestore_doc['name']}")
                 imported += 1

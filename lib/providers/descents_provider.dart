@@ -97,46 +97,44 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
       return null;
     }
 
-    try {
-      state = state.copyWith(isLoading: true, errorMessage: null);
+    final docRef = _firestore.collection('descents').doc();
+    final descent = Descent(
+      id: docRef.id,
+      runId: runId,
+      runName: runName,
+      userId: user.uid,
+      date: date,
+      flow: flow,
+      flowUnit: flowUnit,
+      notes: notes,
+      rating: rating,
+      difficulty: difficulty,
+      crew: crew,
+      isPublic: isPublic,
+      createdAt: DateTime.now(),
+    );
 
-      final descent = Descent(
-        id: '', // Will be set by Firestore
-        runId: runId,
-        runName: runName,
-        userId: user.uid,
-        date: date,
-        flow: flow,
-        flowUnit: flowUnit,
-        notes: notes,
-        rating: rating,
-        difficulty: difficulty,
-        crew: crew,
-        isPublic: isPublic,
-        createdAt: DateTime.now(),
-      );
+    // Firestore saves the entry on the device straight away and the
+    // logbook shows it; the returned future only completes when the server
+    // confirms, which at a put-in with no signal can be hours. So don't
+    // wait for it.
+    _write(docRef.set(descent.toFirestore()), 'add descent');
+    return docRef.id;
+  }
 
-      final docRef = await _firestore
-          .collection('descents')
-          .add(descent.toFirestore());
-
-      state = state.copyWith(isLoading: false);
-
-      if (kDebugMode) {
-        print('Descent added successfully: ${docRef.id}');
-      }
-
-      return docRef.id;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to add descent: $e',
-      );
-      if (kDebugMode) {
-        print('Error adding descent: $e');
-      }
-      return null;
-    }
+  /// Runs a Firestore write in the background, recording a failure (e.g.
+  /// the server rejecting it once back online) in [state].
+  void _write(Future<void> write, String what) {
+    state = state.copyWith(errorMessage: null);
+    write.then<void>(
+      (_) {},
+      onError: (Object e) {
+        if (mounted) {
+          state = state.copyWith(errorMessage: "Couldn't $what: $e");
+        }
+        debugPrint('DescentsNotifier: $what failed: $e');
+      },
+    );
   }
 
   /// Update an existing descent
@@ -158,38 +156,21 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
       return false;
     }
 
-    try {
-      state = state.copyWith(isLoading: true, errorMessage: null);
+    final updates = <String, dynamic>{'updatedAt': Timestamp.now()};
 
-      final updates = <String, dynamic>{'updatedAt': Timestamp.now()};
+    if (date != null) updates['date'] = Timestamp.fromDate(date);
+    if (flow != null) updates['flow'] = flow;
+    if (flowUnit != null) updates['flowUnit'] = flowUnit;
+    if (notes != null) updates['notes'] = notes;
+    if (rating != null) updates['rating'] = rating;
+    if (difficulty != null) updates['difficulty'] = difficulty;
+    if (isPublic != null) updates['isPublic'] = isPublic;
 
-      if (date != null) updates['date'] = Timestamp.fromDate(date);
-      if (flow != null) updates['flow'] = flow;
-      if (flowUnit != null) updates['flowUnit'] = flowUnit;
-      if (notes != null) updates['notes'] = notes;
-      if (rating != null) updates['rating'] = rating;
-      if (difficulty != null) updates['difficulty'] = difficulty;
-      if (isPublic != null) updates['isPublic'] = isPublic;
-
-      await _firestore.collection('descents').doc(descentId).update(updates);
-
-      state = state.copyWith(isLoading: false);
-
-      if (kDebugMode) {
-        print('Descent updated successfully: $descentId');
-      }
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to update descent: $e',
-      );
-      if (kDebugMode) {
-        print('Error updating descent: $e');
-      }
-      return false;
-    }
+    _write(
+      _firestore.collection('descents').doc(descentId).update(updates),
+      'update descent',
+    );
+    return true;
   }
 
   /// Delete a descent
@@ -202,27 +183,10 @@ class DescentsNotifier extends StateNotifier<DescentsState> {
       return false;
     }
 
-    try {
-      state = state.copyWith(isLoading: true, errorMessage: null);
-
-      await _firestore.collection('descents').doc(descentId).delete();
-
-      state = state.copyWith(isLoading: false);
-
-      if (kDebugMode) {
-        print('Descent deleted successfully: $descentId');
-      }
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to delete descent: $e',
-      );
-      if (kDebugMode) {
-        print('Error deleting descent: $e');
-      }
-      return false;
-    }
+    _write(
+      _firestore.collection('descents').doc(descentId).delete(),
+      'delete descent',
+    );
+    return true;
   }
 }

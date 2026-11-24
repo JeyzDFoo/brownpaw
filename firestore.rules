@@ -41,7 +41,16 @@ service cloud.firestore {
     
     // River runs collection
     match /river_runs/{runId} {
-      allow read: if isAuthenticated();
+      // Curated runs carry visibility 'public' (run
+      // scripts/backfill_run_visibility.py before deploying this rule).
+      // Private runs are readable only by the paddler who added them.
+      // Don't use data.get() with a default here: the emulator showed it
+      // lets a query of the whole collection through, private runs and all.
+      allow read: if isAdmin() || (
+        isAuthenticated()
+        && (resource.data.visibility == 'public'
+            || resource.data.createdBy == request.auth.uid)
+      );
 
       // Admins manage the curated guide. Paddlers can add their own
       // private, unverified runs from the log screen (see
@@ -226,10 +235,9 @@ service cloud.firestore {
 
     // Descents collection - top-level collection for all descent logs
     match /descents/{descentId} {
-      // Users can read their own descents
-      // Anyone authenticated can read public descents
-      allow read: if isAuthenticated() &&
-        (request.auth.uid == resource.data.userId || resource.data.isPublic == true);
+      // The logbook is private: paddlers read only their own descents.
+      allow read: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
       
       // Users can create descents
       allow create: if isAuthenticated()

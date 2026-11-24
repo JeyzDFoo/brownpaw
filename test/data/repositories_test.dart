@@ -1,6 +1,8 @@
 import 'package:brownpaw/data/gauge_repository.dart';
 import 'package:brownpaw/data/river_runs_repository.dart';
 import 'package:brownpaw/models/river_run.dart';
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -58,6 +60,47 @@ void main() {
         RiverRunsRepository.runIdFor('Chilliwack', 'Tamihi to Vedder!'),
         'chilliwack-tamihi-to-vedder',
       );
+    });
+  });
+
+  group('stream helpers', () {
+    test('combineLatest waits for both, then follows either', () async {
+      final a = StreamController<int>();
+      final b = StreamController<String>();
+      final out = <String>[];
+      final sub = combineLatest(
+        a.stream,
+        b.stream,
+        (x, y) => '$x$y',
+      ).listen(out.add);
+      a.add(1);
+      await pumpEventQueue();
+      expect(out, isEmpty);
+      b.add('a');
+      a.add(2);
+      b.add('b');
+      await pumpEventQueue();
+      expect(out, ['1a', '2a', '2b']);
+      await sub.cancel();
+    });
+
+    test('switchMap follows only the latest inner stream', () async {
+      final outer = StreamController<int>();
+      final inners = <int, StreamController<String>>{};
+      final out = <String>[];
+      final sub = switchMap(outer.stream, (int n) {
+        return (inners[n] = StreamController<String>()).stream;
+      }).listen(out.add);
+      outer.add(1);
+      await pumpEventQueue();
+      inners[1]!.add('one');
+      outer.add(2);
+      await pumpEventQueue();
+      inners[1]!.add('stale');
+      inners[2]!.add('two');
+      await pumpEventQueue();
+      expect(out, ['one', 'two']);
+      await sub.cancel();
     });
   });
 }

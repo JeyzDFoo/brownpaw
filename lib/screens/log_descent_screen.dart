@@ -9,6 +9,7 @@ import '../providers/favorites_provider.dart';
 import '../providers/descents_provider.dart';
 import '../providers/recent_runs_provider.dart';
 import '../widgets/difficulty_selector.dart';
+import '../theme/app_theme.dart';
 
 class LogDescentScreen extends ConsumerStatefulWidget {
   /// Pre-selects this run, for example when logging from a run's page.
@@ -364,7 +365,7 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
               elevation: _selectedRunId == null ? 2 : 0,
               color: _selectedRunId == null
                   ? theme.colorScheme.primaryContainer.withOpacity(0.3)
-                  : theme.colorScheme.surface,
+                  : theme.colorScheme.surfaceContainerLow,
               child: InkWell(
                 onTap: () => _selectRiverRun(context),
                 child: Padding(
@@ -597,7 +598,7 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -639,9 +640,7 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                               },
                             )
                           : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      border: OutlineInputBorder(borderRadius: Pebble.input),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,

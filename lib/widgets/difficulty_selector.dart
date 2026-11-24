@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 /// Ordered list of difficulty levels including modifiers.
 const List<String> _kDifficultyLevels = [
@@ -110,7 +111,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: Pebble.a,
         border: Border.all(color: Colors.orange.withOpacity(0.3), width: 1.5),
       ),
       child: Column(
@@ -131,7 +132,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withOpacity(0.7),
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -154,7 +155,7 @@ class _DifficultySelectorState extends State<DifficultySelector> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.orange.withOpacity(0.3)),
                   ),
@@ -198,7 +199,7 @@ class _StepButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.3),

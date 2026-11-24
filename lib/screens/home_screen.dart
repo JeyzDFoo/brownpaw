@@ -8,7 +8,9 @@ import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
+import 'package:brownpaw/theme/app_theme.dart';
 import 'package:brownpaw/widgets/nav_icons.dart';
+import 'package:brownpaw/widgets/pebble.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
 
 /// The tabbed home shell: Logbook · Gauges · [Log] · Guide · Me.
@@ -50,17 +52,16 @@ class MyHomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          tab.title,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+        title: Row(
+          children: [
+            const BrownpawMark(size: 38),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(tab.title, style: theme.textTheme.headlineSmall),
+            ),
+          ],
         ),
         centerTitle: false,
-        // Quiet header: the content and the Log button carry the colour.
-        backgroundColor: theme.colorScheme.surface,
-        foregroundColor: theme.colorScheme.onSurface,
-        surfaceTintColor: Colors.transparent,
       ),
       // Keeps starred and logged gauges cached for when there's no signal.
       body: Consumer(
@@ -70,60 +71,62 @@ class MyHomePage extends StatelessWidget {
         },
         child: tab.screen,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _barIndex,
-        backgroundColor: theme.colorScheme.surface,
-        indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.14),
-        onDestinationSelected: (i) => _onBarTap(context, i),
-        destinations: [
-          NavigationDestination(
-            icon: const NavIcon(NavGlyph.logbook),
-            selectedIcon: NavIcon(
-              NavGlyph.logbook,
-              filled: true,
-              color: theme.colorScheme.primary,
+      // A pebble-topped bar that sits on the silt-green page.
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+        child: NavigationBar(
+          selectedIndex: _barIndex,
+          onDestinationSelected: (i) => _onBarTap(context, i),
+          destinations: [
+            NavigationDestination(
+              icon: const NavIcon(NavGlyph.logbook),
+              selectedIcon: NavIcon(
+                NavGlyph.logbook,
+                filled: true,
+                color: theme.colorScheme.primary,
+              ),
+              label: 'Logbook',
             ),
-            label: 'Logbook',
-          ),
-          NavigationDestination(
-            icon: const NavIcon(NavGlyph.gauges),
-            selectedIcon: NavIcon(
-              NavGlyph.gauges,
-              filled: true,
-              color: theme.colorScheme.primary,
+            NavigationDestination(
+              icon: const NavIcon(NavGlyph.gauges),
+              selectedIcon: NavIcon(
+                NavGlyph.gauges,
+                filled: true,
+                color: theme.colorScheme.primary,
+              ),
+              label: 'Gauges',
             ),
-            label: 'Gauges',
-          ),
-          NavigationDestination(
-            icon: _LogButtonIcon(color: theme.colorScheme.primary),
-            label: 'Log',
-            tooltip: 'Log a run',
-          ),
-          NavigationDestination(
-            icon: const NavIcon(NavGlyph.guide),
-            selectedIcon: NavIcon(
-              NavGlyph.guide,
-              filled: true,
-              color: theme.colorScheme.primary,
+            NavigationDestination(
+              icon: _LogButtonIcon(color: theme.colorScheme.primary),
+              label: 'Log',
+              tooltip: 'Log a run',
             ),
-            label: 'Guide',
-          ),
-          NavigationDestination(
-            icon: const NavIcon(NavGlyph.me),
-            selectedIcon: NavIcon(
-              NavGlyph.me,
-              filled: true,
-              color: theme.colorScheme.primary,
+            NavigationDestination(
+              icon: const NavIcon(NavGlyph.guide),
+              selectedIcon: NavIcon(
+                NavGlyph.guide,
+                filled: true,
+                color: theme.colorScheme.primary,
+              ),
+              label: 'Guide',
             ),
-            label: 'Me',
-          ),
-        ],
+            NavigationDestination(
+              icon: const NavIcon(NavGlyph.me),
+              selectedIcon: NavIcon(
+                NavGlyph.me,
+                filled: true,
+                color: theme.colorScheme.primary,
+              ),
+              label: 'Me',
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// A filled rounded square with a plus: the bar's one primary action.
+/// A filled orange pebble with a plus: the bar's one primary action.
 class _LogButtonIcon extends StatelessWidget {
   const _LogButtonIcon({required this.color});
   final Color color;
@@ -131,17 +134,11 @@ class _LogButtonIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 48,
-      height: 32,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(10),
-      ),
+      width: 52,
+      height: 40,
+      decoration: BoxDecoration(color: color, borderRadius: Pebble.small),
       child: Center(
-        child: NavIcon(
-          NavGlyph.add,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
+        child: NavIcon(NavGlyph.add, color: Riverstone.of(context).card),
       ),
     );
   }

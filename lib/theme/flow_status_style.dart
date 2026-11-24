@@ -22,20 +22,22 @@ class FlowStatusColors extends ThemeExtension<FlowStatusColors> {
     required this.tooHigh,
   });
 
+  // Riverstone: glacier blue for "good", plain ink for "runnable", ochre
+  // and red clay for out of range. See [Riverstone].
   static const light = FlowStatusColors(
-    unknown: Color(0xFF607D8B),
-    tooLow: Color(0xFFB45309),
-    runnable: Color(0xFF1565C0),
-    good: Color(0xFF2E7D32),
-    tooHigh: Color(0xFFC62828),
+    unknown: Color(0xFF7A6A5E),
+    tooLow: Color(0xFF9A6A10),
+    runnable: Color(0xFF3A2B22),
+    good: Color(0xFF2C7C82),
+    tooHigh: Color(0xFFB23A28),
   );
 
   static const dark = FlowStatusColors(
-    unknown: Color(0xFF90A4AE),
-    tooLow: Color(0xFFFBBF24),
-    runnable: Color(0xFF64B5F6),
-    good: Color(0xFF81C784),
-    tooHigh: Color(0xFFEF9A9A),
+    unknown: Color(0xFFB5A698),
+    tooLow: Color(0xFFE3B04F),
+    runnable: Color(0xFFF1E8DE),
+    good: Color(0xFF6FC1C5),
+    tooHigh: Color(0xFFF08A78),
   );
 
   Color of(FlowStatus status) => switch (status) {

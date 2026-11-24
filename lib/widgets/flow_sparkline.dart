@@ -13,6 +13,7 @@ LineChartBarData _line(
   Color color,
   double width, {
   required bool filled,
+  Color? fill,
 }) => LineChartBarData(
   spots: [for (final p in points) FlSpot(_x(p.time), p.flow)],
   color: color,
@@ -21,7 +22,10 @@ LineChartBarData _line(
   isStrokeCapRound: true,
   isStrokeJoinRound: true,
   dotData: const FlDotData(show: false),
-  belowBarData: BarAreaData(show: filled, color: color.withValues(alpha: 0.12)),
+  belowBarData: BarAreaData(
+    show: filled,
+    color: (fill ?? color).withValues(alpha: 0.18),
+  ),
 );
 
 /// A y range with max above min whatever the data: flat, negative (gauge
@@ -75,8 +79,9 @@ class FlowSparkline extends StatelessWidget {
             lineBarsData: [
               _line(
                 points,
-                Theme.of(context).colorScheme.primary,
-                2,
+                // Glacier blue: water.
+                Theme.of(context).colorScheme.secondary,
+                2.2,
                 filled: false,
               ),
             ],
@@ -134,7 +139,16 @@ class GaugeFlowChart extends StatelessWidget {
           maxY: y.max,
           minX: _x(points.first.time),
           maxX: _x(points.last.time),
-          lineBarsData: [_line(points, scheme.primary, 2.5, filled: true)],
+          lineBarsData: [
+            // An ink line over a glacier-blue wash.
+            _line(
+              points,
+              scheme.onSurface,
+              3,
+              filled: true,
+              fill: scheme.secondary,
+            ),
+          ],
           gridData: FlGridData(
             drawVerticalLine: false,
             horizontalInterval: interval,
@@ -174,13 +188,13 @@ class GaugeFlowChart extends StatelessWidget {
             getTouchedSpotIndicator: (bar, indexes) => [
               for (final _ in indexes)
                 TouchedSpotIndicatorData(
-                  FlLine(color: scheme.primary.withValues(alpha: 0.5)),
+                  FlLine(color: scheme.secondary.withValues(alpha: 0.5)),
                   FlDotData(
                     getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                       radius: 4,
-                      color: scheme.primary,
+                      color: scheme.secondary,
                       strokeWidth: 2,
-                      strokeColor: scheme.surface,
+                      strokeColor: scheme.surfaceContainerLow,
                     ),
                   ),
                 ),
@@ -196,7 +210,7 @@ class GaugeFlowChart extends StatelessWidget {
                     '${s.y.toStringAsFixed(1)} m³/s\n',
                     TextStyle(
                       color: scheme.onInverseSurface,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                     children: [
                       TextSpan(

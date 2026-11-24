@@ -16,11 +16,12 @@ class FlowStatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = status.color(context);
+    final fg = color;
     final textStyle =
         (large
                 ? Theme.of(context).textTheme.titleSmall
                 : Theme.of(context).textTheme.labelMedium)
-            ?.copyWith(color: color, fontWeight: FontWeight.w700);
+            ?.copyWith(color: fg, fontWeight: FontWeight.w800);
 
     return Semantics(
       label: 'Flow status: ${status.label}',
@@ -31,14 +32,13 @@ class FlowStatusChip extends StatelessWidget {
           vertical: large ? 6 : 3,
         ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: color.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: color.withValues(alpha: 0.5)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(status.icon, size: large ? 18 : 14, color: color),
+            Icon(status.icon, size: large ? 18 : 14, color: fg),
             SizedBox(width: large ? 6 : 4),
             Text(status.label, style: textStyle),
           ],

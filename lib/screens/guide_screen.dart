@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -15,6 +17,7 @@ import '../theme/flow_status_style.dart';
 import '../widgets/favourite_star.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/map_tiles.dart';
+import '../theme/app_theme.dart';
 
 /// Every run in the guide, with how it's running now.
 final guideEntriesProvider = Provider<AsyncValue<List<GuideEntry>>>((ref) {
@@ -154,12 +157,6 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
                     showSelectedIcon: false,
                     style: SegmentedButton.styleFrom(
                       visualDensity: VisualDensity.compact,
-                      selectedBackgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.14),
-                      selectedForegroundColor: Theme.of(
-                        context,
-                      ).colorScheme.primary,
                     ),
                     segments: const [
                       ButtonSegment(
@@ -224,6 +221,7 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
         FlutterMap(
           mapController: _map,
           options: MapOptions(
+            backgroundColor: Riverstone.of(context).map,
             initialCenter: _center,
             initialZoom: _zoom,
             minZoom: _minZoom,
@@ -254,6 +252,8 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
                       point: LatLng(e.latitude!, e.longitude!),
                       width: 48,
                       height: 48,
+                      // The teardrop's tip sits on the put-in.
+                      alignment: Alignment.topCenter,
                       child: _Pin(
                         entry: e,
                         selected: e.run.riverId == selected?.run.riverId,
@@ -292,8 +292,8 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
             right: 72,
             top: 16,
             child: Material(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: Pebble.small,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
@@ -344,10 +344,8 @@ class _ZoomControls extends StatelessWidget {
       padding: EdgeInsets.zero,
     );
     return Material(
-      color: theme.colorScheme.surface,
-      elevation: 2,
-      shadowColor: Colors.black26,
-      borderRadius: BorderRadius.circular(12),
+      color: theme.colorScheme.surfaceContainerLow,
+      borderRadius: Pebble.small,
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -389,13 +387,12 @@ class _ClusterPin extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 3),
-          boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black38)],
+          border: Border.all(color: Riverstone.of(context).ink, width: 2.2),
         ),
         child: Text(
           '$n',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Colors.white,
+            color: Riverstone.of(context).card,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -404,7 +401,8 @@ class _ClusterPin extends StatelessWidget {
   }
 }
 
-/// A run's map pin: a ring in its status colour, filled when selected.
+/// A run's map pin: a teardrop in its status colour with an ink outline,
+/// larger when selected.
 class _Pin extends StatelessWidget {
   const _Pin({
     required this.entry,
@@ -418,8 +416,9 @@ class _Pin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final p = Riverstone.of(context);
     final color = entry.status.color(context);
-    final size = selected ? 26.0 : 20.0;
+    final size = selected ? 1.25 : 1.0;
     return Semantics(
       button: true,
       label:
@@ -429,24 +428,54 @@ class _Pin extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Center(
-          child: AnimatedContainer(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedScale(
+            scale: size,
+            alignment: Alignment.bottomCenter,
             duration: const Duration(milliseconds: 150),
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: selected ? 4 : 3),
-              boxShadow: const [
-                BoxShadow(blurRadius: 4, color: Colors.black38),
-              ],
+            child: CustomPaint(
+              size: const Size(28, 36),
+              painter: _TeardropPainter(fill: color, line: p.ink, dot: p.card),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class _TeardropPainter extends CustomPainter {
+  _TeardropPainter({required this.fill, required this.line, required this.dot});
+  final Color fill;
+  final Color line;
+  final Color dot;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Drawn on a 28 x 36 grid with the tip at the bottom centre.
+    canvas.scale(size.width / 28, size.height / 36);
+    final drop = ui.Path()
+      ..moveTo(14, 34)
+      ..cubicTo(9, 27, 2.5, 21.4, 2.5, 14.5)
+      ..cubicTo(2.5, 7.6, 7.6, 3, 14, 3)
+      ..cubicTo(20.4, 3, 25.5, 7.6, 25.5, 14.5)
+      ..cubicTo(25.5, 21.4, 19, 27, 14, 34)
+      ..close();
+    final stroke = Paint()
+      ..color = line
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(drop, Paint()..color = fill);
+    canvas.drawPath(drop, stroke);
+    canvas.drawCircle(const Offset(14, 14.5), 4, Paint()..color = dot);
+    canvas.drawCircle(const Offset(14, 14.5), 4, stroke..strokeWidth = 1.6);
+  }
+
+  @override
+  bool shouldRepaint(_TeardropPainter old) =>
+      old.fill != fill || old.line != line || old.dot != dot;
 }
 
 class _AreaNote {
@@ -535,15 +564,12 @@ class GuideRunCard extends StatelessWidget {
     ].join(' · ');
 
     return Material(
-      color: theme.colorScheme.surface,
-      elevation: elevated ? 3 : 0,
-      shadowColor: Colors.black45,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
+      color: theme.colorScheme.surfaceContainerLow,
+      elevation: elevated ? 8 : 0,
+      shadowColor: Colors.black26,
+      shape: RoundedRectangleBorder(borderRadius: Pebble.a),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: Pebble.a,
         onTap: () => context.push(AppRoutes.run(run.riverId)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
@@ -556,7 +582,7 @@ class GuideRunCard extends StatelessWidget {
                     Text(
                       run.river,
                       style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     Padding(
@@ -591,10 +617,6 @@ class _SearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    OutlineInputBorder border(Color c) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: c),
-    );
     return TextField(
       controller: controller,
       onChanged: onChanged,
@@ -616,11 +638,8 @@ class _SearchField extends StatelessWidget {
                 ),
         ),
         filled: true,
-        fillColor: theme.colorScheme.surface,
+        fillColor: theme.colorScheme.surfaceContainerLow,
         isDense: true,
-        border: border(theme.colorScheme.outlineVariant),
-        enabledBorder: border(theme.colorScheme.outlineVariant),
-        focusedBorder: border(theme.colorScheme.primary),
       ),
     );
   }

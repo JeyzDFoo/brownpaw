@@ -14,6 +14,7 @@ import '../providers/river_runs_provider.dart';
 import '../router.dart';
 import '../screens/log_descent_screen.dart' show RiverRunSelector;
 import 'flow_status_chip.dart';
+import '../theme/app_theme.dart';
 
 /// Opens the quick-log sheet. Everything the app can know is filled in
 /// (run, date, gauge flow, crew), so logging is usually one tap on Save.
@@ -282,7 +283,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
     final theme = Theme.of(context);
     final labelStyle = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w800,
       letterSpacing: 0.6,
     );
 
@@ -296,7 +297,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
             Text(
               'Log a run',
               style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 20),
@@ -318,7 +319,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                               Text(
                                 _run?.name ?? 'Choose a run',
                                 style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                               if (_run != null)
@@ -361,7 +362,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                         child: Text(
                           _dateLabel(),
                           style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -393,7 +394,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                                         ? 'Add'
                                         : '${_flow!.toStringAsFixed(1)} m³/s',
                                     style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w800,
                                     ),
                                   ),
                                   if (_flow != null &&
@@ -458,7 +459,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
                 textStyle: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               child: _saving
@@ -524,14 +525,11 @@ class _Tile extends StatelessWidget {
       label: semanticsLabel,
       excludeSemantics: true,
       child: Material(
-        color: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
+        color: theme.colorScheme.surfaceContainerLow,
+        shape: RoundedRectangleBorder(borderRadius: Pebble.small),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: Pebble.small,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(

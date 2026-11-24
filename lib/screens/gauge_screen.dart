@@ -15,6 +15,8 @@ import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
 import '../widgets/flow_status_chip.dart';
 import 'gauges_screen.dart' show TrendIcon;
+import '../theme/app_theme.dart';
+import '../widgets/pebble.dart';
 
 /// One gauge: the flow now, how it has moved, and how each run on it is.
 class GaugeScreen extends ConsumerWidget {
@@ -73,7 +75,7 @@ class _GaugeBody extends ConsumerWidget {
         Text(
           gauge.title,
           style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
           ),
         ),
         if (gauge.place.isNotEmpty) Text(gauge.place, style: muted),
@@ -81,9 +83,8 @@ class _GaugeBody extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: theme.colorScheme.outlineVariant),
+            color: theme.colorScheme.surfaceContainerLow,
+            borderRadius: Pebble.a,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,7 +96,7 @@ class _GaugeBody extends ConsumerWidget {
                   Text(
                     flow?.toStringAsFixed(1) ?? '–',
                     style: theme.textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                       height: 1,
                     ),
                   ),
@@ -121,7 +122,7 @@ class _GaugeBody extends ConsumerWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
@@ -146,16 +147,8 @@ class _GaugeBody extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 22),
-        Semantics(
-          header: true,
-          child: Text(
-            gauge.runs.length == 1 ? 'RUN ON THIS GAUGE' : 'RUNS ON THIS GAUGE',
-            style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
+        SectionLabel(
+          gauge.runs.length == 1 ? 'Run on this gauge' : 'Runs on this gauge',
         ),
         const SizedBox(height: 10),
         for (final run in gauge.runs) ...[
@@ -267,11 +260,6 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
         SegmentedButton<GaugeSpan>(
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
-            selectedBackgroundColor: theme.colorScheme.primary.withValues(
-              alpha: 0.14,
-            ),
-            selectedForegroundColor: theme.colorScheme.primary,
-            side: BorderSide(color: theme.colorScheme.outlineVariant),
             visualDensity: VisualDensity.compact,
             tapTargetSize: MaterialTapTargetSize.padded,
           ),
@@ -307,13 +295,10 @@ class _RunOnGauge extends ConsumerWidget {
     ].join(' · ');
 
     return Material(
-      color: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
+      color: theme.colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(borderRadius: Pebble.small),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: Pebble.small,
         onTap: () => context.push(AppRoutes.run(run.riverId)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -326,7 +311,7 @@ class _RunOnGauge extends ConsumerWidget {
                     Text(
                       runLabel(run),
                       style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     if (detail.isNotEmpty)

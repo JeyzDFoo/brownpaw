@@ -8,6 +8,8 @@ import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
 import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
+import '../theme/app_theme.dart';
+import '../widgets/pebble.dart';
 
 /// The Gauges tab: your gauges first, then every gauge, with live flow,
 /// a week's trend and a search across rivers, stations and runs.
@@ -113,10 +115,6 @@ class _SearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    OutlineInputBorder border(Color c) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: c),
-    );
     return TextField(
       controller: controller,
       onChanged: onChanged,
@@ -138,11 +136,8 @@ class _SearchField extends StatelessWidget {
                 ),
         ),
         filled: true,
-        fillColor: theme.colorScheme.surface,
+        fillColor: theme.colorScheme.surfaceContainerLow,
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        border: border(theme.colorScheme.outlineVariant),
-        enabledBorder: border(theme.colorScheme.outlineVariant),
-        focusedBorder: border(theme.colorScheme.primary),
       ),
     );
   }
@@ -153,20 +148,7 @@ class _Heading extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Semantics(
-      header: true,
-      child: Text(
-        text.toUpperCase(),
-        style: theme.textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.6,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SectionLabel(text);
 }
 
 class _NoGaugesYet extends StatelessWidget {
@@ -215,12 +197,9 @@ class GaugeRow extends ConsumerWidget {
     ].join(', ');
 
     return Material(
-      color: theme.colorScheme.surface,
+      color: theme.colorScheme.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: Pebble.a),
       child: Row(
         children: [
           Expanded(
@@ -229,7 +208,7 @@ class GaugeRow extends ConsumerWidget {
               label: label,
               excludeSemantics: true,
               child: InkWell(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: Pebble.a,
                 // A sub-page of Gauges: its URL updates, and the app bar back,
                 // system back, iOS swipe and browser back all return here.
                 onTap: () => context.go(AppRoutes.gauge(gauge.id)),
@@ -244,7 +223,7 @@ class GaugeRow extends ConsumerWidget {
                             Text(
                               gauge.title,
                               style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                             if (gauge.place.isNotEmpty)
@@ -276,7 +255,7 @@ class GaugeRow extends ConsumerWidget {
                               child: Text(
                                 flowText,
                                 style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ),

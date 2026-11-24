@@ -5,6 +5,7 @@ import '../data/location_service.dart';
 import '../models/river_run.dart';
 import '../providers/check_in_provider.dart';
 import 'quick_log_sheet.dart';
+import '../theme/app_theme.dart';
 
 /// The run's name as people say it: "Chilliwack · Tamihi to Vedder".
 String runTitle(RiverRun run) =>
@@ -66,7 +67,7 @@ class LocationPromptCard extends ConsumerWidget {
       },
       onDismiss: () => dismissLocationPrompt(ref),
       foreground: theme.colorScheme.onSurface,
-      background: theme.colorScheme.surface,
+      background: theme.colorScheme.surfaceContainerLow,
       border: theme.colorScheme.outlineVariant,
       accent: theme.colorScheme.primary,
     );
@@ -115,7 +116,7 @@ class _BannerCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: Pebble.a,
         border: border != null ? Border.all(color: border!) : null,
       ),
       child: Column(
@@ -142,7 +143,7 @@ class _BannerCard extends StatelessWidget {
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: foreground,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -164,11 +165,9 @@ class _BannerCard extends StatelessWidget {
                     minimumSize: const Size.fromHeight(44),
                     backgroundColor: buttonFill,
                     foregroundColor: buttonText,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: Pebble.small),
                     textStyle: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   onPressed: onPrimary,
@@ -181,12 +180,10 @@ class _BannerCard extends StatelessWidget {
                   minimumSize: const Size(0, 44),
                   foregroundColor: foreground,
                   textStyle: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                   side: BorderSide(color: foreground.withValues(alpha: 0.4)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: Pebble.small),
                 ),
                 onPressed: onDismiss,
                 child: const Text('Not now'),

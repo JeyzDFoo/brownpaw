@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../models/descent.dart';
 import '../providers/descents_provider.dart';
 import 'difficulty_selector.dart';
+import '../theme/app_theme.dart';
 
 class DescentDetailsSheet extends StatefulWidget {
   final Descent descent;
@@ -179,8 +180,8 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                   child: Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: Pebble.a,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
@@ -271,7 +272,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                         Colors.amber.withOpacity(0.05),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: Pebble.a,
                     border: Border.all(
                       color: Colors.amber.withOpacity(0.3),
                       width: 1.5,
@@ -358,9 +359,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                         hintText: 'Enter flow rate',
                         suffixText: widget.descent.flowUnit ?? 'cms',
                         prefixIcon: const Icon(Icons.water_drop_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        border: OutlineInputBorder(borderRadius: Pebble.input),
                         filled: true,
                       ),
                     ),
@@ -392,7 +391,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                           ).colorScheme.tertiaryContainer.withOpacity(0.3)
                         : Theme.of(context).colorScheme.surfaceContainerHighest
                               .withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: Pebble.a,
                     border: Border.all(
                       color: _isPublic
                           ? Theme.of(
@@ -413,7 +412,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                               : Theme.of(
                                   context,
                                 ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: Pebble.small,
                         ),
                         child: Icon(
                           _isPublic ? Icons.public_rounded : Icons.lock_rounded,
@@ -485,7 +484,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                           const SizedBox(width: 12),
                       itemBuilder: (context, index) {
                         return ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: Pebble.small,
                           child: Container(
                             width: 120,
                             color: Theme.of(
@@ -527,9 +526,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                   textInputAction: TextInputAction.done,
                   decoration: InputDecoration(
                     hintText: 'Add notes about your descent...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    border: OutlineInputBorder(borderRadius: Pebble.input),
                     filled: true,
                   ),
                   onSubmitted: (_) => FocusScope.of(context).unfocus(),
@@ -543,7 +540,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                     color: Theme.of(
                       context,
                     ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: Pebble.a,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,7 +562,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurface.withOpacity(0.7),
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                           ),
                         ],
@@ -607,9 +604,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                     onPressed: () => Navigator.pop(context),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: Pebble.small),
                     ),
                     child: const Text('Done'),
                   ),
@@ -674,9 +669,7 @@ class _DescentDetailsSheetState extends State<DescentDetailsSheet> {
                       ],
                     ),
                     behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: Pebble.small),
                   ),
                 );
               }
@@ -715,7 +708,7 @@ class InfoCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: Pebble.a,
         border: Border.all(color: color.withOpacity(0.3), width: 1.5),
       ),
       child: Column(
@@ -724,7 +717,7 @@ class InfoCard extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: Pebble.small,
             ),
             child: Icon(icon, size: 24, color: color),
           ),

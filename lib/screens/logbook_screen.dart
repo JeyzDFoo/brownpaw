@@ -12,7 +12,9 @@ import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../widgets/check_in_banner.dart';
 import '../widgets/descent_details_sheet.dart';
+import '../theme/app_theme.dart';
 import '../widgets/flow_status_chip.dart';
+import '../widgets/pebble.dart';
 import '../widgets/quick_log_sheet.dart';
 
 /// The home tab: this season at a glance, then every logged run, newest
@@ -60,24 +62,12 @@ class LogbookScreen extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
-            Text(
-              '${stats.year} season',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
+            SectionLabel('${stats.year} season'),
             const SizedBox(height: 10),
             _CheckInSlot(descents: descents),
             _StatsRow(stats: stats),
             const SizedBox(height: 24),
-            Text(
-              'RECENT',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.6,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
+            const SectionLabel('Recent'),
             const SizedBox(height: 10),
             for (final d in descents) ...[
               LogEntryCard(descent: d, run: runsById[d.runId]),
@@ -134,6 +124,7 @@ class _StatsRow extends StatelessWidget {
         children: [
           Expanded(
             child: _Stat(
+              highlight: true,
               value: stats.daysOnWater,
               label: stats.daysOnWater == 1
                   ? 'day on the water'
@@ -158,36 +149,47 @@ class _StatsRow extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label});
+  const _Stat({
+    required this.value,
+    required this.label,
+    this.highlight = false,
+  });
   final int value;
   final String label;
+
+  /// Drawn as the orange pebble: the season's headline number.
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final onFill = highlight ? Riverstone.of(context).card : null;
     return Semantics(
       label: '$value $label',
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: theme.colorScheme.outlineVariant),
+        decoration: Pebble.decoration(
+          context,
+          radius: Pebble.alternating(label.length),
+          fill: highlight ? Riverstone.of(context).accent : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               '$value',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+                height: 1.05,
+                color: onFill,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: onFill ?? theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -219,14 +221,10 @@ class LogEntryCard extends ConsumerWidget {
         ? DateFormat.MMMd().format(descent.date)
         : DateFormat.yMMMd().format(descent.date);
 
-    return Material(
-      color: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
+    return PebbleCard(
+      seed: descent.id,
+      padding: EdgeInsets.zero,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => Scaffold(
@@ -251,7 +249,7 @@ class LogEntryCard extends ConsumerWidget {
                     child: Text(
                       descent.displayName,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -270,7 +268,7 @@ class LogEntryCard extends ConsumerWidget {
                       Text(
                         '${flow.toStringAsFixed(1)} ${descent.flowUnit ?? 'm³/s'}',
                         style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     if (flow != null && (run?.hasFlowRanges ?? false))
@@ -315,7 +313,7 @@ class _Message extends StatelessWidget {
             Text(
               title,
               style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
               ),
               textAlign: TextAlign.center,
             ),

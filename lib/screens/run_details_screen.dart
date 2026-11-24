@@ -26,6 +26,8 @@ import '../widgets/flow_status_chip.dart';
 import '../widgets/map_tiles.dart';
 import '../widgets/quick_log_sheet.dart';
 import 'gauges_screen.dart' show TrendIcon;
+import '../theme/app_theme.dart';
+import '../widgets/pebble.dart';
 
 /// A run's guide page: how it's running now, getting there, what to watch
 /// for, and what it's like. Content comes from the BC Whitewater guide.
@@ -113,7 +115,7 @@ class RunGuide extends ConsumerWidget {
         Text(
           runLabel(run),
           style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
           ),
         ),
         const SizedBox(height: 10),
@@ -173,7 +175,7 @@ class RunGuide extends ConsumerWidget {
                 child: Text(
                   title,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -189,7 +191,7 @@ class RunGuide extends ConsumerWidget {
             Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 2),
@@ -233,20 +235,7 @@ class _Heading extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Semantics(
-      header: true,
-      child: Text(
-        text.toUpperCase(),
-        style: theme.textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.6,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SectionLabel(text);
 }
 
 class _Fact extends StatelessWidget {
@@ -259,10 +248,7 @@ class _Fact extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -288,9 +274,8 @@ class _Conditions extends ConsumerWidget {
     );
     final station = run.stationId;
     final card = BoxDecoration(
-      color: theme.colorScheme.surface,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: theme.colorScheme.outlineVariant),
+      color: theme.colorScheme.surfaceContainerLow,
+      borderRadius: Pebble.a,
     );
 
     if (station == null || station.isEmpty) {
@@ -313,13 +298,10 @@ class _Conditions extends ConsumerWidget {
     final status = run.hasFlowRanges ? run.flowStatus(flow) : null;
 
     return Material(
-      color: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
+      color: theme.colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(borderRadius: Pebble.a),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: Pebble.a,
         onTap: () => context.push(AppRoutes.gauge(gaugeId)),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -341,7 +323,7 @@ class _Conditions extends ConsumerWidget {
                             Text(
                               flow?.toStringAsFixed(1) ?? '–',
                               style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -392,7 +374,7 @@ class _Conditions extends ConsumerWidget {
                       gauge?.title ?? 'Gauge $station',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -447,7 +429,7 @@ class _Actions extends StatelessWidget {
                   color: theme.colorScheme.primary.withValues(alpha: 0.5),
                 ),
                 textStyle: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               onPressed: () =>
@@ -490,13 +472,14 @@ class _AccessMap extends StatelessWidget {
           );
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: Pebble.a,
       child: SizedBox(
         height: 190,
         child: Stack(
           children: [
             FlutterMap(
               options: MapOptions(
+                backgroundColor: Riverstone.of(context).map,
                 initialCameraFit: camera,
                 interactionOptions: const InteractionOptions(
                   flags: InteractiveFlag.none,
@@ -569,9 +552,8 @@ class _AccessPoint extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: Pebble.small,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,7 +574,7 @@ class _AccessPoint extends StatelessWidget {
                 Text(
                   label,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 if (_has(description))
@@ -631,7 +613,7 @@ class _Hazards extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: warn.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: Pebble.small,
         border: Border.all(color: warn.withValues(alpha: 0.35)),
       ),
       child: Column(
@@ -731,7 +713,7 @@ class _Photos extends StatelessWidget {
           final caption = images[i]['caption'];
           if (url == null) return const SizedBox.shrink();
           return ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: Pebble.small,
             child: Image.network(
               url,
               width: 210,

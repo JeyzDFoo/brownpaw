@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/descent.dart';
 import 'descent_details_sheet.dart';
+import '../theme/app_theme.dart';
 
 class DescentCard extends ConsumerWidget {
   final Descent descent;
@@ -25,7 +26,7 @@ class DescentCard extends ConsumerWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: Pebble.a,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -41,11 +42,11 @@ class DescentCard extends ConsumerWidget {
         ),
         child: Material(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: Pebble.a,
           elevation: 1,
           child: InkWell(
             onTap: () => _showDescentDetails(context, ref),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: Pebble.a,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -60,7 +61,7 @@ class DescentCard extends ConsumerWidget {
                           color: Theme.of(
                             context,
                           ).colorScheme.primaryContainer.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: Pebble.small,
                         ),
                         child: Text(
                           descent.difficulty ?? '-',
@@ -139,7 +140,7 @@ class DescentCard extends ConsumerWidget {
                                       color: Theme.of(
                                         context,
                                       ).colorScheme.onTertiaryContainer,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w700,
                                     ),
                               ),
                             ],
@@ -157,7 +158,7 @@ class DescentCard extends ConsumerWidget {
                         color: Theme.of(
                           context,
                         ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: Pebble.small,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +205,7 @@ class DescentCard extends ConsumerWidget {
                                               .textTheme
                                               .bodySmall
                                               ?.copyWith(
-                                                fontWeight: FontWeight.w600,
+                                                fontWeight: FontWeight.w700,
                                                 color: Theme.of(
                                                   context,
                                                 ).colorScheme.primary,
@@ -227,7 +228,7 @@ class DescentCard extends ConsumerWidget {
                                 Text(
                                   '${descent.flow!.toStringAsFixed(1)} ${descent.flowUnit ?? 'm³/s'}',
                                   style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                      ?.copyWith(fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),

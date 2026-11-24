@@ -8,6 +8,7 @@ import '../providers/favorites_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
 import 'flow_status_chip.dart';
+import '../theme/app_theme.dart';
 
 /// A run in a list: name, class and region, then live flow with a
 /// "Low / Runnable / Good / High" status so it answers "is it in?" at a
@@ -48,7 +49,7 @@ class RiverRunCard extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: Pebble.small,
         onTap: () => context.push(AppRoutes.run(run.riverId)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
@@ -61,7 +62,7 @@ class RiverRunCard extends ConsumerWidget {
                     Text(
                       run.name,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -73,7 +74,7 @@ class RiverRunCard extends ConsumerWidget {
                           Text(
                             '${discharge.toStringAsFixed(1)} m³/s$trendSymbol',
                             style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                           if (run.hasFlowRanges) ...[

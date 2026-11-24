@@ -192,8 +192,8 @@ void main() {
       favourites: {'seymour-lower'},
     );
 
-    expect(find.text('YOUR GAUGES'), findsOneWidget);
-    expect(find.text('ALL GAUGES'), findsOneWidget);
+    expect(find.text('Your gauges'), findsOneWidget);
+    expect(find.text('All gauges'), findsOneWidget);
     // Both Chilliwack runs share one gauge.
     expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
     expect(find.text('Canyon · Tamihi to Vedder'), findsOneWidget);
@@ -224,13 +224,13 @@ void main() {
     );
     await tester.enterText(find.byType(TextField), 'tamihi');
     await tester.pumpAndSettle();
-    expect(find.text('1 GAUGE'), findsOneWidget);
+    expect(find.text('1 gauge'), findsOneWidget);
     expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
     expect(find.text('Seymour River near North Vancouver'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'zzz');
     await tester.pumpAndSettle();
-    expect(find.text('NO GAUGES MATCH'), findsOneWidget);
+    expect(find.text('No gauges match'), findsOneWidget);
   });
 
   testWidgets('gauge page shows the week and each run\'s status', (
@@ -254,7 +254,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1 year ago'), findsOneWidget);
     expect(find.byType(LineChart), findsOneWidget);
-    expect(find.text('RUNS ON THIS GAUGE'), findsOneWidget);
+    expect(find.text('Runs on this gauge'), findsOneWidget);
     expect(find.text('Tamihi to Vedder'), findsOneWidget);
     expect(find.text('Class III · good at 20 to 40'), findsOneWidget);
     expect(find.text('Good'), findsOneWidget); // Tamihi at 24.6
@@ -312,7 +312,7 @@ void main() {
 
   testWidgets('starring a gauge moves it to your gauges', (tester) async {
     await pumpScreen(tester, const GaugesScreen());
-    expect(find.text('YOUR GAUGES'), findsOneWidget);
+    expect(find.text('Your gauges'), findsOneWidget);
     final seymourBefore = tester
         .getTopLeft(find.text('Seymour River near North Vancouver'))
         .dy;

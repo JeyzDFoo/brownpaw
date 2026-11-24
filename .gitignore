@@ -52,3 +52,13 @@ firebase-service-account.json
 functions/venv/
 venv/
 __pycache__/
+
+# fastlane outputs
+**/fastlane/report.xml
+**/fastlane/README.md
+**/fastlane/test_output
+*.ipa
+*.p12
+*.p8
+.bundle/
+vendor/bundle/

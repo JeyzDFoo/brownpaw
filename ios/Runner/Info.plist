@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>brownpaw</string>
+	<string>Brownpaw</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -56,16 +56,21 @@
 			</array>
 		</dict>
 	</array>
-	<!-- Location permissions for Google Maps -->
+	<!-- Location is read only while the app is open, when you tap to check in or sort by distance. -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to show nearby river runs on the map.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to show nearby river runs on the map.</string>
-	<!-- Apple Sign In -->
-	<key>com.apple.developer.applesignin</key>
+	<string>Brownpaw uses your location to suggest which run you're at when you check in, and to show runs near you. It stays on your phone.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Brownpaw uses the camera when you take a profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Brownpaw opens your photo library when you choose a profile photo.</string>
+	<!-- Firebase Cloud Messaging: flow alerts -->
+	<key>UIBackgroundModes</key>
 	<array>
-		<string>Default</string>
+		<string>remote-notification</string>
 	</array>
+	<!-- Only standard HTTPS encryption: no export compliance paperwork per build -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<!-- URL Schemes for Map Apps -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

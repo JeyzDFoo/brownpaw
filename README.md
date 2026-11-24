@@ -72,6 +72,8 @@ brownpaw/
 - **[Architecture](docs/architecture.md)** - System design and data flow
 - **[API Integration](docs/api-integration.md)** - Cloud Functions and external APIs
 - **[Firestore Schema](docs/firestore-schema.md)** - Database structure and security rules
+- **[Releasing](docs/releasing.md)** - TestFlight and Google Play: one-time setup and cutting a release
+- **[Store Listing](docs/store-listing.md)** - Store copy, App Privacy and Data safety answers
 
 ## Data Models
 

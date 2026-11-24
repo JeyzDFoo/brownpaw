@@ -1,0 +1,169 @@
+# Builds Brownpaw and uploads it to TestFlight and Google Play (internal).
+#
+# Cut a release:   git tag v1.0.0 && git push origin v1.0.0
+# Or run it by hand from the Actions tab ("Release" > Run workflow).
+#
+# Version name comes from the tag (v1.2.3 -> 1.2.3; pubspec.yaml when run by
+# hand). Build number is the commit count on the tagged commit, so it always
+# goes up and both stores accept it. A platform whose secrets aren't set yet
+# is skipped with a note, so either store can be set up first.
+# Secrets and setup: docs/releasing.md.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Which stores
+        type: choice
+        options: [both, ios, android]
+        default: both
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Pinned so a release builds the same way every time. Bump on purpose.
+  FLUTTER_VERSION: "3.50.1"
+
+jobs:
+  check:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    outputs:
+      build_name: ${{ steps.version.outputs.build_name }}
+      build_number: ${{ steps.version.outputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - id: version
+        name: Work out version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            name="${GITHUB_REF_NAME#v}"
+          else
+            name="$(grep '^version:' pubspec.yaml | sed -E 's/version: *([^+]+).*/\1/')"
+          fi
+          number="$(git rev-list --count HEAD)"
+          echo "build_name=$name" >> "$GITHUB_OUTPUT"
+          echo "build_number=$number" >> "$GITHUB_OUTPUT"
+          echo "### Brownpaw $name ($number)" >> "$GITHUB_STEP_SUMMARY"
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test test/domain test/widgets test/data test/models test/router_test.dart test/auth_screen_test.dart
+
+  android:
+    name: Google Play (internal)
+    needs: check
+    if: github.event_name == 'push' || inputs.platforms != 'ios'
+    runs-on: ubuntu-latest
+    env:
+      BUILD_NAME: ${{ needs.check.outputs.build_name }}
+      BUILD_NUMBER: ${{ needs.check.outputs.build_number }}
+      HAS_SECRETS: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+    steps:
+      - name: Skip if the upload key isn't set
+        if: env.HAS_SECRETS != 'true'
+        run: echo "::notice::Android skipped. Add the upload keystore secrets from docs/releasing.md to enable it."
+      - uses: actions/checkout@v4
+        if: env.HAS_SECRETS == 'true'
+      - uses: actions/setup-java@v4
+        if: env.HAS_SECRETS == 'true'
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        if: env.HAS_SECRETS == 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Restore upload keystore
+        if: env.HAS_SECRETS == 'true'
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+      - name: Build app bundle
+        if: env.HAS_SECRETS == 'true'
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: flutter build appbundle --release --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_SECRETS == 'true'
+        with:
+          name: brownpaw-${{ env.BUILD_NAME }}-${{ env.BUILD_NUMBER }}.aab
+          path: build/app/outputs/bundle/release/app-release.aab
+      - name: Note when only building
+        if: env.HAS_SECRETS == 'true' && env.HAS_PLAY != 'true'
+        run: echo "::notice::Built the app bundle (see Artifacts) but didn't upload it. Add PLAY_SERVICE_ACCOUNT_JSON to upload automatically."
+      - uses: ruby/setup-ruby@v1
+        if: env.HAS_SECRETS == 'true' && env.HAS_PLAY == 'true'
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Upload to Google Play
+        if: env.HAS_SECRETS == 'true' && env.HAS_PLAY == 'true'
+        working-directory: android
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          PLAY_RELEASE_STATUS: ${{ vars.PLAY_RELEASE_STATUS || 'completed' }}
+        run: bundle exec fastlane internal
+
+  ios:
+    name: TestFlight
+    needs: check
+    if: github.event_name == 'push' || inputs.platforms != 'android'
+    runs-on: macos-15
+    env:
+      BUILD_NAME: ${{ needs.check.outputs.build_name }}
+      BUILD_NUMBER: ${{ needs.check.outputs.build_number }}
+      HAS_SECRETS: ${{ secrets.ASC_KEY_P8_BASE64 != '' && secrets.IOS_DIST_CERT_P12_BASE64 != '' }}
+    steps:
+      - name: Skip if App Store secrets aren't set
+        if: env.HAS_SECRETS != 'true'
+        run: echo "::notice::iOS skipped. Add the App Store secrets from docs/releasing.md to enable it."
+      - uses: actions/checkout@v4
+        if: env.HAS_SECRETS == 'true'
+      - uses: subosito/flutter-action@v2
+        if: env.HAS_SECRETS == 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Set version and install pods
+        if: env.HAS_SECRETS == 'true'
+        run: |
+          flutter build ios --config-only --release --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
+          cd ios && pod install
+      - name: Restore distribution certificate
+        if: env.HAS_SECRETS == 'true'
+        run: echo "${{ secrets.IOS_DIST_CERT_P12_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+      - uses: ruby/setup-ruby@v1
+        if: env.HAS_SECRETS == 'true'
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Build and upload to TestFlight
+        if: env.HAS_SECRETS == 'true'
+        working-directory: ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          IOS_DIST_CERT_PATH: ${{ runner.temp }}/dist.p12
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+        run: bundle exec fastlane beta
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_SECRETS == 'true'
+        with:
+          name: brownpaw-${{ env.BUILD_NAME }}-${{ env.BUILD_NUMBER }}.ipa
+          path: build/ios/ipa/Brownpaw.ipa

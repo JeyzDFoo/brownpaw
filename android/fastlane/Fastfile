@@ -1,0 +1,27 @@
+# Uploads the signed app bundle to Google Play.
+#
+# Run from android/ after `flutter build appbundle --release`. Needs:
+#   PLAY_SERVICE_ACCOUNT_JSON   the Play Console service account key (JSON text)
+#   PLAY_TRACK                  optional, default "internal"
+#   PLAY_RELEASE_STATUS         optional, default "completed". Use "draft"
+#                               until the app's first release has been sent
+#                               out from the Play Console.
+# See docs/releasing.md.
+
+default_platform(:android)
+
+platform :android do
+  desc "Upload the release app bundle to a Play track (internal by default)"
+  lane :internal do
+    upload_to_play_store(
+      json_key_data: ENV.fetch("PLAY_SERVICE_ACCOUNT_JSON"),
+      track: ENV.fetch("PLAY_TRACK", "internal"),
+      release_status: ENV.fetch("PLAY_RELEASE_STATUS", "completed"),
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+end

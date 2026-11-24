@@ -9,11 +9,8 @@ are the console steps.
 ## 1. Apple Developer (developer.apple.com > Certificates, Identifiers & Profiles)
 
 1. **App ID.** Identifiers > your app's App ID > tick **Sign In with Apple**
-   > Save. The Xcode project still uses `com.example.brownpaw`; the App
-   Store won't accept a `com.example` id, so register the real one (for
-   example `com.brownpaw.app`), change `PRODUCT_BUNDLE_IDENTIFIER` in
-   Xcode, and add that iOS app in Firebase (download the new
-   `GoogleService-Info.plist`) before release.
+   > Save. The App ID is `com.brownpaw.app` (the Xcode project uses it;
+   register it first, see `docs/releasing.md` step 1).
 2. **Services ID** (for Android and web). Identifiers > + > Services IDs.
    Description "Brownpaw web", identifier e.g. `com.brownpaw.signin`.
    Tick **Sign In with Apple** > Configure:

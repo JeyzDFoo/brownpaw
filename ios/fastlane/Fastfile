@@ -1,0 +1,69 @@
+# Builds the iOS app and uploads it to TestFlight.
+#
+# Run from ios/ after `flutter build ios --config-only --release` has set the
+# version (the release workflow does this). Needs these environment variables:
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64   App Store Connect API key
+#   IOS_DIST_CERT_PATH, IOS_DIST_CERT_PASSWORD     Apple Distribution .p12
+# See docs/releasing.md.
+
+default_platform(:ios)
+
+BUNDLE_ID = "com.brownpaw.app"
+TEAM_ID = "265ZKGV6P9"
+
+platform :ios do
+  desc "Build a signed App Store build and upload it to TestFlight"
+  lane :beta do
+    setup_ci # temporary keychain on CI; no-op locally
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_KEY_P8_BASE64"),
+      is_key_content_base64: true,
+    )
+
+    import_certificate(
+      certificate_path: ENV.fetch("IOS_DIST_CERT_PATH"),
+      certificate_password: ENV.fetch("IOS_DIST_CERT_PASSWORD"),
+      keychain_name: "fastlane_tmp_keychain",
+      keychain_password: "",
+    ) if is_ci
+
+    # Fetches (or creates) the App Store provisioning profile for the App ID,
+    # with whatever capabilities are ticked on it in the developer portal.
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID,
+      team_id: TEAM_ID,
+    )
+    profile_name = lane_context[SharedValues::SIGH_NAME]
+
+    # Sign Release manually for this build only; the project keeps
+    # automatic signing for day-to-day work in Xcode.
+    update_code_signing_settings(
+      path: "Runner.xcodeproj",
+      targets: ["Runner"],
+      build_configurations: ["Release"],
+      use_automatic_signing: false,
+      team_id: TEAM_ID,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name,
+    )
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: { provisioningProfiles: { BUNDLE_ID => profile_name } },
+      output_directory: "../build/ios/ipa",
+      output_name: "Brownpaw.ipa",
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+    )
+  end
+end

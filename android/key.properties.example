@@ -4,5 +4,5 @@
 
 storePassword=your_keystore_password_here
 keyPassword=your_key_password_here
-keyAlias=brownpaw-release
-storeFile=/path/to/your/keystore.jks
+keyAlias=upload
+storeFile=/Users/you/brownpaw-upload.jks

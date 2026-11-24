@@ -374,6 +374,13 @@ class UserNotifier extends StateNotifier<UserData> {
         _firestore.collection('flow_alerts').where('userId', isEqualTo: uid),
       );
 
+      // Delete profile photos. Best effort: a missing folder or a storage
+      // hiccup shouldn't stop the account from being deleted.
+      try {
+        final photos = await _storage.ref('user_photos/$uid').listAll();
+        await Future.wait(photos.items.map((item) => item.delete()));
+      } catch (_) {}
+
       // Delete the profile document last, since it holds favourites and
       // settings the steps above don't need.
       await _firestore.collection('users').doc(uid).delete();

@@ -62,7 +62,7 @@ class RecentRunsNotifier extends StateNotifier<List<String>> {
     try {
       final allRunsAsync = ref.read(riverRunsStreamProvider);
 
-      return allRunsAsync.when(
+      return await allRunsAsync.when(
         data: (runs) {
           final recentRuns = <RiverRun>[];
           for (final runId in state) {

@@ -8,12 +8,19 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Load keystore properties
+// Release signing. Locally: android/key.properties (git-ignored, see
+// key.properties.example). In CI: the ANDROID_KEYSTORE_PATH,
+// ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD
+// environment variables. Neither the keystore nor its passwords live in git.
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = java.util.Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
 }
+fun signingValue(property: String, env: String): String? =
+    System.getenv(env)?.takeIf { it.isNotBlank() } ?: keystoreProperties.getProperty(property)
+val releaseStoreFile = signingValue("storeFile", "ANDROID_KEYSTORE_PATH")
+val hasReleaseSigning = releaseStoreFile != null
 
 android {
     namespace = "com.brownpaw.brownclaw"
@@ -29,14 +36,13 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
-    // Configure signing configs
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
+            if (hasReleaseSigning) {
+                storeFile = file(releaseStoreFile!!)
+                storePassword = signingValue("storePassword", "ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "ANDROID_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "ANDROID_KEY_PASSWORD")
             }
         }
     }
@@ -51,10 +57,11 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
+            // Without a release key, fall back to debug signing so
+            // `flutter run --release` still works. Play rejects those uploads.
+            signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
             } else {
-                // Fallback to debug signing for development
                 signingConfigs.getByName("debug")
             }
             // Enable code shrinking and obfuscation for production

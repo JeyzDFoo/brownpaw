@@ -10,6 +10,7 @@ import '../models/descent.dart';
 import '../widgets/flow_information_widget.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/descents_provider.dart';
+import '../providers/river_runs_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../widgets/log_descent_dialog.dart';
@@ -40,67 +41,57 @@ class RunDetailsScreen extends ConsumerWidget {
               ),
             )
           : null,
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('river_runs')
-            .doc(runId)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: ref
+          .watch(riverRunProvider(runId))
+          .when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, _) => Center(child: Text('Error: $error')),
+            data: (run) {
+              if (run == null) {
+                return const Center(child: Text('Run not found'));
+              }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Section
+                    _buildHeader(context, run),
 
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('Run not found'));
-          }
+                    // Quick Stats Row
+                    _buildQuickStats(context, run),
 
-          final run = RiverRun.fromFirestore(snapshot.data!);
+                    // Flow Information with Charts
+                    FlowInformationWidget(riverRun: run),
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Section
-                _buildHeader(context, run),
+                    // Logistics Section (Access, Shuttle, Permits)
+                    _buildLogisticsSection(context, run),
 
-                // Quick Stats Row
-                _buildQuickStats(context, run),
+                    // Safety & Info Section (Hazards, Scouting)
+                    _buildSafetySection(context, run),
 
-                // Flow Information with Charts
-                FlowInformationWidget(riverRun: run),
+                    // Locations Section
+                    _buildLocationsSection(context, run),
 
-                // Logistics Section (Access, Shuttle, Permits)
-                _buildLogisticsSection(context, run),
+                    // Description Section
+                    _buildDescriptionSection(context, run),
 
-                // Safety & Info Section (Hazards, Scouting)
-                _buildSafetySection(context, run),
+                    // Images Section
+                    if (run.images?.isNotEmpty == true)
+                      _buildImagesSection(context, run),
 
-                // Locations Section
-                _buildLocationsSection(context, run),
+                    // Public Descents Section
+                    _buildPublicDescentsSection(context, ref),
 
-                // Description Section
-                _buildDescriptionSection(context, run),
+                    // Source Section
+                    _buildSourceSection(context, run),
 
-                // Images Section
-                if (run.images?.isNotEmpty == true)
-                  _buildImagesSection(context, run),
-
-                // Public Descents Section
-                _buildPublicDescentsSection(context, ref),
-
-                // Source Section
-                _buildSourceSection(context, run),
-
-                const SizedBox(height: 24), // Bottom padding
-              ],
-            ),
-          );
-        },
-      ),
+                    const SizedBox(height: 24), // Bottom padding
+                  ],
+                ),
+              );
+            },
+          ),
     );
   }
 

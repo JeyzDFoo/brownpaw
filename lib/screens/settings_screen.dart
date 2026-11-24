@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 // Remove package_info_plus import for now - can be added back later if needed
 // import 'package:package_info_plus/package_info_plus.dart';
 import '../providers/user_provider.dart';
-import 'privacy_policy_screen.dart';
+import '../router.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -88,11 +89,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               subtitle: const Text('Learn how we protect your data'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const PrivacyPolicyScreen(),
-                  ),
-                );
+                context.push(AppRoutes.privacy);
               },
             ),
           ),

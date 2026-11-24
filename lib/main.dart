@@ -5,9 +5,7 @@ import 'package:brownpaw/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
-import 'providers/user_provider.dart';
-import 'screens/auth_screen.dart';
-import 'screens/home_screen.dart';
+import 'router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,17 +23,18 @@ void main() async {
   runApp(const ProviderScope(child: BrownpawApp()));
 }
 
-class BrownpawApp extends StatelessWidget {
+class BrownpawApp extends ConsumerWidget {
   const BrownpawApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
       title: 'brownpaw',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
+      routerConfig: ref.watch(routerProvider),
       builder: (context, child) => ColoredBox(
         color: Colors.black,
         child: Center(
@@ -45,24 +44,6 @@ class BrownpawApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const AuthWrapper(),
     );
-  }
-}
-
-class AuthWrapper extends ConsumerWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final userData = ref.watch(userProvider);
-
-    // Show auth screen if not authenticated
-    if (!userData.isAuthenticated) {
-      return const AuthScreen();
-    }
-
-    // Show home page if authenticated
-    return const MyHomePage(title: 'Brown Paw');
   }
 }

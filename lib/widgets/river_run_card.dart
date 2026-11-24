@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../domain/flow_status.dart';
 import '../models/river_run.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/realtime_flow_provider.dart';
-import '../screens/run_details_screen.dart';
+import '../router.dart';
 import 'flow_status_chip.dart';
 
 /// A run in a list: name, class and region, then live flow with a
@@ -48,13 +49,7 @@ class RiverRunCard extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => RunDetailsScreen(runId: run.riverId),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.run(run.riverId)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
           child: Row(

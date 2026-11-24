@@ -32,22 +32,6 @@ class AuthScreen extends ConsumerWidget {
             ),
           ),
 
-          // Subtle water ripple texture overlay
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 300,
-            child: Opacity(
-              opacity: 0.06,
-              child: Image.asset(
-                'images/brownpaw-logo.png',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-              ),
-            ),
-          ),
-
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),

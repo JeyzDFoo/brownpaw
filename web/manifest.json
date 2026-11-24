@@ -3,7 +3,7 @@
     "short_name": "Brownpaw",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#1e3a5f",
+    "background_color": "#ffffff",
     "theme_color": "#1e3a5f",
     "description": "Track your whitewater descents and view live river flow data across BC and Alberta.",
     "orientation": "portrait-primary",

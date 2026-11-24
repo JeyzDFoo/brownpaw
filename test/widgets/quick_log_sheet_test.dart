@@ -11,8 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FakeGauges implements GaugeRepository {
-  _FakeGauges(this.flow);
+class FakeGauges implements GaugeRepository {
+  FakeGauges(this.flow);
   final double? flow;
   final asked = <String>[];
 
@@ -78,13 +78,13 @@ final olderTrip = Descent(
   createdAt: DateTime(2026, 11, 2),
 );
 
-Future<_FakeGauges> pumpSheet(
+Future<FakeGauges> pumpSheet(
   WidgetTester tester, {
   RiverRun? run,
   double? flow = 24.6,
 }) async {
   SharedPreferences.setMockInitialValues({});
-  final gauges = _FakeGauges(flow);
+  final gauges = FakeGauges(flow);
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -109,7 +109,6 @@ Future<_FakeGauges> pumpSheet(
   await tester.pumpAndSettle();
   return gauges;
 }
-
 
 void main() {
   testWidgets('fills in the last run, today, gauge flow and last crew', (

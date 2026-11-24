@@ -15,14 +15,15 @@ import 'screens/run_details_screen.dart';
 abstract final class AppRoutes {
   static const signIn = '/sign-in';
   static const home = '/';
-  static const logbook = '/logbook';
-  static const favourites = '/favourites';
-  static const settings = '/settings';
-  static const privacy = '/settings/privacy';
+  static const gauges = '/gauges';
+  static const community = '/community';
+  static const me = '/me';
+  static const privacy = '/me/privacy';
   static const logDescent = '/log';
 
-  /// The bottom navigation tabs, in order.
-  static const tabs = [home, logbook, favourites, settings];
+  /// The bottom navigation tabs, in order. The centre Log button is not a
+  /// tab: it opens the quick-log sheet over whichever tab is showing.
+  static const tabs = [home, gauges, community, me];
 
   static String run(String runId) => '/runs/${Uri.encodeComponent(runId)}';
 }
@@ -79,13 +80,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AuthScreen(),
       ),
       GoRoute(path: AppRoutes.home, pageBuilder: (context, state) => tab(0)),
-      GoRoute(path: AppRoutes.logbook, pageBuilder: (context, state) => tab(1)),
+      GoRoute(path: AppRoutes.gauges, pageBuilder: (context, state) => tab(1)),
       GoRoute(
-        path: AppRoutes.favourites,
+        path: AppRoutes.community,
         pageBuilder: (context, state) => tab(2),
       ),
       GoRoute(
-        path: AppRoutes.settings,
+        path: AppRoutes.me,
         pageBuilder: (context, state) => tab(3),
         routes: [
           GoRoute(
@@ -94,6 +95,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      // Old tab paths, kept so earlier links still work.
+      GoRoute(path: '/logbook', redirect: (_, _) => AppRoutes.home),
+      GoRoute(path: '/favourites', redirect: (_, _) => AppRoutes.gauges),
+      GoRoute(path: '/settings', redirect: (_, _) => AppRoutes.me),
       GoRoute(
         path: AppRoutes.logDescent,
         // A run can be passed as `extra` to pre-select it, e.g. from a run page.

@@ -2,63 +2,122 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:brownpaw/router.dart';
-import 'package:brownpaw/widgets/quick_log_sheet.dart';
-
 import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
-// import 'package:brownpaw/screens/map_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
+import 'package:brownpaw/widgets/quick_log_sheet.dart';
 
-/// The tabbed home shell. Each tab has its own URL (see [AppRoutes.tabs]),
-/// so the browser's back button and shared links work on the web.
+/// The tabbed home shell: Logbook · Gauges · [Log] · Community · Me.
+///
+/// Each tab has its own URL (see [AppRoutes.tabs]). The centre Log button
+/// sits in the bar rather than floating over content, and opens the
+/// quick-log sheet from any tab.
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, this.tabIndex = 0});
 
+  /// Index into [AppRoutes.tabs].
   final int tabIndex;
 
-  static const List<Widget> _screens = [
-    CommunityHomeScreen(),
-    LogbookScreen(),
-    FavouritesScreen(),
-    SettingsScreen(),
+  static const _tabs = [
+    (title: 'Logbook', screen: LogbookScreen()),
+    (title: 'Gauges', screen: FavouritesScreen()),
+    (title: 'Community', screen: CommunityHomeScreen()),
+    (title: 'Me', screen: SettingsScreen()),
   ];
+
+  /// The Log button's slot in the bar.
+  static const _logSlot = 2;
+
+  int get _barIndex => tabIndex < _logSlot ? tabIndex : tabIndex + 1;
+
+  void _onBarTap(BuildContext context, int barIndex) {
+    if (barIndex == _logSlot) {
+      showQuickLog(context);
+      return;
+    }
+    final tab = barIndex < _logSlot ? barIndex : barIndex - 1;
+    context.go(AppRoutes.tabs[tab]);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tab = _tabs[tabIndex];
+
     return Scaffold(
-      floatingActionButton: tabIndex == 1
-          ? FloatingActionButton.extended(
-              onPressed: () => showQuickLog(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Log Descent'),
-            )
-          : null,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Brown Paw'),
+        title: Text(
+          tab.title,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        centerTitle: false,
+        // Quiet header: the content and the Log button carry the colour.
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
+        surfaceTintColor: Colors.transparent,
       ),
-      body: _screens[tabIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: tabIndex,
-        onTap: (index) => context.go(AppRoutes.tabs[index]),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+      body: tab.screen,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _barIndex,
+        backgroundColor: theme.colorScheme.surface,
+        indicatorColor: theme.colorScheme.primary.withValues(alpha: 0.14),
+        onDestinationSelected: (i) => _onBarTap(context, i),
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.menu_book_outlined),
+            selectedIcon: Icon(
+              Icons.menu_book,
+              color: theme.colorScheme.primary,
+            ),
+            label: 'Logbook',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Logbook'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favourites',
+          NavigationDestination(
+            icon: const Icon(Icons.speed_outlined),
+            selectedIcon: Icon(Icons.speed, color: theme.colorScheme.primary),
+            label: 'Gauges',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+          NavigationDestination(
+            icon: _LogButtonIcon(color: theme.colorScheme.primary),
+            label: 'Log',
+            tooltip: 'Log a run',
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.people_outline),
+            selectedIcon: Icon(Icons.people, color: theme.colorScheme.primary),
+            label: 'Community',
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person, color: theme.colorScheme.primary),
+            label: 'Me',
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A filled rounded square with a plus: the bar's one primary action.
+class _LogButtonIcon extends StatelessWidget {
+  const _LogButtonIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 32,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(
+        Icons.add,
+        color: Theme.of(context).colorScheme.onPrimary,
+        size: 24,
       ),
     );
   }

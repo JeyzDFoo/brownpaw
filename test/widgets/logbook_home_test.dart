@@ -5,6 +5,7 @@ import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/descents_provider.dart';
 import 'package:brownpaw/providers/offline_cache_provider.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
+import 'package:brownpaw/screens/descent_screen.dart';
 import 'package:brownpaw/screens/home_screen.dart';
 import 'package:brownpaw/theme/app_theme.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
@@ -124,6 +125,34 @@ void main() {
     expect(find.text('Chilliwack - Tamihi to Vedder'), findsNWidgets(2));
     expect(find.text('with Sam, Priya'), findsOneWidget);
     expect(find.text('Good'), findsWidgets);
+  });
+
+  testWidgets('a logged run shows its details, ready to edit', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          allDescentsProvider.overrideWith((ref) => Stream.value(descents)),
+          riverRunsStreamProvider.overrideWith(
+            (ref) => Stream.value([tamihi, cheakamus]),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: DescentScreen(descentId: descents.first.id),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Chilliwack - Tamihi to Vedder'), findsOneWidget);
+    expect(find.text('22.1'), findsOneWidget);
+    expect(find.text('Good'), findsOneWidget);
+    expect(find.text('with Alex'), findsOneWidget);
+    expect(find.text('How was it?'), findsOneWidget);
+    // Descents are always private now, so there's no switch for it.
+    expect(find.byType(Switch), findsNothing);
   });
 
   testWidgets('the bar has five slots with Log in the middle', (tester) async {

@@ -52,4 +52,9 @@ void main() {
     expect(AppRoutes.run('chilliwack-tamihi'), '/runs/chilliwack-tamihi');
     expect(AppRoutes.run('a b/c'), '/runs/a%20b%2Fc');
   });
+
+  test('logged runs live under the Logbook tab', () {
+    expect(AppRoutes.descent('abc123'), '/logbook/abc123');
+    expect(AppRoutes.descent('a/b'), '/logbook/a%2Fb');
+  });
 }

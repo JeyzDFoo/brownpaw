@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'models/river_run.dart';
 import 'providers/user_provider.dart';
 import 'screens/auth_screen.dart';
+import 'screens/descent_screen.dart';
 import 'screens/gauge_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/log_descent_screen.dart';
@@ -27,6 +28,11 @@ abstract final class AppRoutes {
   static const tabs = [home, gauges, guide, me];
 
   static String run(String runId) => '/runs/${Uri.encodeComponent(runId)}';
+
+  /// A run in your logbook. A sub-page of the Logbook tab, so back
+  /// returns there.
+  static String descent(String descentId) =>
+      '/logbook/${Uri.encodeComponent(descentId)}';
 
   static String gauge(String gaugeId) =>
       '/gauges/${Uri.encodeComponent(gaugeId)}';
@@ -83,7 +89,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.signIn,
         builder: (context, state) => const AuthScreen(),
       ),
-      GoRoute(path: AppRoutes.home, pageBuilder: (context, state) => tab(0)),
+      GoRoute(
+        path: AppRoutes.home,
+        pageBuilder: (context, state) => tab(0),
+        routes: [
+          GoRoute(
+            path: 'logbook/:descentId',
+            builder: (context, state) =>
+                DescentScreen(descentId: state.pathParameters['descentId']!),
+          ),
+        ],
+      ),
       GoRoute(
         path: AppRoutes.gauges,
         pageBuilder: (context, state) => tab(1),

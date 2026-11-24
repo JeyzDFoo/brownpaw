@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../data/location_service.dart';
@@ -11,7 +12,7 @@ import '../providers/check_in_provider.dart';
 import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../widgets/check_in_banner.dart';
-import '../widgets/descent_details_sheet.dart';
+import '../router.dart';
 import '../theme/app_theme.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/pebble.dart';
@@ -225,17 +226,8 @@ class LogEntryCard extends ConsumerWidget {
       seed: descent.id,
       padding: EdgeInsets.zero,
       child: InkWell(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => Scaffold(
-              body: DescentDetailsSheet(
-                descent: descent,
-                scrollController: ScrollController(),
-                ref: ref,
-              ),
-            ),
-          ),
-        ),
+        // Its own URL, so browser back and links work.
+        onTap: () => context.go(AppRoutes.descent(descent.id)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           child: Column(

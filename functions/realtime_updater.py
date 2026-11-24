@@ -8,6 +8,7 @@ from datetime import datetime
 import asyncio
 
 import flow_alerts
+import flowworks
 import metro_vancouver
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
@@ -167,6 +168,13 @@ async def run_update():
         logger.error(f"Metro Vancouver failed: {e}", exc_info=True)
         metro_flows = {}
 
+    # Lynn Creek, from the Flowworks feed the club page publishes.
+    try:
+        lynn_flows = flowworks.update_realtime(manager.db)
+    except Exception as e:
+        logger.error(f"Flowworks failed: {e}", exc_info=True)
+        lynn_flows = {}
+
     # Tell paddlers whose runs came into range.
     flows = {
         f"{Provider.ENVIRONMENT_CANADA.value}_{r['station_id']}": r['discharge']
@@ -174,6 +182,7 @@ async def run_update():
         if r['status'] == 'success' and r.get('discharge') is not None
     }
     flows.update(metro_flows)
+    flows.update(lynn_flows)
     try:
         alerts = flow_alerts.check_alerts(manager.db, flows)
     except Exception as e:

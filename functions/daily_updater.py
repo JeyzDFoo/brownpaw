@@ -28,6 +28,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
+import flowworks
 import metro_vancouver
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
@@ -257,9 +258,16 @@ def run_update(now: datetime = None, store: HistoryStore = None,
         logger.error(f"Metro Vancouver daily failed: {e}", exc_info=True)
         metro = {'error': str(e)}
 
+    try:
+        lynn = flowworks.update_daily(store, now)
+    except Exception as e:
+        logger.error(f"Flowworks daily failed: {e}", exc_info=True)
+        lynn = {'error': str(e)}
+
     summary = {
         'stations': len(stations),
         'metro_vancouver': metro,
+        'flowworks': lynn,
         'success': sum(1 for r in results if r['status'] == 'success'),
         'failed': sum(1 for r in results if r['status'] == 'error'),
         'hydat_fetched': hydat_done,

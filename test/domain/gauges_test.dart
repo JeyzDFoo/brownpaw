@@ -154,6 +154,7 @@ void main() {
     test('credits the publisher by station id', () {
       expect(gaugeSource('environment_canada_08GA012'), 'Environment Canada');
       expect(gaugeSource('metro_vancouver_seymour'), 'Metro Vancouver');
+      expect(gaugeSource('flowworks_lynn'), 'District of North Vancouver');
       expect(gaugeSource('somewhere_else'), '');
     });
   });

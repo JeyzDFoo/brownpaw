@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
-import 'package:brownpaw/screens/guide_screen.dart';
 // import 'package:brownpaw/screens/map_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
 import 'package:brownpaw/screens/log_descent_screen.dart';

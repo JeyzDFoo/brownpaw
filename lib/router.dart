@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'models/river_run.dart';
 import 'providers/user_provider.dart';
 import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
@@ -95,7 +96,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.logDescent,
-        builder: (context, state) => const LogDescentScreen(),
+        // A run can be passed as `extra` to pre-select it, e.g. from a run page.
+        builder: (context, state) =>
+            LogDescentScreen(initialRun: state.extra as RiverRun?),
       ),
       GoRoute(
         path: '/runs/:runId',

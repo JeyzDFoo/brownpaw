@@ -153,97 +153,107 @@ class UserNotifier extends StateNotifier<UserData> {
     }
   }
 
+  /// Sign in with Apple on every platform. iPhone, iPad and Mac use
+  /// Apple's native sheet (which also gives the name on first sign-in);
+  /// Android and the web use Firebase's Apple flow (a browser page or
+  /// popup), which needs the Services ID set up in the Firebase console.
   Future<void> signInWithApple() async {
-    // Only available on iOS
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) {
-      state = state.copyWith(
-        errorMessage: 'Apple Sign In is only available on iOS devices',
-      );
-      return;
-    }
-
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      state = state.copyWith(isLoading: true, errorMessage: null);
-
-      // Check if Apple Sign In is available
-      final isAvailable = await SignInWithApple.isAvailable();
-      if (!isAvailable) {
-        state = state.copyWith(
-          errorMessage: 'Apple Sign In is not available on this device',
-          isLoading: false,
-        );
-        return;
-      }
-
-      // Request Apple ID credential
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
-
-      // Create OAuth provider credential
-      final oAuthProvider = OAuthProvider('apple.com');
-      final credential = oAuthProvider.credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
-
-      // Sign in to Firebase with the Apple credential
-      final userCredential = await _auth.signInWithCredential(credential);
-
-      // Create or update user document in Firestore
-      if (userCredential.user != null) {
-        final userDoc = _firestore
-            .collection('users')
-            .doc(userCredential.user!.uid);
-        final docSnapshot = await userDoc.get();
-
-        if (!docSnapshot.exists) {
-          // New user - create document
-          // Apple provides name only on first sign in
-          String? displayName;
-          if (appleCredential.givenName != null ||
-              appleCredential.familyName != null) {
-            displayName =
-                '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'
-                    .trim();
-          }
-
-          await userDoc.set({
-            'uid': userCredential.user!.uid,
-            'email': userCredential.user!.email,
-            'displayName': displayName ?? userCredential.user!.displayName,
-            'photoURL': userCredential.user!.photoURL,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-        } else {
-          // Existing user - update last sign in
-          await userDoc.update({'lastSignIn': FieldValue.serverTimestamp()});
-        }
+      final native =
+          !kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.iOS ||
+              defaultTargetPlatform == TargetPlatform.macOS);
+      if (native) {
+        await _signInWithAppleNative();
+      } else {
+        final provider = AppleAuthProvider()
+          ..addScope('email')
+          ..addScope('name');
+        final credential = kIsWeb
+            ? await _auth.signInWithPopup(provider)
+            : await _auth.signInWithProvider(provider);
+        await _saveUser(credential.user);
       }
     } on SignInWithAppleAuthorizationException catch (e) {
-      if (e.code == AuthorizationErrorCode.canceled) {
-        // User canceled the sign-in
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-      state = state.copyWith(
-        errorMessage: 'Apple Sign In failed: ${e.message}',
-      );
-      if (kDebugMode) {
-        print('Apple Sign-In error: $e');
+      if (e.code != AuthorizationErrorCode.canceled) {
+        state = state.copyWith(
+          errorMessage: "Couldn't sign in with Apple: ${e.message}",
+        );
       }
     } on FirebaseAuthException catch (e) {
-      state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
-    } catch (e) {
-      state = state.copyWith(errorMessage: 'Failed to sign in with Apple: $e');
-      if (kDebugMode) {
-        print('Apple Sign-In error: $e');
+      if (!_appleCancelCodes.contains(e.code)) {
+        state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
       }
+    } catch (e) {
+      state = state.copyWith(errorMessage: "Couldn't sign in with Apple: $e");
+      debugPrint('Apple Sign-In error: $e');
     } finally {
       state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Firebase codes for a paddler closing the Apple window themselves.
+  static const _appleCancelCodes = {
+    'canceled',
+    'popup-closed-by-user',
+    'cancelled-popup-request',
+    'web-context-canceled',
+    'user-cancelled',
+  };
+
+  Future<void> _signInWithAppleNative() async {
+    final apple = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    );
+    final credential = OAuthProvider('apple.com').credential(
+      idToken: apple.identityToken,
+      accessToken: apple.authorizationCode,
+    );
+    final result = await _auth.signInWithCredential(credential);
+    // Apple gives the name only the first time someone signs in.
+    final name = '${apple.givenName ?? ''} ${apple.familyName ?? ''}'.trim();
+    if (name.isNotEmpty && (result.user?.displayName ?? '').isEmpty) {
+      await result.user?.updateDisplayName(name);
+    }
+    await _saveUser(result.user, displayName: name.isEmpty ? null : name);
+  }
+
+  Future<void> _revokeAppleIfUsed(User user) async {
+    final usesApple = user.providerData.any((p) => p.providerId == 'apple.com');
+    final native =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS);
+    if (!usesApple || !native) return;
+    final apple = await SignInWithApple.getAppleIDCredential(scopes: const []);
+    await user.reauthenticateWithCredential(
+      OAuthProvider('apple.com').credential(
+        idToken: apple.identityToken,
+        accessToken: apple.authorizationCode,
+      ),
+    );
+    await _auth.revokeTokenWithAuthorizationCode(apple.authorizationCode);
+  }
+
+  /// Creates the profile on first sign-in, else records the sign-in.
+  Future<void> _saveUser(User? user, {String? displayName}) async {
+    if (user == null) return;
+    final userDoc = _firestore.collection('users').doc(user.uid);
+    final snapshot = await userDoc.get();
+    if (!snapshot.exists) {
+      await userDoc.set({
+        'uid': user.uid,
+        'email': user.email,
+        'displayName': displayName ?? user.displayName,
+        'photoURL': user.photoURL,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      await userDoc.update({'lastSignIn': FieldValue.serverTimestamp()});
     }
   }
 
@@ -339,6 +349,11 @@ class UserNotifier extends StateNotifier<UserData> {
       state = state.copyWith(isLoading: true, errorMessage: null);
 
       final uid = state.user!.uid;
+
+      // Apple requires apps to revoke its sign-in when an account is
+      // deleted. Asking again also counts as the recent sign-in Firebase
+      // wants before deleting.
+      await _revokeAppleIfUsed(state.user!);
 
       // Delete the user's logbook entries. Descents live in the top-level
       // `descents` collection, keyed by `userId`.

@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'router.dart';
+import 'widgets/map_tiles.dart';
 
 void main() async {
   // Hold the launch screen (the paw) until the first real frame, so there's
@@ -49,6 +50,9 @@ void main() async {
   } catch (_) {
     // Carry on: the router follows auth changes once they arrive.
   }
+
+  // Find saved offline map tiles before the first map draws.
+  await MapTiles.store.open().catchError((Object _) {});
 
   final container = ProviderContainer();
   _openAlertTaps(container);

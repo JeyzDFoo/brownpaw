@@ -236,6 +236,7 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
           ),
           children: [
             MapTiles.layer(),
+            MapTiles.credit(),
             MarkerClusterLayerWidget(
               options: MarkerClusterLayerOptions(
                 maxClusterRadius: 56,

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 // import 'package:package_info_plus/package_info_plus.dart';
 import '../providers/user_provider.dart';
 import '../router.dart';
+import '../widgets/offline_map_card.dart';
 import '../providers/theme_mode_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -75,6 +76,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildSignOutTile(userNotifier),
             const SizedBox(height: 8),
             _buildDeleteAccountTile(context, userNotifier),
+            const SizedBox(height: 32),
+          ],
+
+          if (OfflineMapCard.available) ...[
+            _buildSectionHeader('Offline'),
+            const SizedBox(height: 8),
+            const OfflineMapCard(),
             const SizedBox(height: 32),
           ],
 

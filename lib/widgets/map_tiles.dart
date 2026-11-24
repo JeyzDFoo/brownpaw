@@ -1,26 +1,68 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-/// OpenStreetMap tiles, shared by every map in the app.
+import '../data/offline_map/offline_map_store.dart';
+
+/// Map tiles, shared by every map in the app.
+///
+/// By default OpenStreetMap's free tiles, which may be viewed and cached
+/// but not downloaded in bulk. Building with a provider that allows offline
+/// downloads turns on "Download offline map" (see docs/offline-map.md):
+///
+///     flutter build ... \
+///       --dart-define=MAP_TILE_URL='https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}.png?api_key=KEY' \
+///       --dart-define=MAP_TILE_ATTRIBUTION='© Stadia Maps © OpenMapTiles © OpenStreetMap contributors'
 abstract final class MapTiles {
   /// Turned off in widget tests, which have no network.
   static bool enabled = true;
 
-  /// Mutes the tiles' colours so the map sits with the app's silt-green
-  /// palette and the run pins stand out. Roads and labels stay readable.
-  static const _muted = ColorFilter.matrix([
-    0.55, 0.38, 0.07, 0, 6, //
-    0.20, 0.72, 0.08, 0, 8, //
-    0.20, 0.38, 0.42, 0, 4, //
-    0, 0, 0, 1, 0, //
-  ]);
+  static const _configuredUrl = String.fromEnvironment('MAP_TILE_URL');
+
+  static String get urlTemplate => _configuredUrl.isEmpty
+      ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+      : _configuredUrl;
+
+  static String get attribution {
+    const configured = String.fromEnvironment('MAP_TILE_ATTRIBUTION');
+    return configured.isNotEmpty ? configured : '© OpenStreetMap contributors';
+  }
+
+  /// Whether the tile provider allows downloading an area for offline use.
+  static bool get offlineDownloadAllowed => _configuredUrl.isNotEmpty;
+
+  /// Saved tiles, used before the network when present.
+  static final OfflineMapStore store = OfflineMapStore();
 
   static Widget layer() => enabled
       ? TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: urlTemplate,
           userAgentPackageName: 'com.brownpaw.app',
-          tileBuilder: (context, tile, _) =>
-              ColorFiltered(colorFilter: _muted, child: tile),
+          tileProvider: _OfflineFirstTileProvider(store),
         )
       : const SizedBox.shrink();
+
+  /// The credit line the tile providers require, for the corner of a map.
+  static Widget credit() => enabled
+      ? SimpleAttributionWidget(source: Text(attribution))
+      : const SizedBox.shrink();
+}
+
+/// Saved tiles first (an offline download), then the network as usual.
+class _OfflineFirstTileProvider extends NetworkTileProvider {
+  _OfflineFirstTileProvider(this.store);
+
+  final OfflineMapStore store;
+
+  @override
+  ImageProvider getImageWithCancelLoadingSupport(
+    TileCoordinates coordinates,
+    TileLayer options,
+    Future<void> cancelLoading,
+  ) =>
+      store.localTile(coordinates.z, coordinates.x, coordinates.y) ??
+      super.getImageWithCancelLoadingSupport(
+        coordinates,
+        options,
+        cancelLoading,
+      );
 }

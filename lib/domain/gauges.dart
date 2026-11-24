@@ -60,18 +60,37 @@ Gauge _gaugeFor(String id, List<RiverRun> runs) {
   runs.sort((a, b) => a.name.compareTo(b.name));
   final name = runs
       .map((r) => r.gaugeStation?['name'])
-      .firstWhere((n) => n != null && n.trim().isNotEmpty, orElse: () => null);
+      .firstWhere((n) => n != null && isStationName(n), orElse: () => null);
   if (name != null) {
     final (river, place) = splitStationName(name);
     return Gauge(id: id, river: river, place: place, runs: runs);
   }
-  final river = runs.first.river;
+  // No usable station name: name it after the river, and list the runs
+  // so paddlers can still tell which gauge it is.
+  final river = runs.first.river.trim();
+  final hasKind = RegExp(
+    r'\b(river|creek|canyon|lake)\b',
+    caseSensitive: false,
+  ).hasMatch(river);
+  final runNames = {for (final r in runs) r.name.trim()}
+    ..removeWhere((n) => n.isEmpty || n == river);
   return Gauge(
     id: id,
-    river: river.toLowerCase().contains('river') ? river : '$river River',
-    place: '',
+    river: hasKind ? river : '$river River',
+    place: runNames.join(' · '),
     runs: runs,
   );
+}
+
+/// Whether [name] reads like a station name rather than a stray reading
+/// such as "96.4cms↓" or "1.875m↓" (the BC Whitewater import stored some
+/// of those in `gaugeStation.name`).
+bool isStationName(String name) {
+  final n = name.trim();
+  if (n.isEmpty) return false;
+  if (RegExp(r'^[\d.,]').hasMatch(n)) return false;
+  if (RegExp(r'[↑↓]').hasMatch(n)) return false;
+  return RegExp(r'[A-Za-z]{3,}').hasMatch(n);
 }
 
 /// "CHILLIWACK RIVER AT VEDDER CROSSING" → ("Chilliwack River",

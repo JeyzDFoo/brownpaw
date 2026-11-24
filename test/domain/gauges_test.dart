@@ -87,6 +87,24 @@ void main() {
       expect(yourGauges(gauges), isEmpty);
     });
 
+    test('ignores stray flow readings stored as station names', () {
+      expect(isStationName('96.4cms↓'), isFalse);
+      expect(isStationName('1.875m↓'), isFalse);
+      expect(isStationName('CHEAKAMUS RIVER NEAR BRACKENDALE'), isTrue);
+      final g = gaugesFromRuns([
+        run(
+          'pv',
+          'Cheakamus',
+          'Paradise Valley',
+          station: '08GA043',
+          stationName: '96.4cms↓',
+        ),
+        run('dam', 'Cheakamus', 'Dam Run', station: '08GA043'),
+      ]).single;
+      expect(g.river, 'Cheakamus River');
+      expect(g.place, 'Dam Run · Paradise Valley');
+    });
+
     test('search matches river, place and run names', () {
       final g = gaugesFromRuns([tamihi]).single;
       expect(g.matches('vedder'), isTrue);

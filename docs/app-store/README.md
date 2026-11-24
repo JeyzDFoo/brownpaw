@@ -8,6 +8,7 @@ Rendered from the real Flutter screens with sample Lower Mainland data
 | `iphone-6.9/*.png` | 1320 x 2868 | App Previews and Screenshots, iPhone 6.9" |
 | `iphone-6.5/*.png` | 1284 x 2778 | iPhone 6.5" (only needed if 6.9" is not supplied) |
 | `iphone-6.3/*.png` | 1206 x 2622 | iPhone with Dynamic Island (medium display), 6.1"/6.3" |
+| `ipad-13/*.png` | 2064 x 2752 | iPad 13" display (render with STORE_DEVICE=ipad) |
 | `universal-5244x2950.png` | 5244 x 2950 (16:9) | Header, with "Use header asset in search results" ticked: fills both slots |
 | `header-3840x1646.png` | 3840 x 1646 (21:9) | Header and Search Results, Header |
 | `search-results-3840x2560.png` | 3840 x 2560 (3:2) | Header and Search Results, Search Results |
@@ -21,6 +22,7 @@ guide, run beta, dark mode.
 ## Regenerate
 
     STORE_SHOTS=1 flutter test test/store_screenshots
+    STORE_SHOTS=1 STORE_DEVICE=ipad flutter test test/store_screenshots
     python3 tool/store_assets/compose.py   # needs Pillow
 
 Captions live in `SHOTS` in compose.py. Map tiles are off in tests, so the

@@ -38,10 +38,13 @@ import 'sample_data.dart';
 final _enabled = Platform.environment.containsKey('STORE_SHOTS');
 
 /// iPhone 6.9" (1320 x 2868) in points, with its safe areas.
-const _size = Size(440, 956);
-const _ratio = 3.0;
-const _top = 62.0;
-const _bottom = 34.0;
+/// iPad 13" (2064 x 2752) with STORE_DEVICE=ipad.
+final _ipad = Platform.environment['STORE_DEVICE'] == 'ipad';
+final _size = _ipad ? const Size(1032, 1376) : const Size(440, 956);
+final _ratio = _ipad ? 2.0 : 3.0;
+final _top = _ipad ? 24.0 : 62.0;
+final _bottom = _ipad ? 20.0 : 34.0;
+final _dir = _ipad ? 'build/store_screens_ipad' : 'build/store_screens';
 
 class _Location extends LocationService {
   @override
@@ -99,11 +102,11 @@ Future<void> _pumpApp(
   SharedPreferences.setMockInitialValues({'location_prompt_dismissed': true});
   tester.view.physicalSize = _size * _ratio;
   tester.view.devicePixelRatio = _ratio;
-  tester.view.padding = const FakeViewPadding(
+  tester.view.padding = FakeViewPadding(
     top: _top * _ratio,
     bottom: _bottom * _ratio,
   );
-  tester.view.viewPadding = const FakeViewPadding(
+  tester.view.viewPadding = FakeViewPadding(
     top: _top * _ratio,
     bottom: _bottom * _ratio,
   );
@@ -135,6 +138,17 @@ Future<void> _pumpApp(
           darkTheme: AppTheme.darkTheme,
           themeMode: mode,
           home: home,
+          // As in main.dart: on wide screens the app sits in a
+          // phone-width column on the page colour.
+          builder: (context, child) => ColoredBox(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: child!,
+              ),
+            ),
+          ),
         ),
       ),
     ),
@@ -160,8 +174,7 @@ Future<void> _save(WidgetTester tester, String name) async {
         _boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: _ratio);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    final file = File('build/store_screens/$name.png')
-      ..createSync(recursive: true);
+    final file = File('$_dir/$name.png')..createSync(recursive: true);
     file.writeAsBytesSync(bytes!.buffer.asUint8List());
   });
 }

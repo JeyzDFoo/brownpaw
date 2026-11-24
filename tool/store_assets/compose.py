@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
 SCREENS = ROOT / "build" / "store_screens"
+IPAD_SCREENS = ROOT / "build" / "store_screens_ipad"
 OUT = ROOT / "docs" / "app-store"
 FONTS = ROOT / "fonts"
 
@@ -105,14 +106,43 @@ def with_status_bar(screen, dark):
     return im
 
 
-def phone(screen, width, palette, dark):
+def ipad_status_bar(screen, dark):
+    """iPad status bar: time and date left, Wi-Fi and battery right."""
+    im = screen.convert("RGB").copy()
+    d = ImageDraw.Draw(im)
+    s = im.width / 1032
+    fg = (241, 232, 222) if dark else (20, 16, 14)
+    d.text((22 * s, 12 * s), "9:41  Tue Nov 24", font=font(800, 12.5 * s),
+           fill=fg, anchor="lm")
+    cx, cy = (im.width / s - 52) * s, 17 * s
+    for r in (8.5, 5.5, 2.5):
+        rr = r * s
+        if r == 2.5:
+            d.pieslice((cx - rr, cy - rr, cx + rr, cy + rr), 225, 315,
+                       fill=fg)
+        else:
+            d.arc((cx - rr, cy - rr, cx + rr, cy + rr), 225, 315, fill=fg,
+                  width=int(1.8 * s))
+    bx, by, bw, bh = (im.width / s - 40) * s, 7.5 * s, 22 * s, 10 * s
+    d.rounded_rectangle((bx, by, bx + bw, by + bh), radius=3 * s,
+                        outline=fg, width=int(1 * s))
+    d.rounded_rectangle((bx + 1.8 * s, by + 1.8 * s, bx + bw - 1.8 * s,
+                         by + bh - 1.8 * s), radius=1.6 * s, fill=fg)
+    hw = 315 * s
+    d.rounded_rectangle(((im.width - hw) / 2, im.height - 9 * s,
+                         (im.width + hw) / 2, im.height - 4 * s),
+                        radius=2.5 * s, fill=fg)
+    return im
+
+
+def phone(screen, width, palette, dark, tablet=False):
     """The screen in a simple rounded bezel, with a soft shadow."""
-    screen = with_status_bar(screen, dark)
+    screen = (ipad_status_bar if tablet else with_status_bar)(screen, dark)
     sw = int(width)
     sh = round(screen.height * sw / screen.width)
     screen = screen.resize((sw, sh), Image.LANCZOS)
-    bezel = round(sw * 0.028)
-    radius = round(sw * 0.13)
+    bezel = round(sw * (0.022 if tablet else 0.028))
+    radius = round(sw * (0.05 if tablet else 0.13))
     fw, fh = sw + 2 * bezel, sh + 2 * bezel
     pad = round(sw * 0.08)
     out = Image.new("RGBA", (fw + 2 * pad, fh + 2 * pad), (0, 0, 0, 0))
@@ -258,6 +288,24 @@ def search(W, H, phrase, names, palette=LIGHT):
     return img.convert("RGB")
 
 
+def ipad_screenshot(name, title, sub, palette, W=2064, H=2752):
+    dark = palette is DARK
+    img = Image.new("RGBA", (W, H), palette["paper"] + (255,))
+    u = W / 2064
+    img.alpha_composite(pebble_blob(
+        (W, H), (int(-200 * u), int(1300 * u), int(W + 200 * u),
+                 int(H + 700 * u)), palette["faint"]))
+    d = ImageDraw.Draw(img)
+    d.text((W / 2, 120 * u), title.replace("\n", " "),
+           font=font(900, 120 * u), fill=palette["ink"], anchor="ma")
+    d.text((W / 2, 285 * u), sub, font=font(700, 56 * u),
+           fill=palette["muted"], anchor="ma")
+    screen = Image.open(IPAD_SCREENS / f"{name}.png")
+    tab, pad = phone(screen, 1640 * u, palette, dark, tablet=True)
+    img.alpha_composite(tab, (int((W - tab.width) / 2), int(430 * u) - pad))
+    return img.convert("RGB")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for size, (W, H) in {"iphone-6.9": (1320, 2868),
@@ -269,6 +317,13 @@ def main():
             out = screenshot(name, title, sub, pal, W, H)
             out.save(folder / f"{i:02d}_{name.split('_', 1)[1]}.png",
                      optimize=True)
+
+    if IPAD_SCREENS.exists():
+        folder = OUT / "ipad-13"
+        folder.mkdir(exist_ok=True)
+        for i, (name, title, sub, pal) in enumerate(SHOTS, 1):
+            ipad_screenshot(name, title, sub, pal).save(
+                folder / f"{i:02d}_{name.split('_', 1)[1]}.png", optimize=True)
 
     hero(3840, 1646, "The automated\nwhitewater logbook",
          "Gauges and a guidebook for the Lower Mainland, in your pocket.",

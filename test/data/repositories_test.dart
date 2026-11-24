@@ -15,7 +15,7 @@ void main() {
     test('drops the Provider. prefix', () {
       expect(
         GaugeRepository.docIdFor('Provider.ENVIRONMENT_CANADA_08MH001'),
-        'environment_canada_08mh001',
+        'environment_canada_08MH001',
       );
     });
 

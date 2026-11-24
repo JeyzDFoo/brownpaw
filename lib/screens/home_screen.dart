@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:brownpaw/router.dart';
 import 'package:brownpaw/screens/community_home_screen.dart';
-import 'package:brownpaw/screens/favourites_screen.dart';
+import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
@@ -21,7 +21,7 @@ class MyHomePage extends StatelessWidget {
 
   static const _tabs = [
     (title: 'Logbook', screen: LogbookScreen()),
-    (title: 'Gauges', screen: FavouritesScreen()),
+    (title: 'Gauges', screen: GaugesScreen()),
     (title: 'Community', screen: CommunityHomeScreen()),
     (title: 'Me', screen: SettingsScreen()),
   ];

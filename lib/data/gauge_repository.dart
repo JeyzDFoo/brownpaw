@@ -112,7 +112,8 @@ class GaugeRepository {
   /// Maps the station ids stored on runs to `station_current` document ids.
   ///
   /// - Already a document id (lower case with underscores): unchanged.
-  /// - `Provider.ENVIRONMENT_CANADA_08AB001`: prefix dropped, lower-cased.
+  /// - `Provider.ENVIRONMENT_CANADA_08AB001`: prefix dropped, provider
+  ///   lower-cased: `environment_canada_08AB001`.
   /// - A bare Environment Canada code such as `08HD006`:
   ///   `environment_canada_08HD006`.
   /// - Anything else: unchanged.
@@ -121,7 +122,11 @@ class GaugeRepository {
       return stationId;
     }
     if (stationId.startsWith('Provider.')) {
-      return stationId.substring('Provider.'.length).toLowerCase();
+      // The provider is lower case in document ids; the station code keeps
+      // its case (`environment_canada_08MH001`).
+      final parts = stationId.substring('Provider.'.length).split('_');
+      final code = parts.removeLast();
+      return '${parts.join('_').toLowerCase()}_$code';
     }
     if (RegExp(r'^\d{2}[A-Z]{2}\d{3}$').hasMatch(stationId)) {
       return 'environment_canada_$stationId';

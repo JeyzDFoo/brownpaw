@@ -12,6 +12,7 @@ import '../providers/gauges_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../router.dart';
 import '../theme/flow_status_style.dart';
+import '../widgets/favourite_star.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/map_tiles.dart';
 
@@ -545,7 +546,7 @@ class GuideRunCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () => context.push(AppRoutes.run(run.riverId)),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+          padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
           child: Row(
             children: [
               Expanded(
@@ -573,7 +574,7 @@ class GuideRunCard extends StatelessWidget {
               const SizedBox(width: 12),
               if (entry.status != FlowStatus.unknown)
                 FlowStatusChip(status: entry.status),
-              Icon(Icons.chevron_right, color: theme.colorScheme.outline),
+              FavouriteStar(runIds: [run.riverId], what: 'run', compact: true),
             ],
           ),
         ),

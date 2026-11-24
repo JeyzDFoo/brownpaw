@@ -14,6 +14,7 @@ import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/screens/gauge_screen.dart';
 import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/theme/app_theme.dart';
+import 'package:brownpaw/widgets/favourite_star.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -150,6 +151,7 @@ Future<void> pumpScreen(
   FakeAlerts? alerts,
 }) async {
   final fakeAlerts = alerts ?? FakeAlerts();
+  final favs = StateProvider<Set<String>>((ref) => favourites);
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -160,7 +162,15 @@ Future<void> pumpScreen(
           (ref) => Stream.value([tamihi, canyon, seymour, cheakamus]),
         ),
         allDescentsProvider.overrideWith((ref) => Stream.value(descents)),
-        favouriteRunIdsProvider.overrideWithValue(favourites),
+        favouriteRunIdsProvider.overrideWith((ref) => ref.watch(favs)),
+        setFavouritesProvider.overrideWith(
+          (ref) => (ids, on) async {
+            final n = ref.read(favs.notifier);
+            n.state = on
+                ? {...n.state, ...ids}
+                : n.state.difference(ids.toSet());
+          },
+        ),
         gaugeRepositoryProvider.overrideWithValue(gauges),
         flowAlertsControllerProvider.overrideWithValue(fakeAlerts),
         alertedRunIdsProvider.overrideWith((ref) => fakeAlerts.changes.stream),
@@ -209,7 +219,7 @@ void main() {
   testWidgets('search finds a gauge by run name', (tester) async {
     await pumpScreen(tester, const GaugesScreen());
     expect(
-      find.text('Gauges for runs you log or favourite show up here first.'),
+      find.text('Star a gauge, or log a run, and it shows up here first.'),
       findsOneWidget,
     );
     await tester.enterText(find.byType(TextField), 'tamihi');
@@ -298,5 +308,26 @@ void main() {
       findsOneWidget,
     );
     expect(find.byIcon(Icons.notifications_active), findsNothing);
+  });
+
+  testWidgets('starring a gauge moves it to your gauges', (tester) async {
+    await pumpScreen(tester, const GaugesScreen());
+    expect(find.text('YOUR GAUGES'), findsOneWidget);
+    final seymourBefore = tester
+        .getTopLeft(find.text('Seymour River near North Vancouver'))
+        .dy;
+    final stars = find.byTooltip('Add gauge to favourites');
+    expect(stars, findsNWidgets(2));
+    await tester.tap(stars.last);
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Remove gauge from favourites'), findsOneWidget);
+    final seymourAfter = tester
+        .getTopLeft(find.text('Seymour River near North Vancouver'))
+        .dy;
+    expect(seymourAfter, lessThan(seymourBefore));
+
+    await tester.tap(find.byTooltip('Remove gauge from favourites'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Add gauge to favourites'), findsNWidgets(2));
   });
 }

@@ -132,6 +132,27 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
     }
   }
 
+  /// Favourite (or unfavourite) several runs at once, e.g. every run on a
+  /// gauge, in one write.
+  Future<void> setFavourites(Iterable<String> runIds, bool favourite) async {
+    final user = _ref.read(userProvider).user;
+    if (user == null) return;
+    final before = state.favoriteRunIds;
+    final after = Set<String>.from(before);
+    favourite ? after.addAll(runIds) : after.removeAll(runIds);
+    state = state.copyWith(favoriteRunIds: after);
+    try {
+      await _firestore.collection('users').doc(user.uid).set({
+        'favorites': after.toList(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      state = state.copyWith(
+        favoriteRunIds: before,
+        errorMessage: 'Failed to update favourites: $e',
+      );
+    }
+  }
+
   /// Add a run to favorites
   Future<void> addFavorite(String runId) async {
     if (!state.isFavorite(runId)) {

@@ -15,12 +15,12 @@ import '../domain/run_suggestion.dart' show distanceKm;
 import '../models/descent.dart';
 import '../models/river_run.dart';
 import '../providers/descents_provider.dart';
-import '../providers/favorites_provider.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../router.dart';
 import '../widgets/alert_bell.dart';
+import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/map_tiles.dart';
@@ -37,21 +37,14 @@ class RunDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final runAsync = ref.watch(riverRunProvider(runId));
-    final favourite = ref.watch(isFavoriteProvider(runId));
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         actions: [
-          IconButton(
-            tooltip: favourite ? 'Remove from favourites' : 'Add to favourites',
-            isSelected: favourite,
-            icon: const Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite, color: theme.colorScheme.error),
-            onPressed: () =>
-                ref.read(favoritesProvider.notifier).toggleFavorite(runId),
-          ),
+          FavouriteStar(runIds: [runId], what: 'run'),
+          const SizedBox(width: 4),
         ],
       ),
       body: runAsync.when(

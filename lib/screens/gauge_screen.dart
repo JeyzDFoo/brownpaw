@@ -11,6 +11,7 @@ import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
 import '../widgets/alert_bell.dart';
+import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
 import '../widgets/flow_status_chip.dart';
 import 'gauges_screen.dart' show TrendIcon;
@@ -29,6 +30,14 @@ class GaugeScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
         surfaceTintColor: Colors.transparent,
+        actions: [
+          if (gaugeAsync.value case final gauge?)
+            FavouriteStar(
+              runIds: [for (final r in gauge.runs) r.riverId],
+              what: 'gauge',
+            ),
+          const SizedBox(width: 4),
+        ],
       ),
       body: gaugeAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

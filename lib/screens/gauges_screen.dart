@@ -6,6 +6,7 @@ import '../domain/gauges.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
+import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
 
 /// The Gauges tab: your gauges first, then every gauge, with live flow,
@@ -175,7 +176,7 @@ class _NoGaugesYet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Text(
-      'Gauges for runs you log or favourite show up here first.',
+      'Star a gauge, or log a run, and it shows up here first.',
       style: theme.textTheme.bodyMedium?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
       ),
@@ -213,79 +214,101 @@ class GaugeRow extends ConsumerWidget {
       if (updated.isNotEmpty) updated,
     ].join(', ');
 
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      child: Material(
-        color: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          // A sub-page of Gauges: its URL updates, and the app bar back,
-          // system back, iOS swipe and browser back all return here.
-          onTap: () => context.go(AppRoutes.gauge(gauge.id)),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      color: theme.colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              button: true,
+              label: label,
+              excludeSemantics: true,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                // A sub-page of Gauges: its URL updates, and the app bar back,
+                // system back, iOS swipe and browser back all return here.
+                onTap: () => context.go(AppRoutes.gauge(gauge.id)),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 4, 14),
+                  child: Row(
                     children: [
-                      Text(
-                        gauge.title,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (gauge.place.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(gauge.place, style: muted),
-                        ),
-                      if (updated.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(updated, style: muted),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                FlowSparkline(points: hourlyWindow(readings, 7)),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 74,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        flowText,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('m³/s', style: muted),
-                          if (trend != null) ...[
-                            const SizedBox(width: 2),
-                            TrendIcon(trend, size: 14, color: muted?.color),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              gauge.title,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            if (gauge.place.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(gauge.place, style: muted),
+                              ),
+                            if (updated.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(updated, style: muted),
+                              ),
                           ],
-                        ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      FlowSparkline(
+                        points: hourlyWindow(readings, 7),
+                        width: 56,
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 60,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              flowText,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('m³/s', style: muted),
+                                if (trend != null) ...[
+                                  const SizedBox(width: 2),
+                                  TrendIcon(
+                                    trend,
+                                    size: 14,
+                                    color: muted?.color,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: FavouriteStar(
+              runIds: [for (final r in gauge.runs) r.riverId],
+              what: 'gauge',
+              compact: true,
+            ),
+          ),
+        ],
       ),
     );
   }

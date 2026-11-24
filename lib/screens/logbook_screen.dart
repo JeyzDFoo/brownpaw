@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../data/location_service.dart';
 import '../domain/flow_status.dart';
 import '../domain/season_stats.dart';
 import '../models/descent.dart';
 import '../models/river_run.dart';
+import '../providers/check_in_provider.dart';
 import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
+import '../widgets/check_in_banner.dart';
 import '../widgets/descent_details_sheet.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/quick_log_sheet.dart';
@@ -56,6 +59,14 @@ class LogbookScreen extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
+            Text(
+              '${stats.year} season',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _CheckInSlot(descents: descents),
             _StatsRow(stats: stats),
             const SizedBox(height: 24),
             Text(
@@ -78,49 +89,69 @@ class LogbookScreen extends ConsumerWidget {
   }
 }
 
+/// The put-in check-in, or the one-time card that asks for location.
+class _CheckInSlot extends ConsumerWidget {
+  const _CheckInSlot({required this.descents});
+  final List<Descent> descents;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final checkIn = ref.watch(putInCheckInProvider).value;
+    final dismissed = ref.watch(dismissedCheckInsProvider);
+    Widget? card;
+
+    if (checkIn != null && !dismissed.contains(checkIn.run.riverId)) {
+      final now = DateTime.now();
+      final loggedToday = descents.any(
+        (d) =>
+            d.runId == checkIn.run.riverId &&
+            d.date.year == now.year &&
+            d.date.month == now.month &&
+            d.date.day == now.day,
+      );
+      if (!loggedToday) card = CheckInBanner(checkIn: checkIn);
+    } else if (ref.watch(locationAccessProvider).value ==
+            LocationAccess.askable &&
+        ref.watch(locationPromptDismissedProvider).value == false) {
+      card = const LocationPromptCard();
+    }
+
+    if (card == null) return const SizedBox.shrink();
+    return Padding(padding: const EdgeInsets.only(bottom: 16), child: card);
+  }
+}
+
 class _StatsRow extends StatelessWidget {
   const _StatsRow({required this.stats});
   final SeasonStats stats;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '${stats.year} season',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _Stat(
+              value: stats.daysOnWater,
+              label: stats.daysOnWater == 1
+                  ? 'day on the water'
+                  : 'days on the water',
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _Stat(
-                  value: stats.daysOnWater,
-                  label: stats.daysOnWater == 1
-                      ? 'day on the water'
-                      : 'days on the water',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _Stat(
-                  value: stats.differentRuns,
-                  label: stats.differentRuns == 1 ? 'run' : 'different runs',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _Stat(value: stats.newRuns, label: 'new this season'),
-              ),
-            ],
+          const SizedBox(width: 10),
+          Expanded(
+            child: _Stat(
+              value: stats.differentRuns,
+              label: stats.differentRuns == 1 ? 'run' : 'different runs',
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 10),
+          Expanded(
+            child: _Stat(value: stats.newRuns, label: 'new this season'),
+          ),
+        ],
+      ),
     );
   }
 }

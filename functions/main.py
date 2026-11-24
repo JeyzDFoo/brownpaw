@@ -20,6 +20,8 @@ sys.path.insert(0, str(scripts_dir / 'environment_canada'))
 # Import update modules
 import realtime_updater
 import daily_updater
+from firebase_functions import https_fn
+from firebase_functions.options import MemoryOption
 
 
 # Setup logging for Cloud Functions
@@ -31,6 +33,14 @@ logger = logging.getLogger(__name__)
 
 
 # Cloud Functions entry points
+@https_fn.on_request(
+    region="us-central1",
+    memory=MemoryOption.GB_1,
+    timeout_sec=540,
+    max_instances=34,
+    concurrency=1,
+    cpu="gcf_gen1",
+)
 def update_realtime_data(request):
     """
     HTTP Cloud Function for realtime data updates.
@@ -44,6 +54,14 @@ def update_realtime_data(request):
         return {'status': 'error', 'error': str(e)}, 500
 
 
+@https_fn.on_request(
+    region="us-central1",
+    memory=MemoryOption.MB_256,
+    timeout_sec=300,
+    max_instances=100,
+    concurrency=1,
+    cpu="gcf_gen1",
+)
 def update_daily_averages(request):
     """
     HTTP Cloud Function for daily average calculations.

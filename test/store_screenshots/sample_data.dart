@@ -314,7 +314,7 @@ class SampleGauges implements GaugeRepository {
     for (final run in runs)
       if (run.stationId case final id?)
         GaugeRepository.docIdFor(id): StationSummary(
-          name: run.gaugeStation?['name'] as String?,
+          name: run.gaugeStation?['name'],
           flow: currentFlow(id),
           readingTime: now.subtract(const Duration(minutes: 12)),
         ),

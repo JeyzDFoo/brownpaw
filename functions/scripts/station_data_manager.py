@@ -43,13 +43,13 @@ class StationDataManager:
             project_root = os.path.dirname(script_dir)
             cred_path = os.path.join(project_root, 'firebase-service-account.json')
             
-            if not os.path.exists(cred_path):
-                raise FileNotFoundError(
-                    f"Firebase credentials not found at {cred_path}"
-                )
-            
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred)
+            if os.path.exists(cred_path):
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+            else:
+                # Cloud Functions provides application default credentials
+                # for the function's service account.
+                firebase_admin.initialize_app()
     
     def get_all_river_run_stations(self) -> Dict[str, Set[str]]:
         """

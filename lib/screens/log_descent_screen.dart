@@ -11,7 +11,10 @@ import '../providers/recent_runs_provider.dart';
 import '../widgets/difficulty_selector.dart';
 
 class LogDescentScreen extends ConsumerStatefulWidget {
-  const LogDescentScreen({super.key});
+  /// Pre-selects this run, for example when logging from a run's page.
+  final RiverRun? initialRun;
+
+  const LogDescentScreen({super.key, this.initialRun});
 
   @override
   ConsumerState<LogDescentScreen> createState() => _LogDescentScreenState();
@@ -32,6 +35,19 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
   int? _rating;
   String? _userDifficulty; // User's assessment of difficulty
   bool _isPublic = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final run = widget.initialRun;
+    if (run != null) {
+      _applyRun(run);
+      // Side effects touch other providers, so run them after the first frame.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _afterRunSelected(run);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -67,24 +83,28 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
     );
 
     if (run != null) {
-      // Save to recent runs
-      ref.read(recentRunsProvider.notifier).addRecentRun(run.riverId);
+      setState(() => _applyRun(run));
+      _afterRunSelected(run);
+    }
+  }
 
-      setState(() {
-        _selectedRunId = run.riverId;
-        _selectedRunName = run.river == run.name
-            ? run.name
-            : '${run.river} - ${run.name}';
-        _selectedStationId = run.stationId;
-        _selectedDifficulty = run.difficultyClass;
-        // Auto-populate difficulty with run's difficulty class
-        _userDifficulty = run.difficultyClass;
-      });
+  /// Selects [run] and pre-fills its difficulty.
+  void _applyRun(RiverRun run) {
+    _selectedRunId = run.riverId;
+    _selectedRunName = run.river == run.name
+        ? run.name
+        : '${run.river} - ${run.name}';
+    _selectedStationId = run.stationId;
+    _selectedDifficulty = run.difficultyClass;
+    // Auto-populate difficulty with run's difficulty class
+    _userDifficulty = run.difficultyClass;
+  }
 
-      // Auto-populate flow if station data is available
-      if (run.stationId != null && run.stationId!.isNotEmpty) {
-        _fetchAndPopulateFlow(run.stationId!);
-      }
+  /// Remembers [run] as recent and fills in the gauge flow for the date.
+  void _afterRunSelected(RiverRun run) {
+    ref.read(recentRunsProvider.notifier).addRecentRun(run.riverId);
+    if (run.stationId != null && run.stationId!.isNotEmpty) {
+      _fetchAndPopulateFlow(run.stationId!);
     }
   }
 

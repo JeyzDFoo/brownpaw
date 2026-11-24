@@ -380,7 +380,10 @@ class _Conditions extends ConsumerWidget {
                   ),
                   Text(
                     readings.isEmpty ? '' : updatedAgo(readings.last.timestamp),
-                    style: muted,
+                    style:
+                        readings.isNotEmpty && isStale(readings.last.timestamp)
+                        ? muted?.copyWith(color: Riverstone.of(context).low)
+                        : muted,
                   ),
                   Icon(
                     Icons.chevron_right,

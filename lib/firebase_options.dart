@@ -54,8 +54,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1047120968895',
     projectId: 'brownclaw',
     storageBucket: 'brownclaw.firebasestorage.app',
-    androidClientId: '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
-    iosClientId: '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
+    androidClientId:
+        '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
+    iosClientId:
+        '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
     iosBundleId: 'com.example.brownpaw',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1047120968895',
     projectId: 'brownclaw',
     storageBucket: 'brownclaw.firebasestorage.app',
-    androidClientId: '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
-    iosClientId: '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
+    androidClientId:
+        '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
+    iosClientId:
+        '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
     iosBundleId: 'com.example.brownpaw',
   );
 
@@ -89,5 +93,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'brownclaw.firebasestorage.app',
     measurementId: 'G-X9PXRQVFKK',
   );
-
 }

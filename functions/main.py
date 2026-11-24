@@ -48,7 +48,10 @@ def update_realtime_data(request):
     """
     try:
         result = asyncio.run(realtime_updater.run_update())
-        return {'status': 'success', 'result': result}, 200
+        # 500 when nothing updated, so Cloud Scheduler records a failed run.
+        code = 500 if result.get('success', 0) == 0 and result.get('failed') else 200
+        return {'status': 'success' if code == 200 else 'degraded',
+                'result': result}, code
     except Exception as e:
         logger.error(f"Function error: {e}", exc_info=True)
         return {'status': 'error', 'error': str(e)}, 500

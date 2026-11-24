@@ -237,7 +237,17 @@ class GaugeRow extends ConsumerWidget {
                             if (updated.isNotEmpty)
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
-                                child: Text(updated, style: muted),
+                                child: Text(
+                                  updated,
+                                  // Old readings stand out in ochre.
+                                  style:
+                                      readings.isNotEmpty &&
+                                          isStale(readings.last.timestamp)
+                                      ? muted?.copyWith(
+                                          color: Riverstone.of(context).low,
+                                        )
+                                      : muted,
+                                ),
                               ),
                           ],
                         ),

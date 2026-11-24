@@ -60,14 +60,18 @@ def main(argv):
         print(f"No run matches '{query}'")
         return 1
 
+    # One id form everywhere: environment_canada_08GA012,
+    # metro_vancouver_capilano (see scripts/normalize_station_ids.py).
+    station_id = (f"environment_canada_{code}"
+                  if provider == 'environment_canada' else code)
     for d in matches:
         data = d.to_dict() or {}
         print(f"{d.id}: {data.get('name')} - stationId "
-              f"{data.get('stationId')!r} -> {code!r}")
+              f"{data.get('stationId')!r} -> {station_id!r}")
         if apply:
             gauge = dict(data.get('gaugeStation') or {})
             gauge.update({'code': code, 'provider': provider})
-            d.reference.update({'stationId': code, 'gaugeStation': gauge})
+            d.reference.update({'stationId': station_id, 'gaugeStation': gauge})
     print('Updated.' if apply else 'Dry run. Add --apply to save.')
     return 0
 

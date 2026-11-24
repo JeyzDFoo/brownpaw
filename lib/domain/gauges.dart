@@ -229,6 +229,14 @@ String updatedAgo(DateTime timestamp, {DateTime? now}) {
   return 'Updated ${diff.inDays} days ago';
 }
 
+/// Readings older than this are flagged in the app: the gauges update
+/// every few hours, and Environment Canada lags an hour or two behind.
+const staleAfter = Duration(hours: 6);
+
+/// Whether a reading from [timestamp] is old enough to warn about.
+bool isStale(DateTime timestamp, {DateTime? now}) =>
+    (now ?? DateTime.now()).difference(timestamp) > staleAfter;
+
 /// "good at 20 to 40", or the runnable range when that's all there is.
 String? goodRange(RiverRun run) {
   String n(double v) => v == v.roundToDouble() ? '${v.round()}' : '$v';

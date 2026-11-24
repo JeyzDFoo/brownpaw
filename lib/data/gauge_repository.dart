@@ -145,29 +145,20 @@ class GaugeRepository {
     return dailySeries(docs, from, to);
   }
 
-  /// One year's `daily_readings` for [stationId]. History now lives under
-  /// the same id as `station_current`; days the old script kept under the
-  /// legacy id fill in until the daily Cloud Function has copied them over.
+  /// One year's `daily_readings` for [stationId], from
+  /// `station_data/{doc id}/readings/{year}`.
   Future<Map<String, dynamic>> _dailyReadings(
     String stationId,
     int year,
   ) async {
-    Future<Map<String, dynamic>> read(String docId) async {
-      final doc = await _firestore
-          .collection('station_data')
-          .doc(docId)
-          .collection('readings')
-          .doc('$year')
-          .get();
-      final daily = doc.data()?['daily_readings'];
-      return daily is Map<String, dynamic> ? daily : const {};
-    }
-
-    final [current, legacy] = await Future.wait([
-      read(docIdFor(stationId)),
-      read(historyDocIdFor(stationId)),
-    ]);
-    return {...legacy, ...current};
+    final doc = await _firestore
+        .collection('station_data')
+        .doc(docIdFor(stationId))
+        .collection('readings')
+        .doc('$year')
+        .get();
+    final daily = doc.data()?['daily_readings'];
+    return daily is Map<String, dynamic> ? daily : const {};
   }
 
   static StationRealtimeFlow? _parse(String docId, Map<String, dynamic>? data) {
@@ -178,40 +169,19 @@ class GaugeRepository {
     return StationRealtimeFlow(stationId: docId, flow: flow);
   }
 
-  /// Maps the station ids stored on runs to `station_current` document ids.
-  ///
-  /// - Already a document id (lower case with underscores): unchanged.
-  /// - `Provider.ENVIRONMENT_CANADA_08AB001`: prefix dropped, provider
-  ///   lower-cased: `environment_canada_08AB001`.
-  /// - A bare Environment Canada code such as `08HD006`:
-  ///   `environment_canada_08HD006`.
-  /// - Anything else: unchanged.
+  /// The one id form for a station: `environment_canada_08MH001` (code in
+  /// capitals), `metro_vancouver_capilano`, `flowworks_lynn`. Runs should
+  /// already store this (scripts/normalize_station_ids.py); older forms,
+  /// `08MH001` and `Provider.ENVIRONMENT_CANADA_08MH001`, still map to it.
   static String docIdFor(String stationId) {
-    if (stationId.contains('_') && stationId == stationId.toLowerCase()) {
-      return stationId;
-    }
-    if (stationId.startsWith('Provider.')) {
-      // The provider is lower case in document ids; the station code keeps
-      // its case (`environment_canada_08MH001`).
-      final parts = stationId.substring('Provider.'.length).split('_');
-      final code = parts.removeLast();
-      return '${parts.join('_').toLowerCase()}_$code';
-    }
-    if (RegExp(r'^\d{2}[A-Z]{2}\d{3}$').hasMatch(stationId)) {
-      return 'environment_canada_$stationId';
+    final ec = _ecCode.firstMatch(stationId);
+    if (ec != null &&
+        (stationId.length == 7 ||
+            stationId.toLowerCase().contains('environment_canada'))) {
+      return 'environment_canada_${ec.group(1)!.toUpperCase()}';
     }
     return stationId;
   }
 
-  /// Maps a run's station id to the legacy `station_data` document id the
-  /// old local script used: `Provider.ENVIRONMENT_CANADA_08GA043`.
-  static String historyDocIdFor(String stationId) {
-    if (stationId.startsWith('Provider.')) return stationId;
-    if (stationId.contains('_')) {
-      final parts = stationId.split('_');
-      final provider = parts.take(parts.length - 1).join('_').toUpperCase();
-      return 'Provider.${provider}_${parts.last}';
-    }
-    return 'Provider.ENVIRONMENT_CANADA_$stationId';
-  }
+  static final _ecCode = RegExp(r'(?:^|_)(\d{2}[A-Za-z]{2}\d{3})$');
 }

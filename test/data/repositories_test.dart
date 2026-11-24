@@ -7,14 +7,25 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('GaugeRepository.docIdFor', () {
-    test('keeps an id that is already a document id', () {
+    test('keeps the canonical form', () {
       expect(
-        GaugeRepository.docIdFor('environment_canada_08mh001'),
-        'environment_canada_08mh001',
+        GaugeRepository.docIdFor('environment_canada_08MH001'),
+        'environment_canada_08MH001',
+      );
+      expect(
+        GaugeRepository.docIdFor('metro_vancouver_capilano'),
+        'metro_vancouver_capilano',
       );
     });
 
-    test('drops the Provider. prefix', () {
+    test('capitalises the Environment Canada code', () {
+      expect(
+        GaugeRepository.docIdFor('environment_canada_08mh001'),
+        'environment_canada_08MH001',
+      );
+    });
+
+    test('maps the old Provider. form', () {
       expect(
         GaugeRepository.docIdFor('Provider.ENVIRONMENT_CANADA_08MH001'),
         'environment_canada_08MH001',

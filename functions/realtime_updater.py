@@ -4,7 +4,7 @@ Fetches 30 days of hourly data from Environment Canada every 3 hours.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import asyncio
 
 import flow_alerts
@@ -126,6 +126,26 @@ def write_station_names(db, results):
     logger.info(f"Station summaries written: {count}")
 
 
+def degraded(success: int, failed: int) -> bool:
+    """Worth an alert: nothing updated, or more than a quarter failed."""
+    total = success + failed
+    return total > 0 and (success == 0 or failed / total > 0.25)
+
+
+def write_health(db, success: int, failed_ids: list, metro_ok: list,
+                 now: datetime = None):
+    """`app_config/gauge_health`: when the gauges last updated and what
+    failed, for the app and for a quick look in the console."""
+    now = now or datetime.now(timezone.utc)
+    db.collection('app_config').document('gauge_health').set({
+        'lastRunAt': now,
+        'environmentCanadaOk': success,
+        'environmentCanadaFailed': failed_ids,
+        'metroVancouverOk': metro_ok,
+        'degraded': degraded(success, len(failed_ids)),
+    })
+
+
 async def run_update():
     """Main async function for realtime updates."""
     logger.info("=" * 70)
@@ -192,6 +212,18 @@ async def run_update():
     # Summary
     success = sum(1 for r in results if r['status'] == 'success')
     failed = len(results) - success
+    failed_ids = sorted(r['station_id'] for r in results if r['status'] != 'success')
+
+    try:
+        write_health(manager.db, success, failed_ids, sorted(metro_flows))
+    except Exception as e:
+        logger.error(f"Health record failed: {e}", exc_info=True)
+    if degraded(success, failed):
+        # A log-based alert in Cloud Monitoring matches this text
+        # (docs/gauge-monitoring.md).
+        logger.error(
+            f"GAUGE_UPDATE_DEGRADED: {failed} of {len(results)} Environment "
+            f"Canada stations failed: {', '.join(failed_ids[:20])}")
     total_readings = sum(r.get('readings', 0) for r in results)
     
     duration = datetime.now() - start_time
@@ -206,6 +238,7 @@ async def run_update():
     logger.info("=" * 70)
     
     return {
+        'degraded': degraded(success, failed),
         'success': success,
         'failed': failed,
         'total_readings': total_readings,

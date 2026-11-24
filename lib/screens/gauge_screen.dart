@@ -141,6 +141,15 @@ class _GaugeBody extends ConsumerWidget {
                 ].where((s) => s.isNotEmpty).join(' · '),
                 style: muted,
               ),
+              if (readings.isNotEmpty && isStale(readings.last.timestamp))
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    "This gauge hasn't reported for a while, so the river may "
+                    'have changed. Check before you go.',
+                    style: muted?.copyWith(color: Riverstone.of(context).low),
+                  ),
+                ),
               const SizedBox(height: 12),
               _FlowChart(gauge: gauge, readings: readings),
             ],

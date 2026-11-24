@@ -179,7 +179,8 @@ service cloud.firestore {
     match /app_config/{docId} {
       // Version document should be readable by all authenticated users
       // This enables PWA-compatible version checking via Firestore
-      allow read: if isAuthenticated() && docId == 'version';
+      allow read: if isAuthenticated()
+        && (docId == 'version' || docId == 'gauge_health');
       
       // Only admins can write app configuration
       allow create, update, delete: if isAdmin();

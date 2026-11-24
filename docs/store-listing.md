@@ -79,11 +79,23 @@ web browsing, no gambling. Result: 4+.
 
 ### App Review notes
 
-Brownpaw is a private logbook and river-level app for whitewater kayakers.
-Sign in with Apple, Google or email. Demo account: (email) / (password).
-Location is optional and only used while the app is open to suggest which
-run you are at (the check-in card on the Logbook tab). Notifications are optional flow alerts
-(the bell on a gauge or run page). Account deletion: Me > Delete account.
+Sign-in required: **unchecked**. Reviewers can tap "Continue without an
+account" on the first screen.
+
+Notes:
+
+> Brownpaw is a private logbook and river-level app for whitewater kayakers.
+> No account is needed: tap "Continue without an account" on the first
+> screen. Sign in with Apple and Google are also offered, and signing in
+> later keeps everything logged so far (Me tab).
+>
+> To log a run: tap Log in the bottom bar, pick a run and save. The river
+> flow for that day is filled in automatically. Gauges shows live river
+> levels; tap the bell on a gauge or run to get a flow alert notification.
+>
+> Location is optional and only read while the app is open, to suggest
+> which run you are at when checking in. It never leaves the device.
+> Account deletion: Me > Delete account.
 
 ## Google Play
 
@@ -115,7 +127,7 @@ advertising or personalisation.
 ### Other App content answers
 
 - **Ads:** No ads.
-- **App access:** Some functionality is restricted; give the demo account.
+- **App access:** All functionality is available without special access ("Continue without an account").
 - **Content rating (IARC):** Utility/productivity style app; no violence,
   sexuality, language, controlled substances, gambling; users can't
   interact or share content. Expect "Everyone" / PEGI 3.

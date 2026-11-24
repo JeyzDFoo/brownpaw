@@ -19,6 +19,9 @@ class FakeUserNotifier extends StateNotifier<UserData> implements UserNotifier {
   Future<void> signInWithGoogle() async => taps.add('google');
 
   @override
+  Future<void> continueAnonymously() async => taps.add('anonymous');
+
+  @override
   void clearError() => state = UserData();
 
   @override
@@ -93,5 +96,11 @@ void main() {
       scrollable: find.byType(Scrollable),
     );
     expect(find.text('Continue with Google'), findsOneWidget);
+  });
+
+  testWidgets('can continue without an account', (tester) async {
+    await pump(tester);
+    await tester.tap(find.byKey(const Key('continue-anonymously')));
+    expect(notifier.taps, ['anonymous']);
   });
 }

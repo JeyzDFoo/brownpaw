@@ -96,7 +96,17 @@ class AuthScreen extends ConsumerWidget {
                       foreground: p.ink,
                       border: p.faint,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 4),
+                    TextButton(
+                      key: const Key('continue-anonymously'),
+                      onPressed: busy ? null : notifier.continueAnonymously,
+                      style: TextButton.styleFrom(
+                        foregroundColor: p.muted,
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                      child: const Text('Continue without an account'),
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       'By continuing, you agree to our Terms & Privacy Policy',
                       style: text.bodySmall,

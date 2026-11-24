@@ -22,7 +22,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Last updated: January 12, 2026',
+            'Last updated: November 24, 2026',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontStyle: FontStyle.italic,
@@ -32,112 +32,79 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
           _buildSection(
             context,
-            'Introduction',
-            'BrownPaw ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.',
+            'The short version',
+            '• Brownpaw is a private logbook. Your runs are visible only to you.\n\n• We store what you put in the app (your account, logbook, starred gauges and alerts) so it syncs between your devices.\n\n• Your location never leaves your phone.\n\n• No ads, no tracking, no analytics, and we never sell or share your data.\n\n• You can delete your account and everything in it from Me at any time.',
           ),
 
           _buildSection(
             context,
-            'Information We Collect',
-            'We collect information that you provide directly to us, including:\n\n'
-                '• Account Information: When you create an account, we collect your email address, display name, and optional profile picture.\n\n'
-                '• Activity Data: Information about your river descents, including river runs, dates, flows, ratings, notes, and photos you choose to share.\n\n'
-                '• Usage Data: Information about how you use the app, such as favorited runs and app preferences.\n\n'
-                '• Location Data: With your permission, we may collect your location to show nearby river runs on the map.',
+            'What we store',
+            'Your account: if you sign in with Apple or Google, your email address, name and a sign-in identifier (with Apple\'s Hide My Email we only see the relay address). If you continue without an account, only an anonymous identifier. You can add an optional profile photo.\n\nYour logbook: each run you log, its date, the river flow at the time, and anything you add such as notes, a rating, difficulty and who you paddled with.\n\nYour gauges and alerts: the gauges you star, the flow levels you want alerts for, and a push notification token per device.\n\nRuns you add: stored with your account and visible only to you.',
           ),
 
           _buildSection(
             context,
-            'How We Use Your Information',
-            'We use the information we collect to:\n\n'
-                '• Provide, maintain, and improve our services\n\n'
-                '• Create and manage your account\n\n'
-                '• Store and display your river descent logs\n\n'
-                '• Show you relevant river run information based on your location and preferences\n\n'
-                '• Communicate with you about updates and features\n\n'
-                '• Ensure the security and integrity of our services',
+            'What we don\'t collect',
+            '• Location. When you allow it, Brownpaw reads your location on your phone, only while the app is open, to suggest which run you\'re at and show runs near you. It is not sent to us.\n\n• Analytics, advertising or tracking.\n\n• Contacts, health data or browsing history.',
           ),
 
           _buildSection(
             context,
-            'Data Storage and Security',
-            'Your data is stored securely using Firebase services, which employ industry-standard security measures. We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.',
+            'How we use it',
+            'Only to run Brownpaw: to show your logbook on every device you sign in on, fill in river flows for your runs, and send the flow alerts you set up. We don\'t use your data for advertising and don\'t sell, rent or share it.',
           ),
 
           _buildSection(
             context,
-            'Third-Party Services',
-            'We use the following third-party services:\n\n'
-                '• Firebase (Google): For authentication, database, and storage\n\n'
-                '• Google Sign-In: For account authentication\n\n'
-                '• Apple Sign-In: For account authentication (iOS only)\n\n'
-                '• Environment Canada: For river flow data\n\n'
-                '• Metro Vancouver: For Capilano and Seymour river flow data\n\n'
-                'These services may collect information used to identify you. Please refer to their respective privacy policies for more information.',
+            'Who processes it',
+            '• Google Firebase (Authentication, Firestore, Storage, Cloud Messaging, Hosting) stores your data and delivers notifications for us.\n\n• Google and Apple handle sign-in if you choose them.\n\n• OpenStreetMap serves map tiles and sees your device\'s IP address when maps load.\n\nRiver levels come from public data from the Water Survey of Canada and other gauge operators. No personal data is sent to them.',
           ),
 
           _buildSection(
             context,
-            'Data Sharing and Public Information',
-            'By default, your descent logs are private and only visible to you. If you choose to make a descent public:\n\n'
-                '• Your display name and descent details will be visible to other users\n\n'
-                '• Your photos (if uploaded) will be visible to other users\n\n'
-                '• Your email address and other personal information remain private\n\n'
-                'We do not sell your personal information to third parties.',
+            'Security and storage',
+            'Data is encrypted in transit and at rest on Google\'s servers, and security rules allow only you to read your logbook. The app keeps a copy on your device so it works without signal. Servers may be outside Canada.',
           ),
 
           _buildSection(
             context,
-            'Your Rights and Choices',
-            'You have the right to:\n\n'
-                '• Access and update your personal information through the app settings\n\n'
-                '• Delete your account and associated data at any time\n\n'
-                '• Choose whether to share your location\n\n'
-                '• Control the visibility of your descent logs (public or private)\n\n'
-                '• Opt out of non-essential communications',
+            'Keeping and deleting your data',
+            'We keep your data while your account exists. You can delete any logbook entry at any time. Me > Delete account permanently deletes your account, logbook, profile photo, starred gauges and alerts, and revokes Apple sign-in if you used it. If you can\'t get into the app, email us and we\'ll delete it within 30 days.',
           ),
 
           _buildSection(
             context,
-            'Children\'s Privacy',
-            'BrownPaw is not intended for use by children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately.',
+            'Your rights',
+            'You can see and edit your data in the app. For a copy of your data or any privacy request, email us and we\'ll reply within 30 days. You can turn off location and notifications in your device settings; the app works without them.',
           ),
 
           _buildSection(
             context,
-            'Data Retention',
-            'We retain your personal information for as long as your account is active or as needed to provide you services. When you delete your account, we delete all personal data, including:\n\n'
-                '• Your account information\n\n'
-                '• Your public descent logs\n\n',
+            'Children',
+            'Brownpaw is not directed at children under 13, and we don\'t knowingly collect data from them. Contact us and we\'ll delete any such account.',
           ),
 
           _buildSection(
             context,
-            'Changes to This Privacy Policy',
-            'We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy Policy periodically for any changes.',
+            'Changes',
+            'If we change this policy we\'ll update the date above, and for significant changes we\'ll let you know in the app.',
           ),
 
-          _buildSection(
-            context,
-            'Contact Us',
-            'If you have any questions about this Privacy Policy, please contact us at:\n\n'
-                'Email: hello@brownpaw.com\n\n'
-                'We will respond to your inquiry as soon as we can.',
-          ),
+          _buildSection(context, 'Contact', 'Email: privacy@brownpaw.app'),
 
           const SizedBox(height: 32),
           Divider(color: Theme.of(context).colorScheme.outlineVariant),
           const SizedBox(height: 16),
 
           Text(
-            'Your Consent',
+            'On the web',
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'By using BrownPaw, you consent to our Privacy Policy and agree to its terms.',
+            'The same policy is at brownclaw.web.app/privacy.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 32),

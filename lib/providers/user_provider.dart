@@ -42,6 +42,9 @@ class UserData {
 
   bool get isAuthenticated => user != null;
 
+  /// Using the app without an account (no Apple or Google sign-in yet).
+  bool get isAnonymous => user?.isAnonymous ?? false;
+
   UserData copyWith({
     User? user,
     Map<String, dynamic>? userData,
@@ -126,29 +129,9 @@ class UserNotifier extends StateNotifier<UserData> {
       );
 
       // Sign in to Firebase with the Google credential
-      final userCredential = await _auth.signInWithCredential(credential);
+      final userCredential = await _signInOrLink(credential);
 
-      // Create or update user document in Firestore
-      if (userCredential.user != null) {
-        final userDoc = _firestore
-            .collection('users')
-            .doc(userCredential.user!.uid);
-        final docSnapshot = await userDoc.get();
-
-        if (!docSnapshot.exists) {
-          // New user - create document
-          await userDoc.set({
-            'uid': userCredential.user!.uid,
-            'email': userCredential.user!.email,
-            'displayName': userCredential.user!.displayName,
-            'photoURL': userCredential.user!.photoURL,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-        } else {
-          // Existing user - update last sign in
-          await userDoc.update({'lastSignIn': FieldValue.serverTimestamp()});
-        }
-      }
+      await _saveUser(userCredential.user);
     } on FirebaseAuthException catch (e) {
       state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
     } catch (e) {
@@ -159,6 +142,70 @@ class UserNotifier extends StateNotifier<UserData> {
     } finally {
       state = state.copyWith(isLoading: false);
     }
+  }
+
+  /// Try the app without an account (Firebase anonymous auth). Everything
+  /// works the same; signing in with Apple or Google later keeps the
+  /// logbook, because the anonymous account is linked rather than replaced.
+  Future<void> continueAnonymously() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final credential = await _auth.signInAnonymously();
+      await _saveUser(credential.user);
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(errorMessage: _getAuthErrorMessage(e));
+    } catch (e) {
+      state = state.copyWith(errorMessage: "Couldn't continue: $e");
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Signs in with [credential], or, when the current user is anonymous,
+  /// links it to that user so their logbook carries over. If the Apple or
+  /// Google account already has a Brownpaw account, signs in to that one.
+  Future<UserCredential> _signInOrLink(AuthCredential credential) async {
+    final current = _auth.currentUser;
+    if (current == null || !current.isAnonymous) {
+      return _auth.signInWithCredential(credential);
+    }
+    try {
+      final result = await current.linkWithCredential(credential);
+      _refreshLinkedUser();
+      return result;
+    } on FirebaseAuthException catch (e) {
+      if (e.code != 'credential-already-in-use') rethrow;
+      return _auth.signInWithCredential(e.credential ?? credential);
+    }
+  }
+
+  /// [_signInOrLink] for flows that open a browser page or popup.
+  Future<UserCredential> _signInOrLinkProvider(AuthProvider provider) async {
+    final current = _auth.currentUser;
+    if (current == null || !current.isAnonymous) {
+      return kIsWeb
+          ? _auth.signInWithPopup(provider)
+          : _auth.signInWithProvider(provider);
+    }
+    try {
+      final result = kIsWeb
+          ? await current.linkWithPopup(provider)
+          : await current.linkWithProvider(provider);
+      _refreshLinkedUser();
+      return result;
+    } on FirebaseAuthException catch (e) {
+      if (e.code != 'credential-already-in-use' || e.credential == null) {
+        rethrow;
+      }
+      return _auth.signInWithCredential(e.credential!);
+    }
+  }
+
+  /// Linking keeps the same uid, so authStateChanges doesn't fire; pick up
+  /// the now non-anonymous user by hand.
+  void _refreshLinkedUser() {
+    final user = _auth.currentUser;
+    if (user != null) state = state.copyWith(user: user);
   }
 
   /// Sign in with Apple on every platform. iPhone, iPad and Mac use
@@ -178,9 +225,7 @@ class UserNotifier extends StateNotifier<UserData> {
         final provider = AppleAuthProvider()
           ..addScope('email')
           ..addScope('name');
-        final credential = kIsWeb
-            ? await _auth.signInWithPopup(provider)
-            : await _auth.signInWithProvider(provider);
+        final credential = await _signInOrLinkProvider(provider);
         await _saveUser(credential.user);
       }
     } on SignInWithAppleAuthorizationException catch (e) {
@@ -221,7 +266,7 @@ class UserNotifier extends StateNotifier<UserData> {
       idToken: apple.identityToken,
       accessToken: apple.authorizationCode,
     );
-    final result = await _auth.signInWithCredential(credential);
+    final result = await _signInOrLink(credential);
     // Apple gives the name only the first time someone signs in.
     final name = '${apple.givenName ?? ''} ${apple.familyName ?? ''}'.trim();
     if (name.isNotEmpty && (result.user?.displayName ?? '').isEmpty) {
@@ -252,17 +297,39 @@ class UserNotifier extends StateNotifier<UserData> {
     if (user == null) return;
     final userDoc = _firestore.collection('users').doc(user.uid);
     final snapshot = await userDoc.get();
+    // A linked account keeps the Apple or Google details on its provider
+    // entries rather than on the user itself.
+    String? fromProviders(String? Function(UserInfo) field) {
+      for (final p in user.providerData) {
+        final value = field(p);
+        if (value != null && value.isNotEmpty) return value;
+      }
+      return null;
+    }
+
+    final email = user.email ?? fromProviders((p) => p.email);
+    final name =
+        displayName ?? user.displayName ?? fromProviders((p) => p.displayName);
+    final photo = user.photoURL ?? fromProviders((p) => p.photoURL);
     if (!snapshot.exists) {
       await userDoc.set({
         'uid': user.uid,
-        'email': user.email,
-        'displayName': displayName ?? user.displayName,
-        'photoURL': user.photoURL,
+        'email': email,
+        'displayName': name,
+        'photoURL': photo,
         'createdAt': FieldValue.serverTimestamp(),
       });
     } else {
-      await userDoc.update({'lastSignIn': FieldValue.serverTimestamp()});
+      final existing = snapshot.data() ?? {};
+      await userDoc.update({
+        'lastSignIn': FieldValue.serverTimestamp(),
+        if (existing['email'] == null && email != null) 'email': email,
+        if (existing['displayName'] == null && name != null)
+          'displayName': name,
+        if (existing['photoURL'] == null && photo != null) 'photoURL': photo,
+      });
     }
+    await _fetchUserData(user.uid);
   }
 
   Future<void> signOut() async {

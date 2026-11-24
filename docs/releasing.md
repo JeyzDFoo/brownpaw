@@ -45,6 +45,8 @@ Do them in this order. Each GitHub secret goes in the repo under
    Project settings > Cloud Messaging > Apple app configuration > upload it
    with its Key ID and Team ID `265ZKGV6P9`.
 4. **Sign in with Apple** console steps: see `docs/apple-sign-in.md`.
+   Also turn on **Anonymous** in Firebase console > Authentication >
+   Sign-in method, for "Continue without an account".
 
 ### App Store Connect / TestFlight
 
@@ -118,8 +120,8 @@ From then on every tag uploads to both stores on its own.
 - Deploy hosting so the new privacy policy is live: `firebase deploy --only hosting`.
 - Make sure `privacy@brownpaw.app` (used in the privacy policy and listing)
   reaches you, or change it in `web/privacy.html` and `docs/store-listing.md`.
-- Create a review account (email sign-in) for Apple and Google reviewers
-  and put it in the App Review / App access forms.
+- Reviewers use "Continue without an account", so no demo login is needed.
+  Review notes are in `docs/store-listing.md`.
 
 ## Troubleshooting
 

@@ -59,6 +59,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildSectionHeader('Account'),
             const SizedBox(height: 8),
             _buildUserInfoCard(userState),
+            if (userState.isAnonymous) ...[
+              const SizedBox(height: 12),
+              _SaveLogbookCard(
+                busy: userState.isLoading,
+                onApple: userNotifier.signInWithApple,
+                onGoogle: userNotifier.signInWithGoogle,
+              ),
+            ],
             const SizedBox(height: 24),
 
             // Account Actions
@@ -122,7 +130,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final displayName =
         userState.userData?['displayName'] as String? ??
         user.displayName ??
-        'Unknown User';
+        (user.isAnonymous ? 'Paddler' : 'Unknown User');
 
     // Get photo URL from Firestore userData if available, fallback to Firebase Auth
     final photoURL =
@@ -196,7 +204,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        user.email ?? 'No email',
+                        user.isAnonymous
+                            ? 'No account yet'
+                            : user.email ?? 'No email',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -245,6 +255,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildSignOutTile(UserNotifier userNotifier) {
+    // Without an account, signing out would strand the logbook for good.
+    if (ref.read(userProvider).isAnonymous) return const SizedBox.shrink();
     return Card(
       child: ListTile(
         leading: const Icon(Icons.logout),
@@ -719,6 +731,54 @@ class ThemeModePicker extends ConsumerWidget {
         selected: {mode},
         onSelectionChanged: (s) =>
             ref.read(themeModeProvider.notifier).set(s.first),
+      ),
+    );
+  }
+}
+
+/// Shown on Me while using the app without an account: sign in with Apple
+/// or Google to keep the logbook across phones. Linking keeps every run.
+class _SaveLogbookCard extends StatelessWidget {
+  const _SaveLogbookCard({
+    required this.busy,
+    required this.onApple,
+    required this.onGoogle,
+  });
+
+  final bool busy;
+  final Future<void> Function() onApple;
+  final Future<void> Function() onGoogle;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Card(
+      key: const Key('save-logbook-card'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Keep your logbook', style: text.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              'Sign in to keep your runs if you change or lose your phone. '
+              'Everything you have logged stays.',
+              style: text.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: busy ? null : onApple,
+              icon: const Icon(Icons.apple),
+              label: const Text('Continue with Apple'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: busy ? null : onGoogle,
+              child: const Text('Continue with Google'),
+            ),
+          ],
+        ),
       ),
     );
   }

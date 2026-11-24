@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 // import 'package:package_info_plus/package_info_plus.dart';
 import '../providers/user_provider.dart';
 import '../router.dart';
+import '../providers/theme_mode_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -68,6 +69,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildDeleteAccountTile(context, userNotifier),
             const SizedBox(height: 32),
           ],
+
+          _buildSectionHeader('Appearance'),
+          const SizedBox(height: 8),
+          const ThemeModePicker(),
+          const SizedBox(height: 32),
 
           // App Information Section
           _buildSectionHeader('App Information'),
@@ -678,6 +684,42 @@ class _EditDisplayNameDialogState extends State<_EditDisplayNameDialog> {
           child: const Text('Save'),
         ),
       ],
+    );
+  }
+}
+
+/// System / Light / Dark. "System" follows the phone's setting.
+class ThemeModePicker extends ConsumerWidget {
+  const ThemeModePicker({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    return SizedBox(
+      width: double.infinity,
+      child: SegmentedButton<ThemeMode>(
+        showSelectedIcon: false,
+        segments: const [
+          ButtonSegment(
+            value: ThemeMode.system,
+            icon: Icon(Icons.brightness_auto_outlined),
+            label: Text('System'),
+          ),
+          ButtonSegment(
+            value: ThemeMode.light,
+            icon: Icon(Icons.light_mode_outlined),
+            label: Text('Light'),
+          ),
+          ButtonSegment(
+            value: ThemeMode.dark,
+            icon: Icon(Icons.dark_mode_outlined),
+            label: Text('Dark'),
+          ),
+        ],
+        selected: {mode},
+        onSelectionChanged: (s) =>
+            ref.read(themeModeProvider.notifier).set(s.first),
+      ),
     );
   }
 }

@@ -30,17 +30,15 @@
    retries (e.g. 2 retries, 5 minute minimum backoff) so a passing outage
    doesn't cost a whole cycle.
 
-## Update hourly instead of every 3 hours
+## Schedule
 
-Cloud Scheduler > the realtime job > Edit > Frequency `0 * * * *` (time zone
-America/Vancouver) > Update. Or from a terminal:
-
-    gcloud scheduler jobs list --project brownclaw
-    gcloud scheduler jobs update http <job name> --schedule="0 * * * *" \
-        --time-zone="America/Vancouver" --project brownclaw
+The schedule lives in `functions/main.py` (`scheduled_realtime_update`,
+hourly at five past; `scheduled_daily_update`, 2:30 AM Pacific).
+`firebase deploy --only functions` creates and updates their Cloud
+Scheduler jobs, so a redeploy can't leave a job calling an old URL. Delete
+any older hand-made Scheduler jobs that call `update_realtime_data` or
+`update_daily_averages`, or the updates run twice (harmless, just wasted).
 
 Cost: each run reads every run document once and writes one document per
 station, about 60 reads and 60 writes; hourly is roughly 1,500 of each a
-day, well inside Firestore's free daily quota. Function time stays within
-the free tier at this size. Environment Canada's data itself updates about
-hourly, so hourly is the most that helps.
+day, well inside Firestore's free daily quota.

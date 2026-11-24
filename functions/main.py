@@ -1,9 +1,12 @@
 """
 Google Cloud Functions for BrownPaw station data updates.
 
-Entry points for two scheduled functions:
-1. update_realtime_data: Runs every 3 hours, fetches 14 days of hourly data
-2. update_daily_averages: Runs once daily, calculates today's average from cached data
+Entry points:
+- scheduled_realtime_update: hourly; 30 days of hourly readings per gauge,
+  flow alerts, gauge health.
+- scheduled_daily_update: daily; daily means and history.
+- update_realtime_data / update_daily_averages: the same jobs over HTTP, for
+  running one by hand.
 """
 
 import sys
@@ -20,7 +23,7 @@ sys.path.insert(0, str(scripts_dir / 'environment_canada'))
 # Import update modules
 import realtime_updater
 import daily_updater
-from firebase_functions import https_fn
+from firebase_functions import https_fn, scheduler_fn
 from firebase_functions.options import MemoryOption
 
 
@@ -82,3 +85,39 @@ def update_daily_averages(request):
     except Exception as e:
         logger.error(f"Function error: {e}", exc_info=True)
         return {'status': 'error', 'error': str(e)}, 500
+
+
+# Scheduled versions. `firebase deploy --only functions` creates and keeps
+# their Cloud Scheduler jobs itself, so a redeploy can't leave a job
+# pointing at an old URL (which stopped the gauges on 2026-11-24). The HTTP
+# functions above stay for running an update by hand.
+PACIFIC = scheduler_fn.Timezone("America/Vancouver")
+
+
+@scheduler_fn.on_schedule(
+    schedule="5 * * * *",  # hourly, just after Environment Canada's update
+    timezone=PACIFIC,
+    region="us-central1",
+    memory=MemoryOption.GB_1,
+    timeout_sec=540,
+    retry_count=1,
+)
+def scheduled_realtime_update(event: scheduler_fn.ScheduledEvent) -> None:
+    result = asyncio.run(realtime_updater.run_update())
+    logger.info(f"Scheduled realtime update: {result}")
+    if result.get('success', 0) == 0 and result.get('failed'):
+        # Raising marks the run failed in the logs and lets it retry once.
+        raise RuntimeError(f"GAUGE_UPDATE_DEGRADED: nothing updated: {result}")
+
+
+@scheduler_fn.on_schedule(
+    schedule="30 2 * * *",  # 2:30 AM Pacific, after the day is complete
+    timezone=PACIFIC,
+    region="us-central1",
+    memory=MemoryOption.MB_512,
+    timeout_sec=540,
+    retry_count=1,
+)
+def scheduled_daily_update(event: scheduler_fn.ScheduledEvent) -> None:
+    result = daily_updater.run_update()
+    logger.info(f"Scheduled daily update: {result}")

@@ -1,32 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:brownpaw/router.dart';
 
 import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/favourites_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 // import 'package:brownpaw/screens/map_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
-import 'package:brownpaw/screens/log_descent_screen.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+/// The tabbed home shell. Each tab has its own URL (see [AppRoutes.tabs]),
+/// so the browser's back button and shared links work on the web.
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key, this.tabIndex = 0});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  final int tabIndex;
 
   static const List<Widget> _screens = [
     CommunityHomeScreen(),
@@ -38,33 +26,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: _selectedIndex == 1
+      floatingActionButton: tabIndex == 1
           ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LogDescentScreen(),
-                  ),
-                );
-              },
+              onPressed: () => context.push(AppRoutes.logDescent),
               icon: const Icon(Icons.add),
               label: const Text('Log Descent'),
             )
           : null,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text('Brown Paw'),
       ),
-      body: _screens[_selectedIndex],
+      body: _screens[tabIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        currentIndex: tabIndex,
+        onTap: (index) => context.go(AppRoutes.tabs[index]),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),

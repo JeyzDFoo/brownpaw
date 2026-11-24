@@ -65,12 +65,20 @@ class UserNotifier extends StateNotifier<UserData> {
   final GoogleSignIn _googleSignIn;
 
   UserNotifier(this._auth, this._firestore, this._storage, this._googleSignIn)
-    : super(UserData()) {
+    // Start from the session Firebase restored on launch, so a signed-in
+    // paddler never sees the sign-in screen flash past.
+    : super(UserData(user: _auth.currentUser)) {
     _auth.authStateChanges().listen(_onAuthStateChanged);
   }
 
   Future<void> _onAuthStateChanged(User? user) async {
-    state = state.copyWith(user: user, errorMessage: null);
+    // Built fresh rather than with copyWith, which can't clear the user:
+    // signing out has to set it back to null.
+    state = UserData(
+      user: user,
+      userData: user?.uid == state.user?.uid ? state.userData : null,
+      isLoading: state.isLoading,
+    );
 
     if (user != null) {
       await _fetchUserData(user.uid);

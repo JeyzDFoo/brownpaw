@@ -50,7 +50,7 @@ class DescentScreen extends ConsumerWidget {
 
     return descents.when(
       loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+          Scaffold(appBar: AppBar(), body: const LoadingPebbles(count: 4)),
       error: (_, _) => message("Couldn't load this run"),
       data: (all) {
         final descent = all.where((d) => d.id == descentId).firstOrNull;

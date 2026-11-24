@@ -25,7 +25,8 @@
   <meta name="description" content="Track your whitewater descents, view live river flow data, and explore runs across BC and Alberta. Your kayaking logbook, always with you.">
   <meta name="keywords" content="whitewater, kayaking, river levels, logbook, BC rivers, Alberta rivers, flow data, paddling">
   <meta name="author" content="Brownpaw">
-  <meta name="theme-color" content="#1e3a5f">
+  <meta name="theme-color" content="#ECEFEA" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1916" media="(prefers-color-scheme: dark)">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -43,7 +44,7 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Brownpaw">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -51,9 +52,55 @@
   <link rel="icon" type="image/png" href="favicon.png"/>
 
   <link rel="manifest" href="manifest.json">
+  <!-- Launch screen: the paw on silt green with a flowing line under it,
+       shown until Flutter draws its first frame (see main.dart). -->
+  <style id="splash-screen-style">
+    html { height: 100%; }
+    body { margin: 0; min-height: 100%; background: #ECEFEA; }
+    #splash {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px;
+      transition: opacity 240ms ease-out;
+    }
+    #splash img { width: 192px; height: 192px; }
+    #splash .flow {
+      width: 96px; height: 6px; border-radius: 3px; overflow: hidden;
+      background: #DCE1DA; position: relative;
+    }
+    #splash .flow::after {
+      content: ""; position: absolute; top: 0; bottom: 0; width: 40%;
+      border-radius: 3px; background: #2C7C82;
+      animation: flow 1.3s ease-in-out infinite;
+    }
+    @keyframes flow { from { left: -40%; } to { left: 100%; } }
+    @media (prefers-reduced-motion: reduce) {
+      #splash .flow::after { animation: none; left: 30%; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1B1916; }
+      #splash .flow { background: #36302B; }
+      #splash .flow::after { background: #6FC1C5; }
+    }
+  </style>
+  <script id="splash-screen-script">
+    // Called by flutter_native_splash once the app has drawn.
+    function removeSplashFromWeb() {
+      const el = document.getElementById("splash");
+      if (!el) return;
+      el.style.opacity = "0";
+      setTimeout(() => el.remove(), 260);
+    }
+  </script>
   <meta name="google-signin-client_id" content="1047120968895-f56596g53nq4fnkf8n78q1hsl97a8fk7.apps.googleusercontent.com">
 </head>
 <body>
+  <div id="splash" role="progressbar" aria-label="Loading Brownpaw">
+    <picture>
+      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
+      <img src="splash/img/light-1x.png" srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" alt="">
+    </picture>
+    <div class="flow"></div>
+  </div>
   <script src="flutter_bootstrap.js" async></script>
   <script>
     // Keeps the app opening with no signal (see offline-sw.js).

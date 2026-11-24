@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:brownpaw/data/location_service.dart';
 import 'package:brownpaw/data/repositories.dart';
 import 'package:brownpaw/models/descent.dart';
@@ -7,6 +9,8 @@ import 'package:brownpaw/providers/offline_cache_provider.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/screens/descent_screen.dart';
 import 'package:brownpaw/screens/home_screen.dart';
+import 'package:brownpaw/screens/logbook_screen.dart';
+import 'package:brownpaw/widgets/pebble.dart';
 import 'package:brownpaw/theme/app_theme.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
 import 'package:flutter/material.dart';
@@ -153,6 +157,25 @@ void main() {
     expect(find.text('How was it?'), findsOneWidget);
     // Descents are always private now, so there's no switch for it.
     expect(find.byType(Switch), findsNothing);
+  });
+
+  testWidgets('shows placeholder pebbles while the logbook loads', (
+    tester,
+  ) async {
+    final never = StreamController<List<Descent>>();
+    addTearDown(never.close);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [allDescentsProvider.overrideWith((ref) => never.stream)],
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: const Scaffold(body: LogbookScreen()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(LoadingPebbles), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
   testWidgets('the bar has five slots with Log in the middle', (tester) async {

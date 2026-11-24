@@ -50,7 +50,7 @@ class RunDetailsScreen extends ConsumerWidget {
         ],
       ),
       body: runAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingPebbles(count: 3, height: 140),
         error: (e, _) => const Center(child: Text("Couldn't load this run")),
         data: (run) => run == null
             ? const Center(child: Text('Run not found'))

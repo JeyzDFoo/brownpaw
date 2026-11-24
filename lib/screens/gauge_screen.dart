@@ -42,7 +42,7 @@ class GaugeScreen extends ConsumerWidget {
         ],
       ),
       body: gaugeAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingPebbles(count: 3, height: 140),
         error: (e, _) => const Center(child: Text("Couldn't load this gauge")),
         data: (gauge) => gauge == null
             ? const Center(child: Text('No runs use this gauge'))

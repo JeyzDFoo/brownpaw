@@ -86,3 +86,64 @@ class BrownpawMark extends StatelessWidget {
     );
   }
 }
+
+/// Placeholder pebbles shown while a screen's first data loads, in the
+/// shape of what's coming, so the page doesn't jump when it arrives.
+/// Fades in gently, so a quick load never flashes it.
+class LoadingPebbles extends StatelessWidget {
+  const LoadingPebbles({
+    super.key,
+    this.count = 4,
+    this.height = 84,
+    this.header = false,
+    this.padding = const EdgeInsets.fromLTRB(20, 8, 20, 24),
+  });
+
+  /// How many card-shaped pebbles.
+  final int count;
+  final double height;
+
+  /// A row of three small tiles on top, like the logbook's season stats.
+  final bool header;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Riverstone.of(context);
+    final fill = Color.alphaBlend(p.faint.withValues(alpha: 0.6), p.paper);
+    Widget block(double h, BorderRadius r) => Container(
+      height: h,
+      decoration: BoxDecoration(color: fill, borderRadius: r),
+    );
+    return Semantics(
+      label: 'Loading',
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 500),
+        curve: const Interval(0.3, 1, curve: Curves.easeOut),
+        builder: (context, t, child) => Opacity(opacity: t, child: child),
+        child: ListView(
+          padding: padding,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            if (header) ...[
+              Row(
+                children: [
+                  for (var i = 0; i < 3; i++) ...[
+                    if (i > 0) const SizedBox(width: 10),
+                    Expanded(child: block(78, Pebble.alternating(i))),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 24),
+            ],
+            for (var i = 0; i < count; i++) ...[
+              block(height, Pebble.alternating(i)),
+              const SizedBox(height: 10),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

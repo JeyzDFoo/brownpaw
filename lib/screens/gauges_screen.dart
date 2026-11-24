@@ -36,7 +36,10 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
     final mine = ref.watch(yourGaugesProvider).valueOrNull ?? const <Gauge>[];
 
     return allAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const LoadingPebbles(
+        count: 5,
+        padding: EdgeInsets.fromLTRB(20, 0, 20, 24),
+      ),
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(32),

@@ -19,6 +19,7 @@ const MAX_TILES = 3000;
 const PRECACHE = [
   './', 'index.html', 'flutter_bootstrap.js', 'main.dart.js',
   'manifest.json', 'favicon.png',
+  'splash/img/light-2x.png', 'splash/img/dark-2x.png',
   'canvaskit/canvaskit.js', 'canvaskit/canvaskit.wasm',
   'canvaskit/chromium/canvaskit.js', 'canvaskit/chromium/canvaskit.wasm',
   'assets/FontManifest.json', 'assets/AssetManifest.bin.json',

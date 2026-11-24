@@ -18,6 +18,7 @@ import '../widgets/favourite_star.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/map_tiles.dart';
 import '../theme/app_theme.dart';
+import '../widgets/pebble.dart';
 
 /// Every run in the guide, with how it's running now.
 final guideEntriesProvider = Provider<AsyncValue<List<GuideEntry>>>((ref) {
@@ -97,7 +98,7 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
   Widget build(BuildContext context) {
     final async = ref.watch(guideEntriesProvider);
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const LoadingPebbles(count: 5, height: 72),
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(32),

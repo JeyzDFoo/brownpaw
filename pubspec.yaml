@@ -57,6 +57,9 @@ dependencies:
   
   # URL Launcher
   url_launcher: ^6.3.1
+
+  # Launch screen on iOS, Android and the web app (config below).
+  flutter_native_splash: ^2.4.6
   
   # Map Launcher
   map_launcher: ^4.4.2
@@ -153,3 +156,19 @@ flutter_launcher_icons:
   adaptive_icon_background: "#1e3a5f"
   adaptive_icon_foreground: "images/brownpaw-logo.png"
   remove_alpha_ios: true
+
+# Launch screen: the paw on silt green (dark: on slate brown).
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#ECEFEA"
+  image: images/splash.png
+  color_dark: "#1B1916"
+  image_dark: images/splash_dark.png
+  android_12:
+    color: "#ECEFEA"
+    image: images/splash_android12.png
+    color_dark: "#1B1916"
+    image_dark: images/splash_android12_dark.png
+  web: true
+  web_image_mode: center
+  fullscreen: false

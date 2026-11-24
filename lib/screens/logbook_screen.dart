@@ -33,7 +33,10 @@ class LogbookScreen extends ConsumerWidget {
     };
 
     return descentsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const LoadingPebbles(
+        header: true,
+        padding: EdgeInsets.fromLTRB(20, 40, 20, 24),
+      ),
       error: (e, _) => _Message(
         icon: Icons.cloud_off,
         title: "Couldn't load your logbook",

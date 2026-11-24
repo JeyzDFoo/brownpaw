@@ -3,14 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:brownpaw/providers/theme_mode_provider.dart';
 import 'package:brownpaw/theme/app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'router.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Hold the launch screen (the paw) until the first real frame, so there's
+  // no blank flash between it and the app.
+  FlutterNativeSplash.preserve(
+    widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
+  );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Keep Firestore data on the device, on the web app too, so runs, your
@@ -32,10 +38,25 @@ void main() async {
     return const _BuildErrorNote();
   };
 
+  // Wait for Firebase to restore the saved session, so a signed-in paddler
+  // opens straight to their logbook rather than flashing the sign-in
+  // screen. It's read from the device, so this is quick; the timeout
+  // covers a slow web start.
+  try {
+    await FirebaseAuth.instance.authStateChanges().first.timeout(
+      const Duration(seconds: 4),
+    );
+  } catch (_) {
+    // Carry on: the router follows auth changes once they arrive.
+  }
+
   final container = ProviderContainer();
   _openAlertTaps(container);
   runApp(
     UncontrolledProviderScope(container: container, child: const BrownpawApp()),
+  );
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => FlutterNativeSplash.remove(),
   );
 }
 
@@ -68,8 +89,10 @@ class BrownpawApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
+      // On wide screens the app sits in a phone-width column on the page
+      // colour.
       builder: (context, child) => ColoredBox(
-        color: Colors.black,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),

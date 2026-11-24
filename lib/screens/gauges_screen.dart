@@ -267,29 +267,35 @@ class GaugeRow extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       SizedBox(
-                        width: 60,
+                        width: 64,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              flowText,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                flowText,
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text('m³/s', style: muted),
-                                if (trend != null) ...[
-                                  const SizedBox(width: 2),
-                                  TrendIcon(
-                                    trend,
-                                    size: 14,
-                                    color: muted?.color,
-                                  ),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('m³/s', style: muted),
+                                  if (trend != null) ...[
+                                    const SizedBox(width: 2),
+                                    TrendIcon(
+                                      trend,
+                                      size: 14,
+                                      color: muted?.color,
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ],
                         ),

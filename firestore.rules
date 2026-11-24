@@ -39,11 +39,33 @@ service cloud.firestore {
       }
     }
     
-    // River runs collection - open for authenticated users (legacy top-level)
+    // River runs collection
     match /river_runs/{runId} {
       allow read: if isAuthenticated();
-      // Only hardcoded admin users can create/update/delete river runs
-      allow create, update, delete: if isAdmin();
+
+      // Admins manage the curated guide. Paddlers can add their own
+      // private, unverified runs from the log screen (see
+      // RiverRunsNotifier.createRun) and edit or remove only those.
+      allow create: if isAdmin() || (
+        isAuthenticated()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.verified == false
+        && request.resource.data.visibility == 'private'
+      );
+
+      allow update: if isAdmin() || (
+        isAuthenticated()
+        && resource.data.createdBy == request.auth.uid
+        && resource.data.verified == false
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.verified == false
+      );
+
+      allow delete: if isAdmin() || (
+        isAuthenticated()
+        && resource.data.createdBy == request.auth.uid
+        && resource.data.verified == false
+      );
     }
     
     // Gauge stations collection - publicly readable
@@ -181,8 +203,9 @@ service cloud.firestore {
           'stripeCustomerId'
         ]));
       
-      // Prevent deletion of user documents
-      allow delete: if false;
+      // Users can delete their own profile (in-app account deletion is
+      // required by the App Store and Google Play)
+      allow delete: if isOwner(userId);
     }
 
     // Descents collection - top-level collection for all descent logs

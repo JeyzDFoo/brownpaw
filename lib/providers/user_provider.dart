@@ -340,36 +340,23 @@ class UserNotifier extends StateNotifier<UserData> {
 
       final uid = state.user!.uid;
 
-      // Delete user document from Firestore
+      // Delete the user's logbook entries. Descents live in the top-level
+      // `descents` collection, keyed by `userId`.
+      await _deleteQuery(
+        _firestore.collection('descents').where('userId', isEqualTo: uid),
+      );
+
+      // Delete private runs the user added from the log screen.
+      await _deleteQuery(
+        _firestore
+            .collection('river_runs')
+            .where('createdBy', isEqualTo: uid)
+            .where('verified', isEqualTo: false),
+      );
+
+      // Delete the profile document last, since it holds favourites and
+      // settings the steps above don't need.
       await _firestore.collection('users').doc(uid).delete();
-
-      // Delete any related user data (favorites, etc.)
-      final batch = _firestore.batch();
-
-      // Delete user's favorites
-      final favoritesQuery = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('favorites')
-          .get();
-
-      for (final doc in favoritesQuery.docs) {
-        batch.delete(doc.reference);
-      }
-
-      // Delete user's descents
-      final descentsQuery = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('descents')
-          .get();
-
-      for (final doc in descentsQuery.docs) {
-        batch.delete(doc.reference);
-      }
-
-      // Commit the batch delete
-      await batch.commit();
 
       // Sign out from Google if signed in
       await _googleSignIn.signOut();
@@ -394,6 +381,20 @@ class UserNotifier extends StateNotifier<UserData> {
       }
     } finally {
       state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Deletes every document matched by [query], in batches small enough
+  /// for Firestore's 500-write limit. Safe to re-run if a later step fails.
+  Future<void> _deleteQuery(Query<Map<String, dynamic>> query) async {
+    while (true) {
+      final snapshot = await query.limit(400).get();
+      if (snapshot.docs.isEmpty) return;
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
     }
   }
 

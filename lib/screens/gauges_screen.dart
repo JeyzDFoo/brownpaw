@@ -206,7 +206,7 @@ class GaugeRow extends ConsumerWidget {
 
     final flowText = flow?.toStringAsFixed(1) ?? '–';
     final label = [
-      gauge.river,
+      gauge.title,
       if (gauge.place.isNotEmpty) gauge.place,
       if (flow != null) '$flowText cubic metres per second',
       if (trend != null) trend.label,
@@ -225,7 +225,9 @@ class GaugeRow extends ConsumerWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push(AppRoutes.gauge(gauge.id)),
+          // A sub-page of Gauges: its URL updates, and the app bar back,
+          // system back, iOS swipe and browser back all return here.
+          onTap: () => context.go(AppRoutes.gauge(gauge.id)),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Row(
@@ -235,7 +237,7 @@ class GaugeRow extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        gauge.river,
+                        gauge.title,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -254,7 +256,7 @@ class GaugeRow extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                FlowSparkline(values: [for (final r in readings) r.discharge!]),
+                FlowSparkline(points: hourlyWindow(readings, 7)),
                 const SizedBox(width: 12),
                 SizedBox(
                   width: 74,

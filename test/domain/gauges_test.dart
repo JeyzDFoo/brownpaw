@@ -30,21 +30,27 @@ Descent logged(String runId, DateTime date) => Descent(
 );
 
 void main() {
-  group('splitStationName', () {
-    test('title-cases Environment Canada names and splits the place', () {
-      expect(splitStationName('CHILLIWACK RIVER AT VEDDER CROSSING'), (
-        'Chilliwack River',
-        'at Vedder Crossing',
-      ));
-      expect(splitStationName('Cheakamus River near Brackendale'), (
-        'Cheakamus River',
-        'near Brackendale',
-      ));
-    });
+  test('stationTitle title-cases Environment Canada names', () {
+    expect(
+      stationTitle('CHEAKAMUS RIVER ABOVE MILLAR CREEK'),
+      'Cheakamus River above Millar Creek',
+    );
+    expect(
+      stationTitle('Clearwater River near Clearwater Station'),
+      'Clearwater River near Clearwater Station',
+    );
+  });
 
-    test('keeps names without a place whole', () {
-      expect(splitStationName('Seymour River'), ('Seymour River', ''));
-    });
+  test('runLabel drops the river in front', () {
+    expect(
+      runLabel(run('a', 'Clearwater River', 'Clearwater River - Upper')),
+      'Upper',
+    );
+    expect(
+      runLabel(run('b', 'Cheakamus', 'Cheakamus – Paradise Valley')),
+      'Paradise Valley',
+    );
+    expect(runLabel(run('c', 'Elaho', 'Elaho-Squamish')), 'Elaho-Squamish');
   });
 
   group('gaugesFromRuns', () {
@@ -70,10 +76,10 @@ void main() {
         'environment_canada_08MH001',
         'environment_canada_08GA030',
       ]);
-      expect(gauges.first.river, 'Chilliwack River');
-      expect(gauges.first.place, 'at Vedder Crossing');
+      expect(gauges.first.title, 'Chilliwack River at Vedder Crossing');
+      expect(gauges.first.place, 'Canyon · Tamihi to Vedder');
       expect(gauges.first.runs.map((r) => r.riverId), ['canyon', 'tamihi']);
-      expect(gauges.last.river, 'Seymour River');
+      expect(gauges.last.title, 'Seymour River');
     });
 
     test('yourGauges puts the most recently logged first', () {
@@ -83,7 +89,10 @@ void main() {
         favouriteRunIds: {'seymour'},
         descents: [logged('canyon', DateTime(2026, 11, 2))],
       );
-      expect(mine.map((g) => g.river), ['Chilliwack River', 'Seymour River']);
+      expect(mine.map((g) => g.title), [
+        'Chilliwack River at Vedder Crossing',
+        'Seymour River',
+      ]);
       expect(yourGauges(gauges), isEmpty);
     });
 
@@ -101,8 +110,35 @@ void main() {
         ),
         run('dam', 'Cheakamus', 'Dam Run', station: '08GA043'),
       ]).single;
-      expect(g.river, 'Cheakamus River');
+      expect(g.title, 'Cheakamus River');
       expect(g.place, 'Dam Run · Paradise Valley');
+    });
+
+    test('official station names win, and odd river fields are tidied', () {
+      final gauges = gaugesFromRuns(
+        [
+          run(
+            'gg',
+            'Clearwater River - Gatling Gorge',
+            'Gatling Gorge',
+            station: '08LA001',
+          ),
+          run(
+            'chw',
+            ': Check the Chilliwack',
+            'Check the Chilliwack',
+            station: '08MH016',
+          ),
+        ],
+        stationNames: {
+          'environment_canada_08LA001':
+              'CLEARWATER RIVER NEAR CLEARWATER STATION',
+        },
+      );
+      expect(gauges.map((g) => g.title), [
+        'Check the Chilliwack River',
+        'Clearwater River near Clearwater Station',
+      ]);
     });
 
     test('search matches river, place and run names', () {
@@ -149,6 +185,34 @@ void main() {
       updatedAgo(now.subtract(const Duration(days: 4)), now: now),
       'Updated 4 days ago',
     );
+  });
+
+  test('hourlyWindow keeps readings within the span of the latest', () {
+    final end = DateTime.utc(2026, 11, 24);
+    final readings = [
+      for (var d = 10; d >= 0; d--)
+        FlowReading(
+          timestamp: end.subtract(Duration(days: d)),
+          discharge: d.toDouble(),
+        ),
+    ];
+    expect(hourlyWindow(readings, 2).map((p) => p.flow), [2, 1, 0]);
+  });
+
+  test('dailySeries reads daily means in range, oldest first', () {
+    final points = dailySeries(
+      [
+        {
+          '2026-01-02': {'mean_discharge': 12.5},
+          '2026-01-01': {'mean_discharge': 10},
+          '2025-12-01': {'mean_discharge': 99},
+          'bad': {'mean_discharge': 1},
+        },
+      ],
+      DateTime(2025, 12, 20),
+      DateTime(2026, 1, 5),
+    );
+    expect(points.map((p) => p.flow), [10, 12.5]);
   });
 
   test('goodRange', () {

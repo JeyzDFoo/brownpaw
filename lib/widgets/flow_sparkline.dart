@@ -1,107 +1,218 @@
 import 'dart:math' as math;
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-/// A line of flow over time. With [filled], shades the area under it and
-/// draws a baseline, for the larger chart on a gauge page.
+import '../domain/gauges.dart';
+
+double _x(DateTime t) => t.millisecondsSinceEpoch / 3600000; // hours
+
+LineChartBarData _line(
+  List<FlowPoint> points,
+  Color color,
+  double width, {
+  required bool filled,
+}) => LineChartBarData(
+  spots: [for (final p in points) FlSpot(_x(p.time), p.flow)],
+  color: color,
+  barWidth: width,
+  isCurved: false,
+  isStrokeCapRound: true,
+  isStrokeJoinRound: true,
+  dotData: const FlDotData(show: false),
+  belowBarData: BarAreaData(show: filled, color: color.withValues(alpha: 0.12)),
+);
+
+({double min, double max}) _yRange(List<FlowPoint> points, {double pad = 0}) {
+  final lo = points.map((p) => p.flow).reduce(math.min);
+  final hi = points.map((p) => p.flow).reduce(math.max);
+  final span = hi - lo == 0 ? math.max(hi.abs() * 0.1, 1.0) : hi - lo;
+  return (min: math.max(0, lo - span * pad), max: hi + span * pad);
+}
+
+/// A small line of recent flow for a gauge tile. Not interactive.
 class FlowSparkline extends StatelessWidget {
   const FlowSparkline({
     super.key,
-    required this.values,
+    required this.points,
     this.width = 76,
     this.height = 32,
-    this.filled = false,
+  });
+
+  final List<FlowPoint> points;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    if (points.length < 2) return SizedBox(width: width, height: height);
+    final y = _yRange(points, pad: 0.08);
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: LineChart(
+          LineChartData(
+            minY: y.min,
+            maxY: y.max,
+            lineBarsData: [
+              _line(
+                points,
+                Theme.of(context).colorScheme.primary,
+                2,
+                filled: false,
+              ),
+            ],
+            titlesData: const FlTitlesData(show: false),
+            gridData: const FlGridData(show: false),
+            borderData: FlBorderData(show: false),
+            lineTouchData: const LineTouchData(enabled: false),
+            clipData: const FlClipData.all(),
+          ),
+          duration: Duration.zero,
+        ),
+      ),
+    );
+  }
+}
+
+/// The gauge page chart: flow over time, filled to the baseline, with
+/// light guide lines and a touch readout of flow and time.
+class GaugeFlowChart extends StatelessWidget {
+  const GaugeFlowChart({
+    super.key,
+    required this.points,
+    required this.daily,
+    this.height = 160,
     this.semanticLabel,
   });
 
-  final List<double> values;
-  final double width;
+  final List<FlowPoint> points;
+
+  /// Daily means rather than hourly readings, for the readout's format.
+  final bool daily;
   final double height;
-  final bool filled;
   final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final y = _yRange(points, pad: 0.1);
+    final interval = _niceInterval((y.max - y.min) / 3);
+    final timeFormat = daily ? DateFormat.MMMd() : DateFormat('MMM d, h a');
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(
+      color: scheme.onSurfaceVariant,
+    );
+
     final chart = SizedBox(
-      width: width,
       height: height,
-      child: CustomPaint(
-        painter: _SparkPainter(
-          values: values,
-          color: theme.colorScheme.primary,
-          baseline: theme.colorScheme.outlineVariant,
-          filled: filled,
+      child: LineChart(
+        LineChartData(
+          minY: y.min,
+          maxY: y.max,
+          minX: _x(points.first.time),
+          maxX: _x(points.last.time),
+          lineBarsData: [_line(points, scheme.primary, 2.5, filled: true)],
+          gridData: FlGridData(
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (_) => FlLine(
+              color: scheme.outlineVariant.withValues(alpha: 0.6),
+              strokeWidth: 1,
+              dashArray: const [4, 4],
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
+          ),
+          titlesData: FlTitlesData(
+            topTitles: const AxisTitles(),
+            bottomTitles: const AxisTitles(),
+            leftTitles: const AxisTitles(),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 36,
+                interval: interval,
+                getTitlesWidget: (value, meta) {
+                  if (value == meta.min || value == meta.max) {
+                    return const SizedBox.shrink();
+                  }
+                  return SideTitleWidget(
+                    meta: meta,
+                    child: Text(_fmt(value), style: labelStyle),
+                  );
+                },
+              ),
+            ),
+          ),
+          lineTouchData: LineTouchData(
+            handleBuiltInTouches: true,
+            getTouchedSpotIndicator: (bar, indexes) => [
+              for (final _ in indexes)
+                TouchedSpotIndicatorData(
+                  FlLine(color: scheme.primary.withValues(alpha: 0.5)),
+                  FlDotData(
+                    getDotPainter: (_, _, _, _) => FlDotCirclePainter(
+                      radius: 4,
+                      color: scheme.primary,
+                      strokeWidth: 2,
+                      strokeColor: scheme.surface,
+                    ),
+                  ),
+                ),
+            ],
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipColor: (_) => scheme.inverseSurface,
+              tooltipBorderRadius: BorderRadius.circular(8),
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
+              getTooltipItems: (spots) => [
+                for (final s in spots)
+                  LineTooltipItem(
+                    '${s.y.toStringAsFixed(1)} m³/s\n',
+                    TextStyle(
+                      color: scheme.onInverseSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: timeFormat.format(
+                          DateTime.fromMillisecondsSinceEpoch(
+                            (s.x * 3600000).round(),
+                          ).toLocal(),
+                        ),
+                        style: TextStyle(
+                          color: scheme.onInverseSurface,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
         ),
+        duration: const Duration(milliseconds: 250),
       ),
     );
-    if (semanticLabel == null) return ExcludeSemantics(child: chart);
+    if (semanticLabel == null) return chart;
     return Semantics(label: semanticLabel, image: true, child: chart);
   }
-}
 
-class _SparkPainter extends CustomPainter {
-  _SparkPainter({
-    required this.values,
-    required this.color,
-    required this.baseline,
-    required this.filled,
-  });
-
-  final List<double> values;
-  final Color color;
-  final Color baseline;
-  final bool filled;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = filled ? 3.0 : 2.5;
-    final pad = stroke;
-    final bottom = filled ? size.height - 10 : size.height - pad;
-    if (filled) {
-      canvas.drawLine(
-        Offset(0, bottom),
-        Offset(size.width, bottom),
-        Paint()
-          ..color = baseline
-          ..strokeWidth = 1,
-      );
+  static double _niceInterval(double raw) {
+    if (raw <= 0) return 1;
+    final mag = math.pow(10, (math.log(raw) / math.ln10).floor()).toDouble();
+    for (final step in [1, 2, 2.5, 5, 10]) {
+      if (raw <= step * mag) return step * mag;
     }
-    if (values.length < 2) return;
-
-    final lo = values.reduce(math.min);
-    final hi = values.reduce(math.max);
-    final span = hi - lo == 0 ? 1.0 : hi - lo;
-    final top = pad;
-    final points = [
-      for (var i = 0; i < values.length; i++)
-        Offset(
-          i / (values.length - 1) * size.width,
-          bottom - (values[i] - lo) / span * (bottom - top),
-        ),
-    ];
-    final line = Path()..addPolygon(points, false);
-
-    if (filled) {
-      final area = Path()
-        ..moveTo(0, bottom)
-        ..addPolygon(points, false)
-        ..lineTo(size.width, bottom)
-        ..close();
-      canvas.drawPath(area, Paint()..color = color.withValues(alpha: 0.10));
-    }
-    canvas.drawPath(
-      line,
-      Paint()
-        ..color = color
-        ..strokeWidth = stroke
-        ..style = PaintingStyle.stroke
-        ..strokeJoin = StrokeJoin.round
-        ..strokeCap = StrokeCap.round,
-    );
+    return 10 * mag;
   }
 
-  @override
-  bool shouldRepaint(_SparkPainter old) =>
-      old.values != values || old.color != color || old.filled != filled;
+  static String _fmt(double v) => v >= 10 || v == v.roundToDouble()
+      ? v.round().toString()
+      : v.toStringAsFixed(1);
 }

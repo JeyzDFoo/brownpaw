@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../domain/flow_lookup.dart';
+import '../domain/gauges.dart';
 import '../models/realtime_flow.dart';
 
 /// The latest readings for one gauge station.
@@ -99,6 +100,44 @@ class GaugeRepository {
       debugPrint('GaugeRepository.flowOn($stationId) failed: $e');
     }
     return null;
+  }
+
+  /// Official station names from `stations/{doc id}`, written by the
+  /// realtime Cloud Function from Environment Canada's metadata.
+  Stream<Map<String, String>> watchStationNames() => _firestore
+      .collection('stations')
+      .snapshots()
+      .map(
+        (s) => {
+          for (final d in s.docs)
+            if (d.data()['name'] is String) d.id: d.data()['name'] as String,
+        },
+      );
+
+  /// Daily mean flows for the last [days] days, oldest first.
+  Future<List<FlowPoint>> dailyFlows(
+    String stationId,
+    int days, {
+    DateTime? now,
+  }) async {
+    final to = now ?? DateTime.now();
+    final from = to.subtract(Duration(days: days));
+    final docs = <Map<String, dynamic>>[];
+    try {
+      for (var year = from.year; year <= to.year; year++) {
+        final doc = await _firestore
+            .collection('station_data')
+            .doc(historyDocIdFor(stationId))
+            .collection('readings')
+            .doc('$year')
+            .get();
+        final daily = doc.data()?['daily_readings'];
+        if (daily is Map<String, dynamic>) docs.add(daily);
+      }
+    } catch (e) {
+      debugPrint('GaugeRepository.dailyFlows($stationId) failed: $e');
+    }
+    return dailySeries(docs, from, to);
   }
 
   static StationRealtimeFlow? _parse(String docId, Map<String, dynamic>? data) {

@@ -128,6 +128,14 @@ void main() {
     expect(bar.destinations.length, 5);
     expect(bar.selectedIndex, 0);
     expect(find.byType(FloatingActionButton), findsNothing);
+    // Tab icons are drawn in code, never from the icon font.
+    expect(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byType(Icon),
+      ),
+      findsNothing,
+    );
   });
 
   testWidgets('Log opens the quick-log sheet', (tester) async {

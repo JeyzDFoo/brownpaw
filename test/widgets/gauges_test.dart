@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:brownpaw/data/gauge_repository.dart';
 import 'package:brownpaw/data/repositories.dart';
+import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/models/descent.dart';
 import 'package:brownpaw/models/realtime_flow.dart';
 import 'package:brownpaw/models/river_run.dart';
@@ -13,6 +14,7 @@ import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/screens/gauge_screen.dart';
 import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/theme/app_theme.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +26,24 @@ class SeriesGauges extends FakeGauges {
   SeriesGauges(this.series, {this.minutesAgo = 14}) : super(null);
   final Map<String, List<double>> series;
   final int minutesAgo;
+
+  @override
+  Stream<Map<String, String>> watchStationNames() => Stream.value({
+    'environment_canada_08GA030': 'SEYMOUR RIVER NEAR NORTH VANCOUVER',
+  });
+
+  @override
+  Future<List<FlowPoint>> dailyFlows(
+    String stationId,
+    int days, {
+    DateTime? now,
+  }) async {
+    final today = DateTime.now();
+    return [
+      for (var d = days; d >= 1; d -= 7)
+        (time: today.subtract(Duration(days: d)), flow: 30.0 + d % 11),
+    ];
+  }
 
   @override
   Stream<StationRealtimeFlow?> watchCurrent(String stationId) {
@@ -163,8 +183,10 @@ void main() {
     expect(find.text('YOUR GAUGES'), findsOneWidget);
     expect(find.text('ALL GAUGES'), findsOneWidget);
     // Both Chilliwack runs share one gauge.
-    expect(find.text('Chilliwack River'), findsOneWidget);
-    expect(find.text('at Vedder Crossing'), findsOneWidget);
+    expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
+    expect(find.text('Canyon · Tamihi to Vedder'), findsOneWidget);
+    // The official name from the stations collection.
+    expect(find.text('Seymour River near North Vancouver'), findsOneWidget);
     expect(find.text('24.6'), findsOneWidget);
     expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
     expect(find.byIcon(Icons.arrow_downward), findsOneWidget);
@@ -173,8 +195,12 @@ void main() {
     // Cheakamus has no station, so no gauge.
     expect(find.textContaining('Cheakamus'), findsNothing);
 
-    final seymourY = tester.getTopLeft(find.text('Seymour River')).dy;
-    final chilliwackY = tester.getTopLeft(find.text('Chilliwack River')).dy;
+    final seymourY = tester
+        .getTopLeft(find.text('Seymour River near North Vancouver'))
+        .dy;
+    final chilliwackY = tester
+        .getTopLeft(find.text('Chilliwack River at Vedder Crossing'))
+        .dy;
     expect(seymourY, lessThan(chilliwackY));
   });
 
@@ -187,8 +213,8 @@ void main() {
     await tester.enterText(find.byType(TextField), 'tamihi');
     await tester.pumpAndSettle();
     expect(find.text('1 GAUGE'), findsOneWidget);
-    expect(find.text('Chilliwack River'), findsOneWidget);
-    expect(find.text('Seymour River'), findsNothing);
+    expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
+    expect(find.text('Seymour River near North Vancouver'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'zzz');
     await tester.pumpAndSettle();
@@ -202,11 +228,20 @@ void main() {
       tester,
       const GaugeScreen(gaugeId: 'environment_canada_08MH001'),
     );
-    expect(find.text('Chilliwack River'), findsOneWidget);
+    expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
     expect(find.text('24.6'), findsOneWidget);
     expect(find.text('Rising'), findsOneWidget);
     expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
-    expect(find.text('6 days ago'), findsOneWidget);
+    // Two weeks by default; switching spans changes the range.
+    expect(find.text('2 weeks ago'), findsOneWidget);
+    expect(find.byType(LineChart), findsOneWidget);
+    await tester.tap(find.text('2D'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 days ago'), findsOneWidget);
+    await tester.tap(find.text('1Y'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 year ago'), findsOneWidget);
+    expect(find.byType(LineChart), findsOneWidget);
     expect(find.text('RUNS ON THIS GAUGE'), findsOneWidget);
     expect(find.text('Tamihi to Vedder'), findsOneWidget);
     expect(find.text('Class III · good at 20 to 40'), findsOneWidget);
@@ -236,6 +271,10 @@ void main() {
     );
     expect(find.byIcon(Icons.notifications_active), findsOneWidget);
 
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .removeCurrentSnackBar();
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Turn off alert for Tamihi to Vedder'));
     await tester.pumpAndSettle();
     expect(alerts.on, isEmpty);

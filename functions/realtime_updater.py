@@ -72,6 +72,10 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
             'status': 'success',
             'readings': len(readings),
             'discharge': (status.get('latest_reading') or {}).get('discharge'),
+            'station_name': next(
+                (r.get('station_name') for r in readings if r.get('station_name')),
+                None,
+            ),
         }
         
     except Exception as e:
@@ -86,6 +90,30 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
             if line.strip():
                 logger.error(f"      {line}")
         return {'station_id': station_id, 'status': 'error', 'error': str(e)}
+
+
+def write_station_names(db, results):
+    """Writes stations/{provider}_{code} = {name, stationNumber, provider}
+    for every station that reported a name."""
+    provider = Provider.ENVIRONMENT_CANADA.value
+    batch = db.batch()
+    count = 0
+    for r in results:
+        name = r.get('station_name')
+        if r.get('status') != 'success' or not name:
+            continue
+        ref = db.collection('stations').document(f"{provider}_{r['station_id']}")
+        batch.set(ref, {
+            'name': name,
+            'stationNumber': r['station_id'],
+            'provider': provider,
+        }, merge=True)
+        count += 1
+        if count % 400 == 0:
+            batch.commit()
+            batch = db.batch()
+    batch.commit()
+    logger.info(f"Station names written: {count}")
 
 
 async def run_update():
@@ -116,6 +144,13 @@ async def run_update():
         ]
         results = await asyncio.gather(*tasks)
     
+    # Keep each station's official name in stations/{doc id}, so the app
+    # can title gauges "Cheakamus River above Millar Creek".
+    try:
+        write_station_names(manager.db, results)
+    except Exception as e:
+        logger.error(f"Station names failed: {e}", exc_info=True)
+
     # Tell paddlers whose runs came into range.
     flows = {
         f"{Provider.ENVIRONMENT_CANADA.value}_{r['station_id']}": r['discharge']

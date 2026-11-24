@@ -1,4 +1,5 @@
 import 'package:brownpaw/data/gauge_repository.dart';
+import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/data/repositories.dart';
 import 'package:brownpaw/models/descent.dart';
 import 'package:brownpaw/models/river_run.dart';
@@ -32,6 +33,16 @@ class FakeGauges implements GaugeRepository {
   @override
   Stream<StationRealtimeFlow?> watchCurrent(String stationId) =>
       Stream.value(null);
+
+  @override
+  Stream<Map<String, String>> watchStationNames() => Stream.value(const {});
+
+  @override
+  Future<List<FlowPoint>> dailyFlows(
+    String stationId,
+    int days, {
+    DateTime? now,
+  }) async => const [];
 }
 
 final tamihi = RiverRun(

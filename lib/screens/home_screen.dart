@@ -6,6 +6,7 @@ import 'package:brownpaw/screens/community_home_screen.dart';
 import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/screens/logbook_screen.dart';
 import 'package:brownpaw/screens/settings_screen.dart';
+import 'package:brownpaw/widgets/nav_icons.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
 
 /// The tabbed home shell: Logbook · Gauges · [Log] · Community · Me.
@@ -67,16 +68,21 @@ class MyHomePage extends StatelessWidget {
         onDestinationSelected: (i) => _onBarTap(context, i),
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.menu_book_outlined),
-            selectedIcon: Icon(
-              Icons.menu_book,
+            icon: const NavIcon(NavGlyph.logbook),
+            selectedIcon: NavIcon(
+              NavGlyph.logbook,
+              filled: true,
               color: theme.colorScheme.primary,
             ),
             label: 'Logbook',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.speed_outlined),
-            selectedIcon: Icon(Icons.speed, color: theme.colorScheme.primary),
+            icon: const NavIcon(NavGlyph.gauges),
+            selectedIcon: NavIcon(
+              NavGlyph.gauges,
+              filled: true,
+              color: theme.colorScheme.primary,
+            ),
             label: 'Gauges',
           ),
           NavigationDestination(
@@ -85,13 +91,21 @@ class MyHomePage extends StatelessWidget {
             tooltip: 'Log a run',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people, color: theme.colorScheme.primary),
+            icon: const NavIcon(NavGlyph.community),
+            selectedIcon: NavIcon(
+              NavGlyph.community,
+              filled: true,
+              color: theme.colorScheme.primary,
+            ),
             label: 'Community',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: theme.colorScheme.primary),
+            icon: const NavIcon(NavGlyph.me),
+            selectedIcon: NavIcon(
+              NavGlyph.me,
+              filled: true,
+              color: theme.colorScheme.primary,
+            ),
             label: 'Me',
           ),
         ],
@@ -114,10 +128,11 @@ class _LogButtonIcon extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(
-        Icons.add,
-        color: Theme.of(context).colorScheme.onPrimary,
-        size: 24,
+      child: Center(
+        child: NavIcon(
+          NavGlyph.add,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
       ),
     );
   }

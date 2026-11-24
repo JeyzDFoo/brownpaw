@@ -7,7 +7,7 @@ import '../models/river_run.dart';
 class Gauge {
   const Gauge({
     required this.id,
-    required this.river,
+    required this.title,
     required this.place,
     required this.runs,
   });
@@ -15,10 +15,11 @@ class Gauge {
   /// The `station_current` document id, e.g. `environment_canada_08MH001`.
   final String id;
 
-  /// "Chilliwack River".
-  final String river;
+  /// The station's official name, "Cheakamus River above Millar Creek",
+  /// or the river's name until that's known.
+  final String title;
 
-  /// "at Vedder Crossing", or empty when unknown.
+  /// The runs on this gauge, "Paradise Valley · Dam Run".
   final String place;
 
   final List<RiverRun> runs;
@@ -29,7 +30,7 @@ class Gauge {
   bool matches(String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return true;
-    return river.toLowerCase().contains(q) ||
+    return title.toLowerCase().contains(q) ||
         place.toLowerCase().contains(q) ||
         id.toLowerCase().contains(q) ||
         runs.any(
@@ -41,8 +42,12 @@ class Gauge {
 }
 
 /// Groups runs by the station they're read against. Runs with no station
-/// are left out. Gauges come back sorted by river name.
-List<Gauge> gaugesFromRuns(List<RiverRun> runs) {
+/// are left out. [stationNames] maps `station_current` ids to official
+/// names (from the `stations` collection). Gauges come back sorted by title.
+List<Gauge> gaugesFromRuns(
+  List<RiverRun> runs, {
+  Map<String, String> stationNames = const {},
+}) {
   final byId = <String, List<RiverRun>>{};
   for (final run in runs) {
     final station = run.stationId;
@@ -51,35 +56,50 @@ List<Gauge> gaugesFromRuns(List<RiverRun> runs) {
   }
   final gauges = [
     for (final MapEntry(key: id, value: runs) in byId.entries)
-      _gaugeFor(id, runs),
-  ]..sort((a, b) => a.river.compareTo(b.river));
+      _gaugeFor(id, runs, stationNames[id]),
+  ]..sort((a, b) => a.title.compareTo(b.title));
   return gauges;
 }
 
-Gauge _gaugeFor(String id, List<RiverRun> runs) {
+Gauge _gaugeFor(String id, List<RiverRun> runs, String? official) {
   runs.sort((a, b) => a.name.compareTo(b.name));
-  final name = runs
+  final imported = runs
       .map((r) => r.gaugeStation?['name'])
       .firstWhere((n) => n != null && isStationName(n), orElse: () => null);
-  if (name != null) {
-    final (river, place) = splitStationName(name);
-    return Gauge(id: id, river: river, place: place, runs: runs);
-  }
-  // No usable station name: name it after the river, and list the runs
-  // so paddlers can still tell which gauge it is.
-  final river = runs.first.river.trim();
+  final name = (official != null && isStationName(official))
+      ? official
+      : imported;
+  final title = name != null ? stationTitle(name) : _riverTitle(runs.first);
+  final labels = <String>{for (final r in runs) runLabel(r)}
+    ..removeWhere((n) => n.isEmpty || n == title);
+  return Gauge(id: id, title: title, place: labels.join(' · '), runs: runs);
+}
+
+/// The river's name, for a gauge whose station name isn't known yet.
+/// Some imported runs repeat the run in the river field
+/// ("Clearwater River - Gatling Gorge") or start with stray punctuation.
+String _riverTitle(RiverRun run) {
+  var river = run.river
+      .split(RegExp(r' [-–] '))
+      .first
+      .replaceFirst(RegExp(r'^[^A-Za-z]+'), '')
+      .trim();
+  if (river.isEmpty) river = run.name.trim();
   final hasKind = RegExp(
     r'\b(river|creek|canyon|lake)\b',
     caseSensitive: false,
   ).hasMatch(river);
-  final runNames = {for (final r in runs) r.name.trim()}
-    ..removeWhere((n) => n.isEmpty || n == river);
-  return Gauge(
-    id: id,
-    river: hasKind ? river : '$river River',
-    place: runNames.join(' · '),
-    runs: runs,
-  );
+  return hasKind ? river : '$river River';
+}
+
+/// A run's name without the river in front: "Clearwater River - Upper"
+/// → "Upper", for places where the river is already shown.
+String runLabel(RiverRun run) {
+  final name = run.name.trim();
+  final match = RegExp(r' [-–] ').firstMatch(name);
+  if (match == null || match.start == 0) return name;
+  final rest = name.substring(match.end).trim();
+  return rest.isEmpty ? name : rest;
 }
 
 /// Whether [name] reads like a station name rather than a stray reading
@@ -93,19 +113,12 @@ bool isStationName(String name) {
   return RegExp(r'[A-Za-z]{3,}').hasMatch(n);
 }
 
-/// "CHILLIWACK RIVER AT VEDDER CROSSING" → ("Chilliwack River",
-/// "at Vedder Crossing"). Names without "at", "near", "above" or "below"
-/// come back whole.
-(String, String) splitStationName(String raw) {
-  final name = raw.trim() == raw.trim().toUpperCase()
-      ? _titleCase(raw.trim())
-      : raw.trim();
-  final match = RegExp(
-    r'^(.*?)\s+(at|near|above|below)\s+(.*)$',
-    caseSensitive: false,
-  ).firstMatch(name);
-  if (match == null) return (name, '');
-  return (match[1]!, '${match[2]!.toLowerCase()} ${match[3]!}');
+/// Environment Canada names are upper case:
+/// "CHEAKAMUS RIVER ABOVE MILLAR CREEK" → "Cheakamus River above Millar
+/// Creek". Names already in mixed case are kept.
+String stationTitle(String raw) {
+  final name = raw.trim();
+  return name == name.toUpperCase() ? _titleCase(name) : name;
 }
 
 String _titleCase(String s) {
@@ -157,7 +170,7 @@ List<Gauge> yourGauges(
     if (ta != null && tb != null) return tb.compareTo(ta);
     if (ta != null) return -1;
     if (tb != null) return 1;
-    return a.river.compareTo(b.river);
+    return a.title.compareTo(b.title);
   });
   return mine;
 }
@@ -218,4 +231,56 @@ String? goodRange(RiverRun run) {
         '${n(run.maxRecommendedFlow!)}';
   }
   return null;
+}
+
+/// A flow at a moment, for charts.
+typedef FlowPoint = ({DateTime time, double flow});
+
+/// How far back the gauge chart reaches. Hourly readings cover the last
+/// month; longer spans use daily means.
+enum GaugeSpan {
+  twoDays('2D', '2 days', 2),
+  twoWeeks('2W', '2 weeks', 14),
+  oneMonth('1M', '1 month', 30),
+  sixMonths('6M', '6 months', 182),
+  oneYear('1Y', '1 year', 365);
+
+  const GaugeSpan(this.short, this.label, this.days);
+  final String short;
+  final String label;
+  final int days;
+
+  bool get usesDaily => days > 30;
+}
+
+/// Hourly readings within [days] of the latest one.
+List<FlowPoint> hourlyWindow(List<FlowReading> readings, int days) {
+  final flows = dischargeReadings(readings);
+  if (flows.isEmpty) return const [];
+  final from = flows.last.timestamp.subtract(Duration(days: days));
+  return [
+    for (final r in flows)
+      if (!r.timestamp.isBefore(from)) (time: r.timestamp, flow: r.discharge!),
+  ];
+}
+
+/// Daily means from `station_data` year documents' `daily_readings` maps,
+/// between [from] and [to], oldest first.
+List<FlowPoint> dailySeries(
+  Iterable<Map<String, dynamic>> dailyReadings,
+  DateTime from,
+  DateTime to,
+) {
+  final points = <FlowPoint>[];
+  for (final daily in dailyReadings) {
+    daily.forEach((key, value) {
+      final day = DateTime.tryParse(key);
+      final mean = value is Map ? value['mean_discharge'] : null;
+      if (day == null || mean is! num) return;
+      if (day.isBefore(from) || day.isAfter(to)) return;
+      points.add((time: day, flow: mean.toDouble()));
+    });
+  }
+  points.sort((a, b) => a.time.compareTo(b.time));
+  return points;
 }

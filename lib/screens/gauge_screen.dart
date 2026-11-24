@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../domain/flow_alert.dart';
 import '../domain/flow_status.dart';
 import '../domain/gauges.dart';
+import '../models/realtime_flow.dart';
 import '../models/river_run.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
@@ -54,16 +55,12 @@ class _GaugeBody extends ConsumerWidget {
     final readings = dischargeReadings(current.value?.readings ?? const []);
     final flow = readings.isEmpty ? null : readings.last.discharge;
     final trend = trendOf(readings);
-    final days = readings.length < 2
-        ? 0
-        : readings.last.timestamp.difference(readings.first.timestamp).inDays;
-    final values = [for (final r in readings) r.discharge!];
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
       children: [
         Text(
-          gauge.river,
+          gauge.title,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -129,32 +126,8 @@ class _GaugeBody extends ConsumerWidget {
                     : updatedAgo(readings.last.timestamp),
                 style: muted,
               ),
-              if (values.length >= 2) ...[
-                const SizedBox(height: 12),
-                LayoutBuilder(
-                  builder: (context, c) => FlowSparkline(
-                    values: values,
-                    width: c.maxWidth,
-                    height: 130,
-                    filled: true,
-                    semanticLabel:
-                        'Flow over the last ${_span(days)}, from '
-                        '${values.first.toStringAsFixed(1)} to '
-                        '${values.last.toStringAsFixed(1)} cubic metres '
-                        'per second',
-                  ),
-                ),
-                const SizedBox(height: 4),
-                ExcludeSemantics(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('${_span(days)} ago', style: muted),
-                      Text('Now', style: muted),
-                    ],
-                  ),
-                ),
-              ],
+              const SizedBox(height: 12),
+              _FlowChart(gauge: gauge, readings: readings),
             ],
           ),
         ),
@@ -196,8 +169,112 @@ class _GaugeBody extends ConsumerWidget {
       ],
     );
   }
+}
 
-  static String _span(int days) => days <= 1 ? '24 hours' : '$days days';
+/// The flow chart with its timeframe picker. Hourly readings back the
+/// short spans; daily means back six months and a year.
+class _FlowChart extends ConsumerStatefulWidget {
+  const _FlowChart({required this.gauge, required this.readings});
+  final Gauge gauge;
+  final List<FlowReading> readings;
+
+  @override
+  ConsumerState<_FlowChart> createState() => _FlowChartState();
+}
+
+class _FlowChartState extends ConsumerState<_FlowChart> {
+  GaugeSpan _span = GaugeSpan.twoWeeks;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+
+    List<FlowPoint> points;
+    var loading = false;
+    if (_span.usesDaily) {
+      final daily = ref.watch(
+        gaugeDailyFlowsProvider((
+          stationId: widget.gauge.stationId,
+          days: _span.days,
+        )),
+      );
+      loading = daily.isLoading;
+      points = [...daily.value ?? const <FlowPoint>[]];
+      // End on the live reading so the chart meets the number above it.
+      final live = hourlyWindow(widget.readings, 2);
+      if (live.isNotEmpty &&
+          (points.isEmpty || live.last.time.isAfter(points.last.time))) {
+        points.add(live.last);
+      }
+    } else {
+      points = hourlyWindow(widget.readings, _span.days);
+    }
+    final values = [for (final p in points) p.flow];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 160,
+          child: values.length >= 2
+              ? GaugeFlowChart(
+                  points: points,
+                  daily: _span.usesDaily,
+                  semanticLabel:
+                      'Flow over the last ${_span.label}, from '
+                      '${values.first.toStringAsFixed(1)} to '
+                      '${values.last.toStringAsFixed(1)} cubic metres '
+                      'per second',
+                )
+              : Center(
+                  child: loading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        )
+                      : Text('No readings for this span', style: muted),
+                ),
+        ),
+        const SizedBox(height: 4),
+        ExcludeSemantics(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${_span.label} ago', style: muted),
+              Text('Now', style: muted),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        SegmentedButton<GaugeSpan>(
+          showSelectedIcon: false,
+          style: SegmentedButton.styleFrom(
+            selectedBackgroundColor: theme.colorScheme.primary.withValues(
+              alpha: 0.14,
+            ),
+            selectedForegroundColor: theme.colorScheme.primary,
+            side: BorderSide(color: theme.colorScheme.outlineVariant),
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.padded,
+          ),
+          segments: [
+            for (final span in GaugeSpan.values)
+              ButtonSegment(
+                value: span,
+                label: Text(span.short),
+                tooltip: span.label,
+              ),
+          ],
+          selected: {_span},
+          onSelectionChanged: (s) => setState(() => _span = s.first),
+        ),
+      ],
+    );
+  }
 }
 
 class _RunOnGauge extends ConsumerWidget {
@@ -233,7 +310,7 @@ class _RunOnGauge extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      run.name,
+                      runLabel(run),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),

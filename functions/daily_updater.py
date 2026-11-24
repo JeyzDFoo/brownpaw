@@ -2,22 +2,26 @@
 Daily history updater for Cloud Functions. Runs once a day.
 
 Keeps `station_data/environment_canada_{code}/readings/{year}` complete, as
-`daily_readings` maps keyed `yyyy-MM-dd`, from three sources:
+`daily_readings` maps keyed `yyyy-MM-dd`, from four sources:
 
 1. Daily means from the realtime feed: every run re-averages all complete
    Pacific days in the 30 days of readings that `station_current` holds, so
-   a missed run is filled in the next day. This is the only source for the
-   months between the end of HYDAT and today.
+   a missed run is filled in the next day.
 2. HYDAT (the daily-mean API): approved data, published many months late.
    Fetched once per station, then refreshed monthly to pick up new releases
    and replace provisional days with approved ones. Each run spends at most
    HYDAT_BUDGET_SECONDS on it, oldest refresh first, so a short function
    timeout can't stop the daily step.
-3. History the old local script kept under
+3. The Water Office's ~18-month archive of provisional readings, once per
+   station, for the days between HYDAT's end and today (see
+   water_office.py). Shares the HYDAT time budget.
+4. History the old local script kept under
    `station_data/Provider.ENVIRONMENT_CANADA_{code}`, copied over once.
 
 The parent document records the bookkeeping (`migrated_legacy`,
-`hydat_fetched_at`), so the job knows which steps a station still needs.
+`hydat_fetched_at`, `water_office_filled_at`), so the job knows which
+steps a station still needs. To do every station at once rather than a
+few a day, run `python backfill.py` from this folder.
 """
 
 import logging
@@ -25,11 +29,12 @@ import math
 import os
 import time
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import flowworks
 import metro_vancouver
+import water_office
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
 from scripts.environment_canada.daily_data_service import DailyDataService
@@ -41,7 +46,8 @@ PROVIDER = Provider.ENVIRONMENT_CANADA.value
 PACIFIC = ZoneInfo('America/Vancouver')
 HYDAT_YEARS_DAYS = 1825
 HYDAT_REFRESH = timedelta(days=30)
-HYDAT_BUDGET_SECONDS = float(os.environ.get('HYDAT_BUDGET_SECONDS', '40'))
+# The daily function has a 300 s timeout; leave room for the other gauges.
+HYDAT_BUDGET_SECONDS = float(os.environ.get('HYDAT_BUDGET_SECONDS', '180'))
 
 
 def history_doc_id(code: str) -> str:
@@ -214,6 +220,22 @@ def fetch_hydat(code: str, store: HistoryStore, service: DailyDataService, now: 
     return len(daily)
 
 
+def fill_from_water_office(code: str, meta: dict, store: HistoryStore,
+                           now: datetime, get=None) -> int:
+    """Fills the days between HYDAT's end and today from the Water Office's
+    ~18-month archive, once per station. HYDAT days are left alone; the
+    monthly HYDAT refresh replaces these provisional days as they're
+    approved."""
+    last = meta.get('hydat_last_date')
+    after = date.fromisoformat(last) if last else None
+    kwargs = {'get': get} if get else {}
+    daily = water_office.daily_means(code, after=after, now=now, **kwargs)
+    store.write_daily(code, daily)
+    store.set_meta(code, {'water_office_filled_at': now,
+                          'water_office_days': len(daily)})
+    return len(daily)
+
+
 def run_update(now: datetime = None, store: HistoryStore = None,
                service: DailyDataService = None, stations=None) -> dict:
     """Main function for the daily history update."""
@@ -238,19 +260,32 @@ def run_update(now: datetime = None, store: HistoryStore = None,
             logger.error(f"  {code}: daily update failed: {e}", exc_info=True)
             results.append({'station_id': code, 'status': 'error', 'error': str(e)})
 
-    hydat_done, hydat_pending = 0, 0
+    hydat_done, hydat_pending, filled = 0, 0, 0
     for code in hydat_order(metas):
-        if not needs_hydat(metas[code], now):
+        meta = metas[code]
+        due_hydat = needs_hydat(meta, now)
+        due_fill = not meta.get('water_office_filled_at')
+        if not (due_hydat or due_fill):
             continue
         if time.monotonic() - start > HYDAT_BUDGET_SECONDS:
             hydat_pending += 1
             continue
-        try:
-            days = fetch_hydat(code, store, service, now)
-            logger.info(f"  {code}: {days} HYDAT days")
-            hydat_done += 1
-        except Exception as e:
-            logger.error(f"  {code}: HYDAT fetch failed: {e}")
+        if due_hydat:
+            try:
+                days = fetch_hydat(code, store, service, now)
+                logger.info(f"  {code}: {days} HYDAT days")
+                hydat_done += 1
+                meta.update(store.meta(code))
+            except Exception as e:
+                logger.error(f"  {code}: HYDAT fetch failed: {e}")
+                continue
+        if due_fill:
+            try:
+                days = fill_from_water_office(code, meta, store, now)
+                logger.info(f"  {code}: {days} Water Office days")
+                filled += 1
+            except Exception as e:
+                logger.error(f"  {code}: Water Office fill failed: {e}")
 
     try:
         metro = metro_vancouver.update_daily(store, now)
@@ -272,6 +307,7 @@ def run_update(now: datetime = None, store: HistoryStore = None,
         'failed': sum(1 for r in results if r['status'] == 'error'),
         'hydat_fetched': hydat_done,
         'hydat_pending': hydat_pending,
+        'water_office_filled': filled,
         'duration_seconds': round(time.monotonic() - start, 2),
     }
     logger.info(f"Daily history update done: {summary}")

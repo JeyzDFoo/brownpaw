@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/flow_alert.dart';
 import '../domain/flow_status.dart';
 import '../domain/gauges.dart';
 import '../models/river_run.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
+import '../widgets/alert_bell.dart';
 import '../widgets/flow_sparkline.dart';
 import '../widgets/flow_status_chip.dart';
 import 'gauges_screen.dart' show TrendIcon;
@@ -173,6 +175,24 @@ class _GaugeBody extends ConsumerWidget {
           _RunOnGauge(run: run, flow: flow),
           const SizedBox(height: 10),
         ],
+        if (gauge.runs.any((r) => alertRangeFor(r) != null))
+          Row(
+            children: [
+              Icon(
+                Icons.notifications_none,
+                size: 16,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Tap the bell to get a notification when a run comes '
+                  'into range.',
+                  style: muted,
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }
@@ -180,13 +200,13 @@ class _GaugeBody extends ConsumerWidget {
   static String _span(int days) => days <= 1 ? '24 hours' : '$days days';
 }
 
-class _RunOnGauge extends StatelessWidget {
+class _RunOnGauge extends ConsumerWidget {
   const _RunOnGauge({required this.run, required this.flow});
   final RiverRun run;
   final double? flow;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final grade = run.difficultyText;
     final range = goodRange(run);
@@ -232,6 +252,7 @@ class _RunOnGauge extends StatelessWidget {
                 const SizedBox(width: 8),
                 FlowStatusChip(status: run.flowStatus(flow)),
               ],
+              if (alertRangeFor(run) != null) AlertBell(run: run),
             ],
           ),
         ),

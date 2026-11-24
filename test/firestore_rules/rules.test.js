@@ -8,7 +8,11 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
+  collection,
   deleteDoc,
+  getDocs,
+  query,
+  where,
   doc,
   getDoc,
   serverTimestamp,
@@ -109,5 +113,53 @@ describe('river_runs', () => {
 
   test('signed-in paddlers can read runs', async () => {
     await assertSucceeds(getDoc(doc(bob(), 'river_runs/curated')));
+  });
+});
+
+describe('flow_alerts', () => {
+  const alert = (uid, extra = {}) => ({
+    userId: uid, runId: 'tamihi', runName: 'Tamihi to Vedder',
+    stationId: 'environment_canada_08MH001', minFlow: 20, maxFlow: 40,
+    word: 'good', createdAt: serverTimestamp(), ...extra,
+  });
+
+  test('paddler can add, list and remove their own alert', async () => {
+    const ref = doc(alice(), 'flow_alerts/alice_tamihi');
+    await assertSucceeds(setDoc(ref, alert('alice')));
+    await assertSucceeds(getDocs(query(
+      collection(alice(), 'flow_alerts'), where('userId', '==', 'alice'),
+    )));
+    await assertSucceeds(deleteDoc(ref));
+  });
+
+  test('paddler cannot add an alert for someone else', async () => {
+    await assertFails(
+      setDoc(doc(bob(), 'flow_alerts/alice_tamihi'), alert('alice')),
+    );
+    await assertFails(
+      setDoc(doc(bob(), 'flow_alerts/alice_tamihi'), alert('bob')),
+    );
+  });
+
+  test('paddler cannot set the server bookkeeping fields', async () => {
+    await assertFails(setDoc(
+      doc(alice(), 'flow_alerts/alice_tamihi'),
+      alert('alice', { inRange: true }),
+    ));
+  });
+
+  test('a range must run low to high', async () => {
+    await assertFails(setDoc(
+      doc(alice(), 'flow_alerts/alice_tamihi'),
+      alert('alice', { minFlow: 40, maxFlow: 20 }),
+    ));
+  });
+
+  test('others cannot read or delete an alert', async () => {
+    await env.withSecurityRulesDisabled((ctx) =>
+      setDoc(doc(ctx.firestore(), 'flow_alerts/alice_tamihi'), alert('alice')),
+    );
+    await assertFails(getDoc(doc(bob(), 'flow_alerts/alice_tamihi')));
+    await assertFails(deleteDoc(doc(bob(), 'flow_alerts/alice_tamihi')));
   });
 });

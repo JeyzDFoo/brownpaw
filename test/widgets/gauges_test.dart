@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:brownpaw/data/gauge_repository.dart';
 import 'package:brownpaw/data/repositories.dart';
 import 'package:brownpaw/models/descent.dart';
 import 'package:brownpaw/models/realtime_flow.dart';
 import 'package:brownpaw/models/river_run.dart';
+import 'package:brownpaw/data/push_service.dart';
 import 'package:brownpaw/providers/descents_provider.dart';
+import 'package:brownpaw/providers/flow_alerts_provider.dart';
 import 'package:brownpaw/providers/gauges_provider.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/screens/gauge_screen.dart';
@@ -94,12 +98,36 @@ final gauges = SeriesGauges({
   'environment_canada_08GA030': [9.1, 8.6, 8.0, 7.3, 6.8, 6.4, 6.1],
 });
 
+class FakeAlerts implements FlowAlertsController {
+  FakeAlerts({this.result = PushResult.enabled});
+  final PushResult result;
+  final on = <String>{};
+  final changes = StreamController<Set<String>>.broadcast();
+
+  @override
+  Future<PushResult> turnOn(RiverRun run) async {
+    if (result == PushResult.enabled) {
+      on.add(run.riverId);
+      changes.add({...on});
+    }
+    return result;
+  }
+
+  @override
+  Future<void> turnOff(RiverRun run) async {
+    on.remove(run.riverId);
+    changes.add({...on});
+  }
+}
+
 Future<void> pumpScreen(
   WidgetTester tester,
   Widget screen, {
   Set<String> favourites = const {},
   List<Descent> descents = const [],
+  FakeAlerts? alerts,
 }) async {
+  final fakeAlerts = alerts ?? FakeAlerts();
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -112,6 +140,8 @@ Future<void> pumpScreen(
         allDescentsProvider.overrideWith((ref) => Stream.value(descents)),
         favouriteRunIdsProvider.overrideWithValue(favourites),
         gaugeRepositoryProvider.overrideWithValue(gauges),
+        flowAlertsControllerProvider.overrideWithValue(fakeAlerts),
+        alertedRunIdsProvider.overrideWith((ref) => fakeAlerts.changes.stream),
       ],
       child: MaterialApp(
         theme: AppTheme.lightTheme,
@@ -183,5 +213,49 @@ void main() {
     expect(find.text('Good'), findsOneWidget); // Tamihi at 24.6
     expect(find.text('Canyon'), findsOneWidget);
     expect(find.text('Runnable'), findsOneWidget); // Canyon at 24.6
+  });
+
+  testWidgets('the bell turns a run\'s alert on and off', (tester) async {
+    final alerts = FakeAlerts();
+    await pumpScreen(
+      tester,
+      const GaugeScreen(gaugeId: 'environment_canada_08MH001'),
+      alerts: alerts,
+    );
+    final bell = find.byTooltip('Alert me when Tamihi to Vedder is good');
+    expect(bell, findsOneWidget);
+
+    await tester.tap(bell);
+    await tester.pumpAndSettle();
+    expect(alerts.on, {'chilliwack-tamihi'});
+    expect(
+      find.text(
+        "We'll tell you when Tamihi to Vedder is good (20 to 40 m³/s).",
+      ),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.notifications_active), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Turn off alert for Tamihi to Vedder'));
+    await tester.pumpAndSettle();
+    expect(alerts.on, isEmpty);
+    expect(find.text('Alert off for Tamihi to Vedder'), findsOneWidget);
+  });
+
+  testWidgets('explains how to allow notifications when they are off', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      const GaugeScreen(gaugeId: 'environment_canada_08MH001'),
+      alerts: FakeAlerts(result: PushResult.denied),
+    );
+    await tester.tap(find.byTooltip('Alert me when Canyon is good'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Notifications are off for Brownpaw'),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.notifications_active), findsNothing);
   });
 }

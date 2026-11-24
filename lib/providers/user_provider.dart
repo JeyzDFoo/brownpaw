@@ -354,6 +354,11 @@ class UserNotifier extends StateNotifier<UserData> {
             .where('verified', isEqualTo: false),
       );
 
+      // Delete the user's flow alerts.
+      await _deleteQuery(
+        _firestore.collection('flow_alerts').where('userId', isEqualTo: uid),
+      );
+
       // Delete the profile document last, since it holds favourites and
       // settings the steps above don't need.
       await _firestore.collection('users').doc(uid).delete();

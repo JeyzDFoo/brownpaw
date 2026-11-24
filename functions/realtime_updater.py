@@ -7,6 +7,7 @@ import logging
 from datetime import datetime
 import asyncio
 
+import flow_alerts
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
 from scripts.environment_canada.realtime_data_service import RealtimeDataService
@@ -66,7 +67,12 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
         )
         
         logger.info(f"    ✓ Stored {len(readings)} readings for {station_id}")
-        return {'station_id': station_id, 'status': 'success', 'readings': len(readings)}
+        return {
+            'station_id': station_id,
+            'status': 'success',
+            'readings': len(readings),
+            'discharge': (status.get('latest_reading') or {}).get('discharge'),
+        }
         
     except Exception as e:
         # Log full error with traceback for debugging
@@ -110,6 +116,18 @@ async def run_update():
         ]
         results = await asyncio.gather(*tasks)
     
+    # Tell paddlers whose runs came into range.
+    flows = {
+        f"{Provider.ENVIRONMENT_CANADA.value}_{r['station_id']}": r['discharge']
+        for r in results
+        if r['status'] == 'success' and r.get('discharge') is not None
+    }
+    try:
+        alerts = flow_alerts.check_alerts(manager.db, flows)
+    except Exception as e:
+        logger.error(f"Flow alerts failed: {e}", exc_info=True)
+        alerts = {'error': str(e)}
+
     # Summary
     success = sum(1 for r in results if r['status'] == 'success')
     failed = len(results) - success
@@ -130,5 +148,6 @@ async def run_update():
         'success': success,
         'failed': failed,
         'total_readings': total_readings,
-        'duration_seconds': duration.total_seconds()
+        'duration_seconds': duration.total_seconds(),
+        'alerts': alerts,
     }

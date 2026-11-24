@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:brownpaw/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'router.dart';
 
@@ -20,7 +21,28 @@ void main() async {
     );
   }
 
-  runApp(const ProviderScope(child: BrownpawApp()));
+  final container = ProviderContainer();
+  _openAlertTaps(container);
+  runApp(
+    UncontrolledProviderScope(container: container, child: const BrownpawApp()),
+  );
+}
+
+/// Tapping a flow alert opens the gauge it's about. On the web, the
+/// service worker opens the link itself (web/firebase-messaging-sw.js).
+void _openAlertTaps(ProviderContainer container) {
+  if (kIsWeb) return;
+  void open(RemoteMessage message) {
+    final route = message.data['route'];
+    if (route is String && route.startsWith('/')) {
+      container.read(routerProvider).push(route);
+    }
+  }
+
+  FirebaseMessaging.onMessageOpenedApp.listen(open);
+  FirebaseMessaging.instance.getInitialMessage().then((m) {
+    if (m != null) open(m);
+  });
 }
 
 class BrownpawApp extends ConsumerWidget {

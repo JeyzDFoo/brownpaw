@@ -208,6 +208,22 @@ service cloud.firestore {
       allow delete: if isOwner(userId);
     }
 
+    // Flow alerts: "tell me when this run is good". Keyed {userId}_{runId}.
+    // The Cloud Function keeps inRange and lastNotifiedAt; paddlers can't
+    // set them.
+    match /flow_alerts/{alertId} {
+      allow read, delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create, update: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && alertId == request.auth.uid + '_' + request.resource.data.runId
+        && request.resource.data.stationId is string
+        && request.resource.data.minFlow is number
+        && request.resource.data.maxFlow is number
+        && request.resource.data.minFlow < request.resource.data.maxFlow
+        && !request.resource.data.keys().hasAny(['inRange', 'lastNotifiedAt']);
+    }
+
     // Descents collection - top-level collection for all descent logs
     match /descents/{descentId} {
       // Users can read their own descents

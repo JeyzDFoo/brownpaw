@@ -51,7 +51,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
 
   if (url.origin === self.location.origin) {
-    if (url.pathname.startsWith('/__/')) return; // Firebase Hosting internals
+    // Firebase Hosting internals, and live gauge readings (always fresh;
+    // Firestore keeps the offline copy).
+    if (url.pathname.startsWith('/__/') || url.pathname.startsWith('/api/')) return;
     event.respondWith(networkFirst(request, request.mode === 'navigate'));
   } else if (url.hostname === 'www.gstatic.com'
       && (url.pathname.startsWith('/flutter-') || url.pathname.startsWith('/firebasejs/'))

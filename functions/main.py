@@ -23,8 +23,9 @@ sys.path.insert(0, str(scripts_dir / 'environment_canada'))
 # Import update modules
 import realtime_updater
 import daily_updater
+import live
 from firebase_functions import https_fn, scheduler_fn
-from firebase_functions.options import MemoryOption
+from firebase_functions.options import CorsOptions, MemoryOption
 
 
 # Setup logging for Cloud Functions
@@ -121,3 +122,36 @@ def scheduled_realtime_update(event: scheduler_fn.ScheduledEvent) -> None:
 def scheduled_daily_update(event: scheduler_fn.ScheduledEvent) -> None:
     result = daily_updater.run_update()
     logger.info(f"Scheduled daily update: {result}")
+
+
+@https_fn.on_request(
+    region="us-central1",
+    memory=MemoryOption.MB_256,
+    timeout_sec=60,
+    max_instances=10,
+    cors=CorsOptions(cors_origins="*", cors_methods=["get"]),
+)
+def live_readings(request: https_fn.Request) -> https_fn.Response:
+    """Recent readings fetched live from the gauge's source (live.py).
+    Served at /api/live through Firebase Hosting."""
+    try:
+        provider, key, hours = live.parse_request(
+            request.args.get('station', ''), request.args.get('hours', ''))
+    except ValueError as e:
+        return https_fn.Response(str(e), status=400)
+    try:
+        readings = live.fetch(provider, key, hours)
+    except Exception as e:
+        logger.warning(f"Live readings for {provider} {key} failed: {e}")
+        # The app falls back to the stored copy.
+        return https_fn.Response('source unavailable', status=502)
+    return https_fn.Response(
+        live.to_csv(readings),
+        status=200,
+        headers={
+            'Content-Type': 'text/csv; charset=utf-8',
+            # Shared by everyone for 5 minutes: sources update every 5 to
+            # 15 minutes, and it keeps the function and the sources quiet.
+            'Cache-Control': 'public, max-age=300, s-maxage=300',
+        },
+    )

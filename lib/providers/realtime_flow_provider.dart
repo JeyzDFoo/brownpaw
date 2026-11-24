@@ -12,9 +12,10 @@ final realtimeFlowProvider =
           ref.watch(gaugeRepositoryProvider).getCurrent(stationId),
     );
 
-/// Real-time flow for a station, updating live.
+/// The last 30 days for a station, live from its source, with the stored
+/// copy as the fallback; refreshes every few minutes while shown.
 final realtimeFlowStreamProvider =
     StreamProvider.family<StationRealtimeFlow?, String>(
       (ref, stationId) =>
-          ref.watch(gaugeRepositoryProvider).watchCurrent(stationId),
+          ref.watch(gaugeRepositoryProvider).watchLive(stationId),
     );

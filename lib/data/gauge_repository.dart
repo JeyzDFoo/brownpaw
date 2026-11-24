@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../domain/flow_lookup.dart';
 import '../domain/gauges.dart';
 import '../models/realtime_flow.dart';
+import 'live_readings.dart';
 
 /// The latest readings for one gauge station.
 class StationRealtimeFlow {
@@ -51,9 +54,11 @@ class StationSummary {
 /// Reads live gauge data. The Cloud Function writes each station's recent
 /// hourly readings to `station_current/{provider}_{stationCode}`.
 class GaugeRepository {
-  GaugeRepository(this._firestore);
+  GaugeRepository(this._firestore, {LiveReadings? live})
+    : _live = live ?? LiveReadings();
 
   final FirebaseFirestore _firestore;
+  final LiveReadings _live;
 
   DocumentReference<Map<String, dynamic>> _doc(String stationId) =>
       _firestore.collection('station_current').doc(docIdFor(stationId));
@@ -65,16 +70,77 @@ class GaugeRepository {
     return _doc(stationId).snapshots().map((doc) => _parse(docId, doc.data()));
   }
 
-  /// Readings for [stationId], read once. Null when there's no data.
+  /// Readings for [stationId], read once: the stored copy topped up with
+  /// live readings from the source. Null when there's neither.
   Future<StationRealtimeFlow?> getCurrent(String stationId) async {
     if (stationId.isEmpty) return null;
+    final docId = docIdFor(stationId);
+    StationRealtimeFlow? stored;
     try {
-      final doc = await _doc(stationId).get();
-      return _parse(docIdFor(stationId), doc.data());
+      stored = _parse(docId, (await _doc(stationId).get()).data());
     } catch (e) {
       debugPrint('GaugeRepository.getCurrent($stationId) failed: $e');
-      return null;
     }
+    return _withLive(docId, stored, DateTime.now());
+  }
+
+  /// Live readings for [stationId], updating: the stored copy straight
+  /// away (it's on the device, so this works offline), then topped up
+  /// from the source, refreshed every few minutes while watched.
+  Stream<StationRealtimeFlow?> watchLive(String stationId) {
+    if (stationId.isEmpty) return Stream.value(null);
+    final docId = docIdFor(stationId);
+    late StreamController<StationRealtimeFlow?> controller;
+    StreamSubscription<Object?>? sub;
+    Timer? timer;
+    StationRealtimeFlow? stored;
+    var seen = false;
+
+    Future<void> refresh() async {
+      final merged = await _withLive(docId, stored, DateTime.now());
+      if (!controller.isClosed && (merged != null || seen)) {
+        controller.add(merged);
+      }
+    }
+
+    controller = StreamController<StationRealtimeFlow?>(
+      onListen: () {
+        sub = _doc(stationId).snapshots().listen(
+          (doc) {
+            stored = _parse(docId, doc.data());
+            seen = true;
+            controller.add(stored);
+            refresh();
+          },
+          onError: (Object e) {
+            debugPrint('GaugeRepository.watchLive($stationId): $e');
+            seen = true;
+            refresh();
+          },
+        );
+        timer = Timer.periodic(LiveReadings.fresh, (_) => refresh());
+      },
+      onCancel: () async {
+        timer?.cancel();
+        await sub?.cancel();
+      },
+    );
+    return controller.stream;
+  }
+
+  Future<StationRealtimeFlow?> _withLive(
+    String docId,
+    StationRealtimeFlow? stored,
+    DateTime now,
+  ) async {
+    final base = stored?.readings ?? const <FlowReading>[];
+    final live = await _live.fetch(docId, hoursMissing(base, now), now: now);
+    final readings = mergeLive(base, live, now);
+    if (readings.isEmpty) return stored;
+    return StationRealtimeFlow(
+      stationId: docId,
+      flow: RealtimeFlow(readings: readings),
+    );
   }
 
   /// The flow to record for a descent on [day]: the hourly reading nearest

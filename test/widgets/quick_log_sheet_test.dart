@@ -34,6 +34,11 @@ class FakeGauges implements GaugeRepository {
   Stream<StationRealtimeFlow?> watchCurrent(String stationId) =>
       Stream.value(null);
 
+  /// The fakes have no live source: the stored series is what's live.
+  @override
+  Stream<StationRealtimeFlow?> watchLive(String stationId) =>
+      watchCurrent(stationId);
+
   @override
   Stream<Map<String, StationSummary>> watchStations() => Stream.value(const {});
 

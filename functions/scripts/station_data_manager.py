@@ -73,7 +73,7 @@ class StationDataManager:
             station_id = data.get('stationId')
             if station_id:
                 # Environment Canada codes only; other providers
-                # (metro_vancouver_*) have their own updaters.
+                # (metro_vancouver_*, flowworks_*) have their own updaters.
                 match = EC_CODE.search(station_id)
                 if match:
                     stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1))

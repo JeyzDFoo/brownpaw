@@ -22,6 +22,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 METRO_VANCOUVER = ('metro_vancouver_capilano', 'metro_vancouver_seymour')
+FLOWWORKS = ('flowworks_lynn',)
 
 
 def main(argv):
@@ -32,11 +33,13 @@ def main(argv):
     query, code = args[0], args[1]
     if code in METRO_VANCOUVER:
         provider = 'metro_vancouver'
+    elif code in FLOWWORKS:
+        provider = 'flowworks'
     elif re.fullmatch(r'\d{2}[A-Z]{2}\d{3}', code.upper()):
         code, provider = code.upper(), 'environment_canada'
     else:
-        print(f"'{code}' isn't an Environment Canada code or one of "
-              f"{', '.join(METRO_VANCOUVER)}")
+        known = ', '.join((*METRO_VANCOUVER, *FLOWWORKS))
+        print(f"'{code}' isn't an Environment Canada code or one of {known}")
         return 2
     apply = '--apply' in argv
 

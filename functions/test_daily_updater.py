@@ -12,7 +12,9 @@ _manager.StationDataManager = object
 sys.modules.setdefault('scripts.station_data_manager', _manager)
 
 import daily_updater  # noqa: E402
+import flowworks  # noqa: E402
 import metro_vancouver  # noqa: E402
+import water_office  # noqa: E402
 from unittest import mock  # noqa: E402
 from daily_updater import (  # noqa: E402
     daily_means, needs_hydat, parse_hourly_csv, run_update, update_station)
@@ -104,8 +106,21 @@ class UpdateStationTest(unittest.TestCase):
         self.assertEqual(len(store.writes), 1)
 
 
+FILL_CALLS = []
+
+
+def fake_water_office(code, after=None, now=None):
+    FILL_CALLS.append((code, after))
+    return {'2026-08-01': {'mean_discharge': 7.0}}
+
+
 @mock.patch.object(metro_vancouver, 'update_daily', lambda store, now: {})
+@mock.patch.object(flowworks, 'update_daily', lambda store, now: {})
+@mock.patch.object(water_office, 'daily_means', fake_water_office)
 class HydatTest(unittest.TestCase):
+    def setUp(self):
+        FILL_CALLS.clear()
+
     def test_needs_hydat_when_never_fetched_or_a_month_old(self):
         self.assertTrue(needs_hydat({}, NOW))
         self.assertFalse(needs_hydat({'hydat_fetched_at': NOW - timedelta(days=3)}, NOW))
@@ -122,6 +137,21 @@ class HydatTest(unittest.TestCase):
         self.assertEqual(summary['hydat_fetched'], 1)
         self.assertEqual(store.daily['08BBB02']['2025-01-02']['mean_discharge'], 2.0)
         self.assertEqual(store.metas['08BBB02']['hydat_last_date'], '2025-01-02')
+
+    def test_water_office_fills_after_hydat_once(self):
+        from datetime import date
+        store = FakeStore(meta={'08AAA01': {'migrated_legacy': True}})
+        service = FakeService({'2025-01-02': {'mean_discharge': 2.0}})
+        summary = run_update(now=NOW, store=store, service=service,
+                             stations={'08AAA01'})
+        self.assertEqual(FILL_CALLS, [('08AAA01', date(2025, 1, 2))])
+        self.assertEqual(summary['water_office_filled'], 1)
+        self.assertEqual(store.daily['08AAA01']['2026-08-01']['mean_discharge'], 7.0)
+        self.assertEqual(store.metas['08AAA01']['water_office_days'], 1)
+
+        FILL_CALLS.clear()
+        run_update(now=NOW, store=store, service=service, stations={'08AAA01'})
+        self.assertEqual(FILL_CALLS, [])
 
     def test_time_budget_leaves_the_rest_for_tomorrow(self):
         old = daily_updater.HYDAT_BUDGET_SECONDS

@@ -12,6 +12,8 @@ _manager.StationDataManager = object
 sys.modules.setdefault('scripts.station_data_manager', _manager)
 
 import daily_updater  # noqa: E402
+import metro_vancouver  # noqa: E402
+from unittest import mock  # noqa: E402
 from daily_updater import (  # noqa: E402
     daily_means, needs_hydat, parse_hourly_csv, run_update, update_station)
 
@@ -102,6 +104,7 @@ class UpdateStationTest(unittest.TestCase):
         self.assertEqual(len(store.writes), 1)
 
 
+@mock.patch.object(metro_vancouver, 'update_daily', lambda store, now: {})
 class HydatTest(unittest.TestCase):
     def test_needs_hydat_when_never_fetched_or_a_month_old(self):
         self.assertTrue(needs_hydat({}, NOW))

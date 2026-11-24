@@ -72,6 +72,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 '• Google Sign-In: For account authentication\n\n'
                 '• Apple Sign-In: For account authentication (iOS only)\n\n'
                 '• Environment Canada: For river flow data\n\n'
+                '• Metro Vancouver: For Capilano and Seymour river flow data\n\n'
                 'These services may collect information used to identify you. Please refer to their respective privacy policies for more information.',
           ),
 

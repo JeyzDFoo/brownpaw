@@ -8,6 +8,7 @@ from datetime import datetime
 import asyncio
 
 import flow_alerts
+import metro_vancouver
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
 from scripts.environment_canada.realtime_data_service import RealtimeDataService
@@ -159,12 +160,20 @@ async def run_update():
     except Exception as e:
         logger.error(f"Station names failed: {e}", exc_info=True)
 
+    # Metro Vancouver's Capilano and Seymour gauges.
+    try:
+        metro_flows = metro_vancouver.update_realtime(manager.db)
+    except Exception as e:
+        logger.error(f"Metro Vancouver failed: {e}", exc_info=True)
+        metro_flows = {}
+
     # Tell paddlers whose runs came into range.
     flows = {
         f"{Provider.ENVIRONMENT_CANADA.value}_{r['station_id']}": r['discharge']
         for r in results
         if r['status'] == 'success' and r.get('discharge') is not None
     }
+    flows.update(metro_flows)
     try:
         alerts = flow_alerts.check_alerts(manager.db, flows)
     except Exception as e:

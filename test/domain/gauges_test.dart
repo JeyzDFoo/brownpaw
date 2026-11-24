@@ -150,6 +150,32 @@ void main() {
     });
   });
 
+  group('gaugeSource', () {
+    test('credits the publisher by station id', () {
+      expect(gaugeSource('environment_canada_08GA012'), 'Environment Canada');
+      expect(gaugeSource('metro_vancouver_seymour'), 'Metro Vancouver');
+      expect(gaugeSource('somewhere_else'), '');
+    });
+  });
+
+  test('a Metro Vancouver run gets its own gauge', () {
+    final gauges = gaugesFromRuns(
+      [
+        run(
+          'capilano-river',
+          'Capilano River',
+          'Capilano',
+          station: 'metro_vancouver_capilano',
+        ),
+      ],
+      stationNames: {
+        'metro_vancouver_capilano': 'Capilano River below Cleveland Dam',
+      },
+    );
+    expect(gauges.single.id, 'metro_vancouver_capilano');
+    expect(gauges.single.title, 'Capilano River below Cleveland Dam');
+  });
+
   group('trendOf', () {
     final t0 = DateTime.utc(2026, 11, 24, 12);
     List<FlowReading> series(List<double?> flows) => [

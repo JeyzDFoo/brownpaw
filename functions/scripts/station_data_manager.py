@@ -8,6 +8,7 @@ This module manages the station_data collection structure:
 """
 
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from typing import Dict, List, Set, Optional, Any
@@ -19,6 +20,10 @@ from google.cloud.firestore_v1 import WriteBatch
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 from models import Provider
+
+# A run's station id ends in an Environment Canada code: `08GA012`,
+# `environment_canada_08GA012` or `Provider.ENVIRONMENT_CANADA_08GA012`.
+EC_CODE = re.compile(r'(?:^|_)(\d{2}[A-Z]{2}\d{3})$')
 
 
 class StationDataManager:
@@ -67,18 +72,19 @@ class StationDataManager:
             # Check stationId field
             station_id = data.get('stationId')
             if station_id:
-                # Skip if already has provider prefix (malformed data)
-                if not station_id.startswith('environment_canada_'):
-                    # Assume Environment Canada for now
-                    # Can enhance with provider detection logic later
-                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(station_id)
+                # Environment Canada codes only; other providers
+                # (metro_vancouver_*) have their own updaters.
+                match = EC_CODE.search(station_id)
+                if match:
+                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1))
             
             # Check gaugeStation.code field
             gauge_station = data.get('gaugeStation')
             if gauge_station and isinstance(gauge_station, dict):
                 code = gauge_station.get('code')
-                if code and not code.startswith('environment_canada_'):
-                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(code)
+                match = EC_CODE.search(code) if isinstance(code, str) else None
+                if match:
+                    stations_by_provider[Provider.ENVIRONMENT_CANADA].add(match.group(1))
         
         # Remove empty sets
         return {

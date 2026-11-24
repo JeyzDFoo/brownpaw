@@ -121,9 +121,12 @@ class _GaugeBody extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                readings.isEmpty
-                    ? (current.isLoading ? '' : 'No recent reading')
-                    : updatedAgo(readings.last.timestamp),
+                [
+                  readings.isEmpty
+                      ? (current.isLoading ? '' : 'No recent reading')
+                      : updatedAgo(readings.last.timestamp),
+                  gaugeSource(gauge.id),
+                ].where((s) => s.isNotEmpty).join(' · '),
                 style: muted,
               ),
               const SizedBox(height: 12),

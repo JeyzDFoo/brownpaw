@@ -102,6 +102,14 @@ String runLabel(RiverRun run) {
   return rest.isEmpty ? name : rest;
 }
 
+/// Who publishes the readings for the gauge with `station_current` id
+/// [id], credited under the latest reading.
+String gaugeSource(String id) {
+  if (id.startsWith('metro_vancouver_')) return 'Metro Vancouver';
+  if (id.startsWith('environment_canada_')) return 'Environment Canada';
+  return '';
+}
+
 /// Whether [name] reads like a station name rather than a stray reading
 /// such as "96.4cms↓" or "1.875m↓" (the BC Whitewater import stored some
 /// of those in `gaugeStation.name`).

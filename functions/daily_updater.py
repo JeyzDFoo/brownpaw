@@ -27,6 +27,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
+import metro_vancouver
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
 from scripts.environment_canada.daily_data_service import DailyDataService
@@ -154,10 +155,13 @@ class HistoryStore:
 
     def write_daily(self, code: str, daily: dict):
         """Merges [daily] into the year documents; other days are kept."""
+        self.write_daily_doc(history_doc_id(code), daily)
+
+    def write_daily_doc(self, doc_id: str, daily: dict):
         if not daily:
             return
         batch = self.db.batch()
-        station = self._station(history_doc_id(code))
+        station = self._station(doc_id)
         for year, readings in by_year(daily).items():
             batch.set(station.collection('readings').document(str(year)), {
                 'year': year,
@@ -246,8 +250,15 @@ def run_update(now: datetime = None, store: HistoryStore = None,
         except Exception as e:
             logger.error(f"  {code}: HYDAT fetch failed: {e}")
 
+    try:
+        metro = metro_vancouver.update_daily(store, now)
+    except Exception as e:
+        logger.error(f"Metro Vancouver daily failed: {e}", exc_info=True)
+        metro = {'error': str(e)}
+
     summary = {
         'stations': len(stations),
+        'metro_vancouver': metro,
         'success': sum(1 for r in results if r['status'] == 'success'),
         'failed': sum(1 for r in results if r['status'] == 'error'),
         'hydat_fetched': hydat_done,

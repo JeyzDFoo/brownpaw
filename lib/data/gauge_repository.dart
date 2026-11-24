@@ -148,7 +148,10 @@ class GaugeRepository {
   /// One year's `daily_readings` for [stationId]. History now lives under
   /// the same id as `station_current`; days the old script kept under the
   /// legacy id fill in until the daily Cloud Function has copied them over.
-  Future<Map<String, dynamic>> _dailyReadings(String stationId, int year) async {
+  Future<Map<String, dynamic>> _dailyReadings(
+    String stationId,
+    int year,
+  ) async {
     Future<Map<String, dynamic>> read(String docId) async {
       final doc = await _firestore
           .collection('station_data')

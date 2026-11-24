@@ -1,256 +1,284 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/descent.dart';
-import '../providers/descents_provider.dart';
-import '../providers/user_provider.dart';
-import '../widgets/descent_card.dart';
+import 'package:intl/intl.dart';
 
+import '../data/location_service.dart';
+import '../domain/flow_status.dart';
+import '../domain/season_stats.dart';
+import '../models/descent.dart';
+import '../models/river_run.dart';
+import '../providers/check_in_provider.dart';
+import '../providers/descents_provider.dart';
+import '../providers/river_runs_provider.dart';
+import '../widgets/check_in_banner.dart';
+import '../widgets/descent_details_sheet.dart';
+import '../widgets/flow_status_chip.dart';
+import '../widgets/quick_log_sheet.dart';
+
+/// The home tab: this season at a glance, then every logged run, newest
+/// first. Logging itself lives on the centre Log button.
 class LogbookScreen extends ConsumerWidget {
   const LogbookScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userProvider);
     final descentsAsync = ref.watch(allDescentsProvider);
-
-    if (userState.user == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.book_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Sign in to view your logbook',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Track your progress and share',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    final runsById = {
+      for (final r in ref.watch(riverRunsStreamProvider).value ?? <RiverRun>[])
+        r.riverId: r,
+    };
 
     return descentsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => _Message(
+        icon: Icons.cloud_off,
+        title: "Couldn't load your logbook",
+        body: 'Check your connection and try again.',
+        action: FilledButton(
+          onPressed: () => ref.invalidate(allDescentsProvider),
+          child: const Text('Try again'),
+        ),
+      ),
       data: (descents) {
         if (descents.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.kayaking,
-                      size: 64,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.6),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'No descents yet',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Start exploring and logging your runs!',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+          return _Message(
+            icon: Icons.kayaking,
+            title: 'Your logbook is empty',
+            body:
+                'Log a run and Brownpaw fills in the date, the gauge flow '
+                'and your crew for you.',
+            action: FilledButton.icon(
+              onPressed: () => showQuickLog(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Log your first run'),
             ),
           );
         }
 
-        // Group descents by run and calculate stats
-        final descentsByRun = <String, List<Descent>>{};
-        int totalRating = 0;
-        int ratedCount = 0;
-
-        for (final descent in descents) {
-          descentsByRun.putIfAbsent(descent.runId, () => []).add(descent);
-          if (descent.rating != null) {
-            totalRating += descent.rating!;
-            ratedCount++;
-          }
-        }
-
-        final avgRating = ratedCount > 0 ? totalRating / ratedCount : 0.0;
-
-        return CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Theme.of(context).colorScheme.primaryContainer,
-                      Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withOpacity(0.3),
-                    ],
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.book,
-                            size: 32,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Logbook',
-                            style: Theme.of(context).textTheme.headlineMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimaryContainer,
-                                ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _StatCard(
-                              label: 'Descents',
-                              value: descents.length.toString(),
-                              icon: Icons.kayaking,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _StatCard(
-                              label: 'Avg Rating',
-                              value: avgRating > 0
-                                  ? avgRating.toStringAsFixed(1)
-                                  : '-',
-                              icon: Icons.star,
-                              showStar: avgRating > 0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+        final stats = SeasonStats.from(descents);
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          children: [
+            Text(
+              '${stats.year} season',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final descent = descents[index];
-                return DescentCard(descent: descent, index: index);
-              }, childCount: descents.length),
+            const SizedBox(height: 10),
+            _CheckInSlot(descents: descents),
+            _StatsRow(stats: stats),
+            const SizedBox(height: 24),
+            Text(
+              'RECENT',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            const SizedBox(height: 10),
+            for (final d in descents) ...[
+              LogEntryCard(descent: d, run: runsById[d.runId]),
+              const SizedBox(height: 10),
+            ],
           ],
         );
       },
-      loading: () => Center(
+    );
+  }
+}
+
+/// The put-in check-in, or the one-time card that asks for location.
+class _CheckInSlot extends ConsumerWidget {
+  const _CheckInSlot({required this.descents});
+  final List<Descent> descents;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final checkIn = ref.watch(putInCheckInProvider).value;
+    final dismissed = ref.watch(dismissedCheckInsProvider);
+    Widget? card;
+
+    if (checkIn != null && !dismissed.contains(checkIn.run.riverId)) {
+      final now = DateTime.now();
+      final loggedToday = descents.any(
+        (d) =>
+            d.runId == checkIn.run.riverId &&
+            d.date.year == now.year &&
+            d.date.month == now.month &&
+            d.date.day == now.day,
+      );
+      if (!loggedToday) card = CheckInBanner(checkIn: checkIn);
+    } else if (ref.watch(locationAccessProvider).value ==
+            LocationAccess.askable &&
+        ref.watch(locationPromptDismissedProvider).value == false) {
+      card = const LocationPromptCard();
+    }
+
+    if (card == null) return const SizedBox.shrink();
+    return Padding(padding: const EdgeInsets.only(bottom: 16), child: card);
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  const _StatsRow({required this.stats});
+  final SeasonStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _Stat(
+              value: stats.daysOnWater,
+              label: stats.daysOnWater == 1
+                  ? 'day on the water'
+                  : 'days on the water',
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _Stat(
+              value: stats.differentRuns,
+              label: stats.differentRuns == 1 ? 'run' : 'different runs',
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _Stat(value: stats.newRuns, label: 'new this season'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  const _Stat({required this.value, required this.label});
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      label: '$value $label',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
             Text(
-              'Loading your logbook...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              '$value',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ],
         ),
       ),
-      error: (error, stack) => Center(
+    );
+  }
+}
+
+/// One logged run: name and date, then flow with its status and the crew.
+class LogEntryCard extends ConsumerWidget {
+  const LogEntryCard({super.key, required this.descent, this.run});
+
+  final Descent descent;
+
+  /// The run, when known, so the flow can be judged against its ranges.
+  final RiverRun? run;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final flow = descent.flow;
+    final crew = descent.crew ?? const <String>[];
+    final now = DateTime.now();
+    final date = descent.date.year == now.year
+        ? DateFormat.MMMd().format(descent.date)
+        : DateFormat.yMMMd().format(descent.date);
+
+    return Material(
+      color: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => Scaffold(
+              body: DescentDetailsSheet(
+                descent: descent,
+                scrollController: ScrollController(),
+                ref: ref,
+              ),
+            ),
+          ),
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.errorContainer.withOpacity(0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.error,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Expanded(
+                    child: Text(
+                      descent.displayName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(date, style: muted),
+                ],
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Error loading logbook',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Pull to refresh or try again later',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+              if (flow != null || crew.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (flow != null)
+                      Text(
+                        '${flow.toStringAsFixed(1)} ${descent.flowUnit ?? 'm³/s'}',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    if (flow != null && (run?.hasFlowRanges ?? false))
+                      FlowStatusChip(status: run!.flowStatus(flow)),
+                    if (crew.isNotEmpty)
+                      Text('with ${crew.join(', ')}', style: muted),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-              ),
+              ],
             ],
           ),
         ),
@@ -259,66 +287,49 @@ class LogbookScreen extends ConsumerWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final bool showStar;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
+class _Message extends StatelessWidget {
+  const _Message({
     required this.icon,
-    this.showStar = false,
+    required this.title,
+    required this.body,
+    required this.action,
   });
+
+  final IconData icon;
+  final String title;
+  final String body;
+  final Widget action;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 56, color: theme.colorScheme.primary),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-              if (showStar) ...[
-                const SizedBox(width: 4),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.star, size: 16, color: Colors.amber),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              body,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            action,
+          ],
+        ),
       ),
     );
   }

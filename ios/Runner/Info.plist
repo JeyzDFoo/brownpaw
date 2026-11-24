@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -20,10 +22,68 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>comgooglemaps</string>
+		<string>waze</string>
+		<string>yandexmaps</string>
+		<string>yandexnavi</string>
+		<string>citymapper</string>
+		<string>mapswithme</string>
+		<string>here-route</string>
+		<string>dgis</string>
+		<string>petal</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Brownpaw uses the camera when you take a profile photo.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Brownpaw uses your location to suggest which run you're at when you check in, and to show runs near you. It stays on your phone.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Brownpaw opens your photo library when you choose a profile photo.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -40,49 +100,6 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8</string>
-			</array>
-		</dict>
-	</array>
-	<!-- Location is read only while the app is open, when you tap to check in or sort by distance. -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Brownpaw uses your location to suggest which run you're at when you check in, and to show runs near you. It stays on your phone.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Brownpaw uses the camera when you take a profile photo.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Brownpaw opens your photo library when you choose a profile photo.</string>
-	<!-- Firebase Cloud Messaging: flow alerts -->
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
-	<!-- Only standard HTTPS encryption: no export compliance paperwork per build -->
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<!-- URL Schemes for Map Apps -->
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>comgooglemaps</string>
-		<string>waze</string>
-		<string>yandexmaps</string>
-		<string>yandexnavi</string>
-		<string>citymapper</string>
-		<string>mapswithme</string>
-		<string>here-route</string>
-		<string>dgis</string>
-		<string>petal</string>
 	</array>
 </dict>
 </plist>

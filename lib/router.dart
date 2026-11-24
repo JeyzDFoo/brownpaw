@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'models/river_run.dart';
 import 'providers/user_provider.dart';
 import 'screens/auth_screen.dart';
-import 'screens/community_home_screen.dart';
 import 'screens/gauge_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/log_descent_screen.dart';
@@ -21,7 +20,6 @@ abstract final class AppRoutes {
   static const guide = '/guide';
   static const me = '/me';
   static const privacy = '/me/privacy';
-  static const community = '/me/community';
   static const logDescent = '/log';
 
   /// The bottom navigation tabs, in order. The centre Log button is not a
@@ -106,20 +104,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'privacy',
             builder: (context, state) => const PrivacyPolicyScreen(),
           ),
-          GoRoute(
-            path: 'community',
-            builder: (context, state) => Scaffold(
-              appBar: AppBar(title: const Text('Community')),
-              body: const CommunityHomeScreen(),
-            ),
-          ),
         ],
       ),
       // Old tab paths, kept so earlier links still work.
       GoRoute(path: '/logbook', redirect: (_, _) => AppRoutes.home),
       GoRoute(path: '/favourites', redirect: (_, _) => AppRoutes.gauges),
       GoRoute(path: '/settings', redirect: (_, _) => AppRoutes.me),
-      GoRoute(path: '/community', redirect: (_, _) => AppRoutes.community),
+      GoRoute(path: '/community', redirect: (_, _) => AppRoutes.home),
       GoRoute(path: '/map', redirect: (_, _) => AppRoutes.guide),
       GoRoute(
         path: AppRoutes.logDescent,

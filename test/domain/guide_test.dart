@@ -113,4 +113,24 @@ void main() {
       expect(e.matches('seymour'), isFalse);
     });
   });
+
+  test('a group shows its best status', () {
+    final entries = guideEntries(
+      [
+        run('low', 'A', station: '08GA030', min: 5),
+        run('good', 'B', station: '08MH001', min: 15, max: 60),
+        run('none', 'C'),
+      ],
+      {
+        'environment_canada_08MH001': const StationSummary(flow: 30),
+        'environment_canada_08GA030': const StationSummary(flow: 2),
+      },
+    );
+    expect(bestStatus(entries), FlowStatus.runnable);
+    expect(
+      bestStatus(entries.where((e) => e.run.riverId != 'good')),
+      FlowStatus.tooLow,
+    );
+    expect(bestStatus(const []), FlowStatus.unknown);
+  });
 }

@@ -34,7 +34,6 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
   DateTime _selectedDate = DateTime.now();
   int? _rating;
   String? _userDifficulty; // User's assessment of difficulty
-  bool _isPublic = true;
 
   @override
   void initState() {
@@ -307,7 +306,6 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
                 : null,
             rating: _rating,
             difficulty: _userDifficulty,
-            isPublic: _isPublic,
           );
 
       if (!mounted) return;
@@ -530,16 +528,6 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
             ),
             const SizedBox(height: 8),
 
-            // Public visibility toggle
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Share in Public Logbook'),
-              subtitle: const Text(
-                'Other paddlers can see your descent and learn from conditions',
-              ),
-              value: _isPublic,
-              onChanged: (value) => setState(() => _isPublic = value),
-            ),
             const SizedBox(height: 24),
 
             // Save Button (inside scroll view to remain accessible with keyboard)

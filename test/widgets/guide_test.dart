@@ -84,6 +84,8 @@ void main() {
     await pumpGuide(tester);
     await tester.tap(find.byTooltip('List'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Show all'));
+    await tester.pumpAndSettle();
     expect(find.byType(GuideRunCard), findsNWidgets(3));
     expect(find.text('Class III · 24.6 cms'), findsOneWidget);
     final canyonY = tester.getTopLeft(find.text('Canyon')).dy;
@@ -120,5 +122,32 @@ void main() {
     expect(find.text('Busy with rafts in summer.'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('View on BC Whitewater'), 200);
     expect(find.textContaining('BC Whitewater'), findsWidgets);
+  });
+
+  testWidgets('zoom buttons and grouped pins', (tester) async {
+    await pumpGuide(tester);
+    expect(find.byTooltip('Zoom in'), findsOneWidget);
+    expect(find.byTooltip('Zoom out'), findsOneWidget);
+
+    // Zoomed out, Tamihi and Seymour share one marker.
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.byTooltip('Zoom out'));
+      await tester.pumpAndSettle();
+    }
+    expect(find.bySemanticsLabel('2 runs here, 1 running'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Chilliwack, ')), findsNothing);
+
+    await tester.tap(find.byTooltip('Back to the Lower Mainland'));
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel(RegExp(r'^Chilliwack, ')), findsOneWidget);
+
+    // The list shows only runs in view; Canyon has no location.
+    await tester.tap(find.byTooltip('List'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 runs in the map area'), findsOneWidget);
+    expect(find.byType(GuideRunCard), findsNWidgets(2));
+    await tester.tap(find.text('Show all'));
+    await tester.pumpAndSettle();
+    expect(find.byType(GuideRunCard), findsNWidgets(3));
   });
 }

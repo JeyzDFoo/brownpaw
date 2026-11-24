@@ -55,7 +55,6 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
   List<String> _crewOptions = [];
   final Set<String> _crew = {};
 
-  bool _isPublic = true;
   bool _saving = false;
 
   @override
@@ -243,7 +242,6 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
       notes: note.isEmpty ? null : note,
       difficulty: run.difficultyClass,
       crew: _crew.isEmpty ? null : _crew.toList(),
-      isPublic: _isPublic,
     );
     ref.read(recentRunsProvider.notifier).addRecentRun(run.riverId);
 
@@ -452,13 +450,6 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                 labelText: 'Note (optional)',
                 hintText: 'Anything worth remembering?',
               ),
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Show in community feed'),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
             ),
             const SizedBox(height: 8),
 

@@ -8,6 +8,9 @@ import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../providers/user_provider.dart';
+import '../domain/flow_status.dart';
+import '../theme/flow_status_style.dart';
+import '../widgets/flow_status_chip.dart';
 
 class CommunityHomeScreen extends ConsumerWidget {
   const CommunityHomeScreen({super.key});
@@ -230,36 +233,10 @@ class _FavouriteConditionCard extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    Color statusColor;
-    String statusLabel;
-
-    if (currentFlow == null) {
-      statusColor = Colors.grey;
-      statusLabel = 'Loading…';
-    } else if (run.optimalFlowMin != null &&
-        run.optimalFlowMax != null &&
-        currentFlow >= run.optimalFlowMin! &&
-        currentFlow <= run.optimalFlowMax!) {
-      statusColor = const Color(0xFF43A047);
-      statusLabel = 'Optimal';
-    } else if (run.minRecommendedFlow != null &&
-        run.maxRecommendedFlow != null &&
-        currentFlow >= run.minRecommendedFlow! &&
-        currentFlow <= run.maxRecommendedFlow!) {
-      statusColor = const Color(0xFF1E88E5);
-      statusLabel = 'Runnable';
-    } else if (run.maxRecommendedFlow != null &&
-        currentFlow > run.maxRecommendedFlow!) {
-      statusColor = const Color(0xFFE53935);
-      statusLabel = 'High';
-    } else if (run.minRecommendedFlow != null &&
-        currentFlow < run.minRecommendedFlow!) {
-      statusColor = const Color(0xFFFF6F00);
-      statusLabel = 'Low';
-    } else {
-      statusColor = const Color(0xFF1E88E5);
-      statusLabel = 'Info';
-    }
+    final status = run.flowStatus(currentFlow);
+    final statusColor = currentFlow == null
+        ? Theme.of(context).colorScheme.outline
+        : status.color(context);
 
     final trendSymbol = switch (trend) {
       'rising' => ' ↑',
@@ -316,20 +293,7 @@ class _FavouriteConditionCard extends ConsumerWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
             const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                statusLabel,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: statusColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            if (currentFlow != null) FlowStatusChip(status: status),
           ],
         ),
       ),

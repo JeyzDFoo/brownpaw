@@ -1,7 +1,9 @@
+import 'package:brownpaw/domain/flow_status.dart';
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/realtime_flow_provider.dart';
 import 'package:brownpaw/providers/flow_data_provider.dart';
 import 'package:brownpaw/widgets/flow_chart_widget.dart';
+import 'package:brownpaw/widgets/flow_status_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -142,8 +144,7 @@ class FlowInformationWidget extends ConsumerWidget {
 
   // Build flow range indicator
   Widget _buildFlowIndicator(BuildContext context, double currentFlow) {
-    final hasFlowRanges =
-        riverRun.minRecommendedFlow != null || riverRun.optimalFlowMin != null;
+    final hasFlowRanges = riverRun.hasFlowRanges;
 
     if (!hasFlowRanges) {
       // Just show current flow without ranges
@@ -180,54 +181,7 @@ class FlowInformationWidget extends ConsumerWidget {
       );
     }
 
-    // Determine flow status
-    String status;
-    Color statusColor;
-    IconData statusIcon;
-
-    if (riverRun.optimalFlowMin != null && riverRun.optimalFlowMax != null) {
-      if (currentFlow >= riverRun.optimalFlowMin! &&
-          currentFlow <= riverRun.optimalFlowMax!) {
-        status = 'Optimal';
-        statusColor = Colors.green;
-        statusIcon = Icons.check_circle;
-      } else if (riverRun.minRecommendedFlow != null &&
-          riverRun.maxRecommendedFlow != null &&
-          currentFlow >= riverRun.minRecommendedFlow! &&
-          currentFlow <= riverRun.maxRecommendedFlow!) {
-        status = 'Runnable';
-        statusColor = Colors.orange;
-        statusIcon = Icons.warning;
-      } else if (currentFlow < (riverRun.minRecommendedFlow ?? 0)) {
-        status = 'Low';
-        statusColor = Colors.red;
-        statusIcon = Icons.trending_down;
-      } else {
-        status = 'High';
-        statusColor = Colors.red;
-        statusIcon = Icons.trending_up;
-      }
-    } else if (riverRun.minRecommendedFlow != null &&
-        riverRun.maxRecommendedFlow != null) {
-      if (currentFlow >= riverRun.minRecommendedFlow! &&
-          currentFlow <= riverRun.maxRecommendedFlow!) {
-        status = 'Runnable';
-        statusColor = Colors.green;
-        statusIcon = Icons.check_circle;
-      } else if (currentFlow < riverRun.minRecommendedFlow!) {
-        status = 'Low';
-        statusColor = Colors.red;
-        statusIcon = Icons.trending_down;
-      } else {
-        status = 'High';
-        statusColor = Colors.red;
-        statusIcon = Icons.trending_up;
-      }
-    } else {
-      status = 'Unknown';
-      statusColor = Colors.grey;
-      statusIcon = Icons.help_outline;
-    }
+    final status = riverRun.flowStatus(currentFlow);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -265,31 +219,7 @@ class FlowInformationWidget extends ConsumerWidget {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: statusColor),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(statusIcon, color: statusColor, size: 20),
-                    const SizedBox(width: 4),
-                    Text(
-                      status,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              FlowStatusChip(status: status, large: true),
             ],
           ),
           const SizedBox(height: 16),

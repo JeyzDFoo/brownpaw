@@ -257,4 +257,33 @@ void main() {
     expect(rangeSummary(r), 'Low 15 · Medium 20 · High 40 · Max 60 m³/s');
     expect(rangeSummary(run('x', 'X', 'Y')), isNull);
   });
+
+  test('new paddlers start with Capilano, Lynn Creek and the Mamquam', () {
+    final runs = [
+      run(
+        'capilano-river',
+        'Capilano River',
+        'Capilano River',
+        station: 'metro_vancouver_capilano',
+      ),
+      run('lynn-creek', 'Lynn Creek', 'Lynn Creek', station: 'flowworks_lynn'),
+      run(
+        'lower-mamquam',
+        'Lower Mamquam',
+        'Mamquam River',
+        station: '08GA075',
+      ),
+      run(
+        'cheakamus',
+        'Paradise Valley',
+        'Cheakamus River',
+        station: '08GA043',
+      ),
+    ];
+    expect(starterFavouriteRunIds(runs), {
+      'capilano-river',
+      'lynn-creek',
+      'lower-mamquam',
+    });
+  });
 }

@@ -2947,7 +2947,10 @@
       "time": "1 hour at high water; 4 hours at low water with scouting",
       "season": "During or after rainfall October-March, snowmelt April-June",
       "gauge_info": null,
-      "gauge_station": null,
+      "gauge_station": {
+        "name": "CHEHALIS RIVER NEAR HARRISON MILLS",
+        "code": "08MG001"
+      },
       "put_in": {
         "name": "Alternate put in",
         "description": "An alternate put in on the Chehalis River, if Statlu Creek is too low or too difficult for your group. Steep trail down to the river.",
@@ -3056,7 +3059,10 @@
       "time": "4-6 hours including scouting",
       "season": "Rainfall October-March, snowmelt April-June",
       "gauge_info": null,
-      "gauge_station": null,
+      "gauge_station": {
+        "name": "CHEHALIS RIVER NEAR HARRISON MILLS",
+        "code": "08MG001"
+      },
       "put_in": {
         "name": "Put in",
         "description": "Informal campground on Chehalis Lake",

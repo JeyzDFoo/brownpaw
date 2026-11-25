@@ -3,12 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../data/location_service.dart';
 import '../domain/flow_status.dart';
 import '../domain/season_stats.dart';
 import '../models/descent.dart';
 import '../models/river_run.dart';
-import '../providers/check_in_provider.dart';
 import '../providers/descents_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../widgets/check_in_banner.dart';
@@ -68,7 +66,7 @@ class LogbookScreen extends ConsumerWidget {
           children: [
             SectionLabel('${stats.year} season'),
             const SizedBox(height: 10),
-            _CheckInSlot(descents: descents),
+            const PutInCheckInSlot(),
             _StatsRow(stats: stats),
             const SizedBox(height: 24),
             const SectionLabel('Recent'),
@@ -81,38 +79,6 @@ class LogbookScreen extends ConsumerWidget {
         );
       },
     );
-  }
-}
-
-/// The put-in check-in, or the one-time card that asks for location.
-class _CheckInSlot extends ConsumerWidget {
-  const _CheckInSlot({required this.descents});
-  final List<Descent> descents;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final checkIn = ref.watch(putInCheckInProvider).valueOrNull;
-    final dismissed = ref.watch(dismissedCheckInsProvider);
-    Widget? card;
-
-    if (checkIn != null && !dismissed.contains(checkIn.run.riverId)) {
-      final now = DateTime.now();
-      final loggedToday = descents.any(
-        (d) =>
-            d.runId == checkIn.run.riverId &&
-            d.date.year == now.year &&
-            d.date.month == now.month &&
-            d.date.day == now.day,
-      );
-      if (!loggedToday) card = CheckInBanner(checkIn: checkIn);
-    } else if (ref.watch(locationAccessProvider).value ==
-            LocationAccess.askable &&
-        ref.watch(locationPromptDismissedProvider).value == false) {
-      card = const LocationPromptCard();
-    }
-
-    if (card == null) return const SizedBox.shrink();
-    return Padding(padding: const EdgeInsets.only(bottom: 16), child: card);
   }
 }
 

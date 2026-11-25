@@ -322,3 +322,29 @@ List<FlowPoint> dailySeries(
   points.sort((a, b) => a.time.compareTo(b.time));
   return points;
 }
+
+/// The gauges a new paddler starts with starred: Capilano, Lynn Creek and
+/// the Mamquam, by their `station_current` ids.
+const starterGaugeIds = {
+  'metro_vancouver_capilano',
+  'flowworks_lynn',
+  'environment_canada_08GA075',
+};
+
+/// Rivers that pick up the starter gauges even before a run is pointed at
+/// its station.
+const _starterRivers = ['capilano', 'lynn creek', 'mamquam'];
+
+/// The runs to favourite for a new paddler, so the Gauges tab opens on
+/// local gauges rather than an empty "Your gauges".
+Set<String> starterFavouriteRunIds(Iterable<RiverRun> runs) => {
+  for (final run in runs)
+    if ((run.stationId != null &&
+            starterGaugeIds.contains(
+              GaugeRepository.docIdFor(run.stationId!),
+            )) ||
+        _starterRivers.any(
+          (r) => '${run.river} ${run.name}'.toLowerCase().contains(r),
+        ))
+      run.riverId,
+};

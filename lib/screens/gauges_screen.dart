@@ -6,6 +6,7 @@ import '../domain/gauges.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
+import '../widgets/check_in_banner.dart';
 import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
 import '../theme/app_theme.dart';
@@ -91,12 +92,18 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
           itemCount: items.length + 1,
           itemBuilder: (context, i) {
             if (i == 0) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _SearchField(
-                  controller: _search,
-                  onChanged: (v) => setState(() => _query = v),
-                ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const PutInCheckInSlot(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _SearchField(
+                      controller: _search,
+                      onChanged: (v) => setState(() => _query = v),
+                    ),
+                  ),
+                ],
               );
             }
             return Padding(

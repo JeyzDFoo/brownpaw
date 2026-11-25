@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../domain/gauges.dart';
+import 'river_runs_provider.dart';
 import 'user_provider.dart';
 
 /// State for the favorites feature
@@ -62,15 +65,11 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
             favoriteRunIds: Set<String>.from(favorites),
             isLoading: false,
           );
-        } else {
-          state = FavoritesState(isLoading: false);
+          return;
         }
-      } else {
-        if (kDebugMode) {
-          print('User document does not exist in Firestore');
-        }
-        state = FavoritesState(isLoading: false);
       }
+      state = FavoritesState(isLoading: false);
+      if (_isNewAccount(user)) await _starStarterGauges();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -79,6 +78,26 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
       if (kDebugMode) {
         print('Error loading favorites: $e');
       }
+    }
+  }
+
+  /// Someone who signed up in the last day and has never starred anything.
+  bool _isNewAccount(User user) {
+    final created = user.metadata.creationTime;
+    return created != null &&
+        DateTime.now().difference(created) < const Duration(days: 1);
+  }
+
+  /// Starts a new paddler with Capilano, Lynn Creek and the Mamquam
+  /// starred. Written once, so unstarring them sticks.
+  Future<void> _starStarterGauges() async {
+    try {
+      final runs = await _ref.read(riverRunsStreamProvider.future);
+      final ids = starterFavouriteRunIds(runs);
+      if (ids.isEmpty || state.favoriteRunIds.isNotEmpty) return;
+      await setFavourites(ids, true);
+    } catch (e) {
+      if (kDebugMode) print('Error starring starter gauges: $e');
     }
   }
 

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/location_service.dart';
+import '../models/descent.dart';
 import '../models/river_run.dart';
+import '../providers/descents_provider.dart';
 import '../providers/check_in_provider.dart';
 import 'quick_log_sheet.dart';
 import '../theme/app_theme.dart';
@@ -10,6 +12,42 @@ import '../theme/app_theme.dart';
 /// The run's name as people say it: "Chilliwack · Tamihi to Vedder".
 String runTitle(RiverRun run) =>
     run.name == run.river ? run.river : '${run.river} · ${run.name}';
+
+/// The put-in check-in, or the one-time card that asks for location.
+///
+/// Shown on the Logbook and on Gauges, where the app opens, so arriving at
+/// a put-in is one tap from a logged run.
+class PutInCheckInSlot extends ConsumerWidget {
+  const PutInCheckInSlot({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final checkIn = ref.watch(putInCheckInProvider).valueOrNull;
+    final descents =
+        ref.watch(allDescentsProvider).valueOrNull ?? const <Descent>[];
+    final dismissed = ref.watch(dismissedCheckInsProvider);
+    Widget? card;
+
+    if (checkIn != null && !dismissed.contains(checkIn.run.riverId)) {
+      final now = DateTime.now();
+      final loggedToday = descents.any(
+        (d) =>
+            d.runId == checkIn.run.riverId &&
+            d.date.year == now.year &&
+            d.date.month == now.month &&
+            d.date.day == now.day,
+      );
+      if (!loggedToday) card = CheckInBanner(checkIn: checkIn);
+    } else if (ref.watch(locationAccessProvider).value ==
+            LocationAccess.askable &&
+        ref.watch(locationPromptDismissedProvider).value == false) {
+      card = const LocationPromptCard();
+    }
+
+    if (card == null) return const SizedBox.shrink();
+    return Padding(padding: const EdgeInsets.only(bottom: 16), child: card);
+  }
+}
 
 /// "You're at the put-in" card: one tap opens the quick log on that run.
 class CheckInBanner extends ConsumerWidget {

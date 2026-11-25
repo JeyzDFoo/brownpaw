@@ -10,6 +10,10 @@ void main() {
       expect(redirect('/', signedIn: false), '/sign-in');
     });
 
+    test('the Gauges start screen goes to plain sign-in', () {
+      expect(redirect('/gauges', signedIn: false), '/sign-in');
+    });
+
     test('a deep link is remembered for after sign-in', () {
       expect(
         redirect('/runs/chilliwack-tamihi', signedIn: false),
@@ -36,14 +40,14 @@ void main() {
       );
     });
 
-    test('sign-in without a destination goes home', () {
-      expect(redirect('/sign-in', signedIn: true), '/');
+    test('sign-in without a destination opens Gauges', () {
+      expect(redirect('/sign-in', signedIn: true), '/gauges');
     });
 
     test('an off-site destination is ignored', () {
       expect(
         redirect('/sign-in?from=https%3A%2F%2Fevil.example', signedIn: true),
-        '/',
+        '/gauges',
       );
     });
   });

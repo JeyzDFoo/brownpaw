@@ -23,6 +23,9 @@ abstract final class AppRoutes {
   static const privacy = '/me/privacy';
   static const logDescent = '/log';
 
+  /// Where the app opens: the Gauges tab.
+  static const start = gauges;
+
   /// The bottom navigation tabs, in order. The centre Log button is not a
   /// tab: it opens the quick-log sheet over whichever tab is showing.
   static const tabs = [home, gauges, guide, me];
@@ -47,7 +50,7 @@ String? authRedirect({required bool signedIn, required Uri location}) {
   if (!signedIn) {
     if (atSignIn) return null;
     final from = location.toString();
-    return from == AppRoutes.home
+    return (from == AppRoutes.home || from == AppRoutes.start)
         ? AppRoutes.signIn
         : Uri(
             path: AppRoutes.signIn,
@@ -56,7 +59,7 @@ String? authRedirect({required bool signedIn, required Uri location}) {
   }
   if (atSignIn) {
     final from = location.queryParameters['from'];
-    return (from != null && from.startsWith('/')) ? from : AppRoutes.home;
+    return (from != null && from.startsWith('/')) ? from : AppRoutes.start;
   }
   return null;
 }
@@ -78,7 +81,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       NoTransitionPage(child: MyHomePage(tabIndex: index));
 
   final router = GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.start,
     refreshListenable: refresh,
     redirect: (context, state) => authRedirect(
       signedIn: ref.read(userProvider).isAuthenticated,

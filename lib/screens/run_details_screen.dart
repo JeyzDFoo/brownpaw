@@ -8,11 +8,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../data/gauge_repository.dart';
 import '../domain/flow_alert.dart';
+import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
 import '../domain/gauges.dart';
 import '../domain/run_guide.dart';
 import '../domain/run_suggestion.dart' show distanceKm;
 import '../models/descent.dart';
+import '../models/realtime_flow.dart';
 import '../models/river_run.dart';
 import '../providers/descents_provider.dart';
 import '../providers/gauges_provider.dart';
@@ -22,6 +24,7 @@ import '../router.dart';
 import '../widgets/alert_bell.dart';
 import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
+import '../widgets/flow_range_scale.dart';
 import '../widgets/flow_status_chip.dart';
 import '../widgets/map_tiles.dart';
 import '../widgets/quick_log_sheet.dart';
@@ -278,24 +281,41 @@ class _Conditions extends ConsumerWidget {
       borderRadius: Pebble.a,
     );
 
+    final ranges = run.ranges;
+    final comparable = ranges != null && ranges.readOnGaugeOf(run);
+
     if (station == null || station.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: card,
-        child: Text('No gauge is linked to this run.', style: muted),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('No online gauge is linked to this run.', style: muted),
+            if (ranges != null) ...[
+              const SizedBox(height: 14),
+              FlowRangeScale(ranges: ranges, referenceOnly: true),
+            ],
+          ],
+        ),
       );
     }
 
     final gaugeId = GaugeRepository.docIdFor(station);
     final gauge = ref.watch(gaugeProvider(gaugeId)).valueOrNull;
     final current = ref.watch(realtimeFlowStreamProvider(station));
-    final readings = dischargeReadings(
-      current.valueOrNull?.readings ?? const [],
-    );
-    final flow = readings.isEmpty ? null : readings.last.discharge;
-    final trend = trendOf(readings);
-    final range = goodRange(run);
-    final status = run.hasFlowRanges ? run.flowStatus(flow) : null;
+    final all = current.valueOrNull?.readings ?? const <FlowReading>[];
+    // Runs read on the stick (the Cheakamus, the Chilliwack) lead with
+    // the level in metres; the rest with m³/s.
+    var unit = comparable ? ranges.unit : FlowUnit.cms;
+    if (unit == FlowUnit.metres && readingsIn(all, unit).isEmpty) {
+      unit = FlowUnit.cms;
+    }
+    final readings = readingsIn(all, unit);
+    final value = readings.isEmpty ? null : valueIn(readings.last, unit);
+    final latest = all.isEmpty ? null : all.last;
+    final trend = trendOf(dischargeReadings(all));
+    final status = run.flowStatus(latest?.discharge, level: latest?.level);
 
     return Material(
       color: theme.colorScheme.surfaceContainerLow,
@@ -321,13 +341,20 @@ class _Conditions extends ConsumerWidget {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Text(
-                              flow?.toStringAsFixed(1) ?? '–',
+                              value == null
+                                  ? '–'
+                                  : value.toStringAsFixed(
+                                      unit == FlowUnit.metres ? 2 : 1,
+                                    ),
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
                             const SizedBox(width: 6),
-                            Text('m³/s', style: theme.textTheme.titleSmall),
+                            Text(
+                              unit.symbol,
+                              style: theme.textTheme.titleSmall,
+                            ),
                             if (trend != null) ...[
                               const SizedBox(width: 6),
                               TrendIcon(trend, size: 18),
@@ -338,28 +365,25 @@ class _Conditions extends ConsumerWidget {
                     ),
                   ),
                   FlowSparkline(
-                    points: hourlyWindow(readings, 7),
+                    points: hourlyWindow(readings, 7, unit: unit),
                     width: 88,
                     height: 40,
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (status != null && flow != null)
-                    FlowStatusChip(status: status),
-                  if (range != null)
-                    Text(
-                      range[0].toUpperCase() + range.substring(1),
-                      style: muted,
-                    ),
-                  if (status == null) Text('No flow range yet', style: muted),
-                ],
-              ),
+              if (status != FlowStatus.unknown) ...[
+                const SizedBox(height: 8),
+                FlowStatusChip(status: status),
+              ],
+              const SizedBox(height: 14),
+              if (ranges != null)
+                FlowRangeScale(
+                  ranges: ranges,
+                  status: status,
+                  referenceOnly: !comparable,
+                )
+              else
+                Text('No flow guide for this run yet.', style: muted),
               const Divider(height: 24),
               Row(
                 children: [

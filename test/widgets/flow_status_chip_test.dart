@@ -30,7 +30,7 @@ void main() {
       host(
         Builder(
           builder: (context) {
-            light = FlowStatus.good.color(context);
+            light = FlowStatus.medium.color(context);
             return const SizedBox();
           },
         ),
@@ -40,7 +40,7 @@ void main() {
       host(
         Builder(
           builder: (context) {
-            dark = FlowStatus.good.color(context);
+            dark = FlowStatus.medium.color(context);
             return const SizedBox();
           },
         ),
@@ -49,7 +49,7 @@ void main() {
     );
     // MaterialApp animates between themes; let it finish.
     await tester.pumpAndSettle();
-    expect(light, FlowStatusColors.light.good);
-    expect(dark, FlowStatusColors.dark.good);
+    expect(light, FlowStatusColors.light.medium);
+    expect(dark, FlowStatusColors.dark.medium);
   });
 }

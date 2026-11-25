@@ -2,6 +2,7 @@ import '../data/gauge_repository.dart';
 import '../models/descent.dart';
 import '../models/realtime_flow.dart';
 import '../models/river_run.dart';
+import 'flow_ranges.dart';
 
 /// One gauge station and the runs judged against it.
 class Gauge {
@@ -237,18 +238,30 @@ const staleAfter = Duration(hours: 6);
 bool isStale(DateTime timestamp, {DateTime? now}) =>
     (now ?? DateTime.now()).difference(timestamp) > staleAfter;
 
-/// "good at 20 to 40", or the runnable range when that's all there is.
-String? goodRange(RiverRun run) {
-  String n(double v) => v == v.roundToDouble() ? '${v.round()}' : '$v';
-  if (run.optimalFlowMin != null && run.optimalFlowMax != null) {
-    return 'good at ${n(run.optimalFlowMin!)} to ${n(run.optimalFlowMax!)}';
+/// "Low 25 · Medium 50 · High 100 m³/s", or null when the run has none.
+String? rangeSummary(RiverRun run) => run.ranges?.summary;
+
+/// The unit a gauge page leads with: metres when most of its runs with
+/// flows are read on the stick (the Cheakamus, the Chilliwack), else m³/s.
+FlowUnit gaugeUnit(Iterable<RiverRun> runs) {
+  var metres = 0, cms = 0;
+  for (final run in runs) {
+    final r = run.ranges;
+    if (r == null || !r.readOnGaugeOf(run)) continue;
+    r.unit == FlowUnit.metres ? metres++ : cms++;
   }
-  if (run.minRecommendedFlow != null && run.maxRecommendedFlow != null) {
-    return 'runs at ${n(run.minRecommendedFlow!)} to '
-        '${n(run.maxRecommendedFlow!)}';
-  }
-  return null;
+  return metres > cms ? FlowUnit.metres : FlowUnit.cms;
 }
+
+/// Readings with a value in [unit], oldest first.
+List<FlowReading> readingsIn(List<FlowReading> readings, FlowUnit unit) =>
+    unit == FlowUnit.metres
+    ? readings.where((r) => r.level != null).toList()
+    : dischargeReadings(readings);
+
+/// A reading's value in [unit].
+double? valueIn(FlowReading r, FlowUnit unit) =>
+    unit == FlowUnit.metres ? r.level : r.discharge;
 
 /// A flow at a moment, for charts.
 typedef FlowPoint = ({DateTime time, double flow});
@@ -270,14 +283,20 @@ enum GaugeSpan {
   bool get usesDaily => days > 30;
 }
 
-/// Hourly readings within [days] of the latest one.
-List<FlowPoint> hourlyWindow(List<FlowReading> readings, int days) {
-  final flows = dischargeReadings(readings);
+/// Hourly readings within [days] of the latest one, as discharge or, for
+/// [FlowUnit.metres], water level.
+List<FlowPoint> hourlyWindow(
+  List<FlowReading> readings,
+  int days, {
+  FlowUnit unit = FlowUnit.cms,
+}) {
+  final flows = readingsIn(readings, unit);
   if (flows.isEmpty) return const [];
   final from = flows.last.timestamp.subtract(Duration(days: days));
   return [
     for (final r in flows)
-      if (!r.timestamp.isBefore(from)) (time: r.timestamp, flow: r.discharge!),
+      if (!r.timestamp.isBefore(from))
+        (time: r.timestamp, flow: valueIn(r, unit)!),
   ];
 }
 
@@ -286,13 +305,15 @@ List<FlowPoint> hourlyWindow(List<FlowReading> readings, int days) {
 List<FlowPoint> dailySeries(
   Iterable<Map<String, dynamic>> dailyReadings,
   DateTime from,
-  DateTime to,
-) {
+  DateTime to, {
+  FlowUnit unit = FlowUnit.cms,
+}) {
+  final field = unit == FlowUnit.metres ? 'mean_level' : 'mean_discharge';
   final points = <FlowPoint>[];
   for (final daily in dailyReadings) {
     daily.forEach((key, value) {
       final day = DateTime.tryParse(key);
-      final mean = value is Map ? value['mean_discharge'] : null;
+      final mean = value is Map ? value[field] : null;
       if (day == null || mean is! num) return;
       if (day.isBefore(from) || day.isAfter(to)) return;
       points.add((time: day, flow: mean.toDouble()));

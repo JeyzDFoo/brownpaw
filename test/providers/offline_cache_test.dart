@@ -1,5 +1,6 @@
 import 'package:brownpaw/data/gauge_repository.dart';
 import 'package:brownpaw/data/repositories.dart';
+import 'package:brownpaw/domain/flow_ranges.dart';
 import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/providers/gauges_provider.dart';
 import 'package:brownpaw/providers/offline_cache_provider.dart';
@@ -24,6 +25,7 @@ class RecordingGauges extends FakeGauges {
     String stationId,
     int days, {
     DateTime? now,
+    FlowUnit unit = FlowUnit.cms,
   }) async {
     history.add('$stationId:$days');
     return const [];

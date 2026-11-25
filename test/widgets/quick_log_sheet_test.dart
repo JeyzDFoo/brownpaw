@@ -1,4 +1,5 @@
 import 'package:brownpaw/data/gauge_repository.dart';
+import 'package:brownpaw/domain/flow_ranges.dart';
 import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/data/repositories.dart';
 import 'package:brownpaw/models/descent.dart';
@@ -47,6 +48,7 @@ class FakeGauges implements GaugeRepository {
     String stationId,
     int days, {
     DateTime? now,
+    FlowUnit unit = FlowUnit.cms,
   }) async => const [];
 }
 
@@ -136,7 +138,7 @@ void main() {
     expect(find.textContaining('Your last logged run'), findsOneWidget);
     expect(find.textContaining('Today'), findsOneWidget);
     expect(find.text('24.6 m³/s'), findsOneWidget);
-    expect(find.text('Good'), findsOneWidget);
+    expect(find.text('Medium'), findsOneWidget);
     expect(
       find.text('Filled in from Chilliwack River at Vedder Crossing.'),
       findsOneWidget,

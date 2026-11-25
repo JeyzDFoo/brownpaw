@@ -77,7 +77,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(GuideRunCard), findsOneWidget);
     expect(find.text('Tamihi to Vedder'), findsOneWidget);
-    expect(find.text('Good'), findsOneWidget);
+    expect(find.text('Medium'), findsOneWidget);
   });
 
   testWidgets('list shows running runs first and filters', (tester) async {
@@ -110,7 +110,9 @@ void main() {
     expect(find.text('Class III'), findsOneWidget);
     expect(find.text('6 km'), findsOneWidget);
     expect(find.text('24.6'), findsWidgets);
-    expect(find.text('Good'), findsOneWidget);
+    // The status chip, and the band picked out on the flow guide.
+    expect(find.text('Medium'), findsWidgets);
+    expect(find.text('FLOW GUIDE'), findsOneWidget);
     expect(find.text('Log this run'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Put-in'), 200);

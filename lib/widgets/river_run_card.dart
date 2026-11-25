@@ -31,6 +31,7 @@ class RiverRunCard extends ConsumerWidget {
         ? ref.watch(realtimeFlowStreamProvider(run.stationId!)).valueOrNull
         : null;
     final discharge = liveFlow?.discharge;
+    final level = liveFlow?.level;
     final trendSymbol = switch (liveFlow?.trend) {
       'rising' => ' ↑',
       'falling' => ' ↓',
@@ -77,9 +78,11 @@ class RiverRunCard extends ConsumerWidget {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          if (run.hasFlowRanges) ...[
+                          if (run.flowStatus(discharge, level: level)
+                              case final status
+                              when status != FlowStatus.unknown) ...[
                             const SizedBox(width: 8),
-                            FlowStatusChip(status: run.flowStatus(discharge)),
+                            FlowStatusChip(status: status),
                           ],
                         ],
                       ),

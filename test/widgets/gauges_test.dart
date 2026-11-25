@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:brownpaw/data/gauge_repository.dart';
 import 'package:brownpaw/data/repositories.dart';
+import 'package:brownpaw/domain/flow_ranges.dart';
 import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/models/descent.dart';
 import 'package:brownpaw/models/realtime_flow.dart';
@@ -40,6 +41,7 @@ class SeriesGauges extends FakeGauges {
     String stationId,
     int days, {
     DateTime? now,
+    FlowUnit unit = FlowUnit.cms,
   }) async {
     final today = DateTime.now();
     return [
@@ -255,11 +257,16 @@ void main() {
     expect(find.text('1 year ago'), findsOneWidget);
     expect(find.byType(LineChart), findsOneWidget);
     expect(find.text('Runs on this gauge'), findsOneWidget);
-    expect(find.text('Tamihi to Vedder'), findsOneWidget);
-    expect(find.text('Class III · good at 20 to 40'), findsOneWidget);
-    expect(find.text('Good'), findsOneWidget); // Tamihi at 24.6
-    expect(find.text('Canyon'), findsOneWidget);
-    expect(find.text('Runnable'), findsOneWidget); // Canyon at 24.6
+    // Each run with flows can be picked to shade the chart, and is listed.
+    expect(find.text('Tamihi to Vedder'), findsNWidgets(2));
+    expect(find.byType(ChoiceChip), findsNWidgets(2));
+    expect(
+      find.text('Class III · Low 15 · Medium 20 · High 40 · Max 60 m³/s'),
+      findsOneWidget,
+    );
+    expect(find.text('Medium'), findsOneWidget); // Tamihi at 24.6
+    expect(find.text('Canyon'), findsNWidgets(2));
+    expect(find.text('Low'), findsOneWidget); // Canyon at 24.6
   });
 
   testWidgets('the bell turns a run\'s alert on and off', (tester) async {
@@ -271,6 +278,8 @@ void main() {
     );
     final bell = find.byTooltip('Alert me when Tamihi to Vedder is good');
     expect(bell, findsOneWidget);
+    await tester.ensureVisible(bell);
+    await tester.pumpAndSettle();
 
     await tester.tap(bell);
     await tester.pumpAndSettle();
@@ -301,6 +310,8 @@ void main() {
       const GaugeScreen(gaugeId: 'environment_canada_08MH001'),
       alerts: FakeAlerts(result: PushResult.denied),
     );
+    await tester.ensureVisible(find.byTooltip('Alert me when Canyon is good'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Alert me when Canyon is good'));
     await tester.pumpAndSettle();
     expect(

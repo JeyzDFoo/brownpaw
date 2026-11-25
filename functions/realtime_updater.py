@@ -74,6 +74,7 @@ async def process_station(station_id: str, service: RealtimeDataService, manager
             'status': 'success',
             'readings': len(readings),
             'discharge': (status.get('latest_reading') or {}).get('discharge'),
+            'level': (status.get('latest_reading') or {}).get('level'),
             'reading_time': (status.get('latest_reading') or {}).get('datetime'),
             'trend': status.get('trend'),
             'station_name': next(
@@ -111,6 +112,8 @@ def write_station_names(db, results):
             'stationNumber': r['station_id'],
             'provider': provider,
             'flow': r.get('discharge'),
+            # Some runs are read on the stick (metres), e.g. the Cheakamus.
+            'level': r.get('level'),
             'trend': r.get('trend'),
             'readingTime': r.get('reading_time'),
         }

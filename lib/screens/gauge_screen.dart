@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/flow_alert.dart';
+import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
 import '../domain/gauges.dart';
 import '../models/realtime_flow.dart';
@@ -63,11 +64,22 @@ class _GaugeBody extends ConsumerWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final current = ref.watch(realtimeFlowStreamProvider(gauge.stationId));
-    final readings = dischargeReadings(
-      current.valueOrNull?.readings ?? const [],
-    );
-    final flow = readings.isEmpty ? null : readings.last.discharge;
-    final trend = trendOf(readings);
+    final all = current.valueOrNull?.readings ?? const <FlowReading>[];
+    // Lead with what the runs here are judged in: metres on the stick for
+    // the Cheakamus and Chilliwack, else m³/s.
+    var unit = gaugeUnit(gauge.runs);
+    if (unit == FlowUnit.metres && readingsIn(all, unit).isEmpty) {
+      unit = FlowUnit.cms;
+    }
+    final readings = readingsIn(all, unit);
+    final value = readings.isEmpty ? null : valueIn(readings.last, unit);
+    final latest = all.isEmpty ? null : all.last;
+    final flow = latest?.discharge;
+    final level = latest?.level;
+    final other = unit == FlowUnit.metres && flow != null
+        ? '${flow.toStringAsFixed(1)} m³/s'
+        : null;
+    final trend = trendOf(dischargeReadings(all));
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -94,7 +106,11 @@ class _GaugeBody extends ConsumerWidget {
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    flow?.toStringAsFixed(1) ?? '–',
+                    value == null
+                        ? '–'
+                        : value.toStringAsFixed(
+                            unit == FlowUnit.metres ? 2 : 1,
+                          ),
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.w800,
                       height: 1,
@@ -102,7 +118,7 @@ class _GaugeBody extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'm³/s',
+                    unit.symbol,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -137,6 +153,7 @@ class _GaugeBody extends ConsumerWidget {
                   readings.isEmpty
                       ? (current.isLoading ? '' : 'No recent reading')
                       : updatedAgo(readings.last.timestamp),
+                  ?other,
                   gaugeSource(gauge.id),
                 ].where((s) => s.isNotEmpty).join(' · '),
                 style: muted,
@@ -151,7 +168,7 @@ class _GaugeBody extends ConsumerWidget {
                   ),
                 ),
               const SizedBox(height: 12),
-              _FlowChart(gauge: gauge, readings: readings),
+              _FlowChart(gauge: gauge, readings: all, unit: unit),
             ],
           ),
         ),
@@ -161,7 +178,7 @@ class _GaugeBody extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         for (final run in gauge.runs) ...[
-          _RunOnGauge(run: run, flow: flow),
+          _RunOnGauge(run: run, flow: flow, level: level),
           const SizedBox(height: 10),
         ],
         if (gauge.runs.any((r) => alertRangeFor(r) != null))
@@ -190,9 +207,14 @@ class _GaugeBody extends ConsumerWidget {
 /// The flow chart with its timeframe picker. Hourly readings back the
 /// short spans; daily means back six months and a year.
 class _FlowChart extends ConsumerStatefulWidget {
-  const _FlowChart({required this.gauge, required this.readings});
+  const _FlowChart({
+    required this.gauge,
+    required this.readings,
+    required this.unit,
+  });
   final Gauge gauge;
   final List<FlowReading> readings;
+  final FlowUnit unit;
 
   @override
   ConsumerState<_FlowChart> createState() => _FlowChartState();
@@ -200,6 +222,7 @@ class _FlowChart extends ConsumerStatefulWidget {
 
 class _FlowChartState extends ConsumerState<_FlowChart> {
   GaugeSpan _span = GaugeSpan.twoWeeks;
+  String? _bandRunId;
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +230,17 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final unit = widget.unit;
+    // Runs whose low / medium / high can be drawn on this chart.
+    final banded = [
+      for (final run in widget.gauge.runs)
+        if (run.ranges case final r?
+            when r.readOnGaugeOf(run) && r.unit == unit)
+          run,
+    ];
+    final bandRun =
+        banded.where((r) => r.riverId == _bandRunId).firstOrNull ??
+        banded.firstOrNull;
 
     List<FlowPoint> points;
     var loading = false;
@@ -215,35 +249,63 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
         gaugeDailyFlowsProvider((
           stationId: widget.gauge.stationId,
           days: _span.days,
+          unit: unit,
         )),
       );
       loading = daily.isLoading;
       points = [...daily.valueOrNull ?? const <FlowPoint>[]];
       // End on the live reading so the chart meets the number above it.
-      final live = hourlyWindow(widget.readings, 2);
+      final live = hourlyWindow(widget.readings, 2, unit: unit);
       if (live.isNotEmpty &&
           (points.isEmpty || live.last.time.isAfter(points.last.time))) {
         points.add(live.last);
       }
     } else {
-      points = hourlyWindow(widget.readings, _span.days);
+      points = hourlyWindow(widget.readings, _span.days, unit: unit);
     }
     final values = [for (final p in points) p.flow];
+
+    final unitWords = unit == FlowUnit.metres
+        ? 'metres on the gauge'
+        : 'cubic metres per second';
+    final bands = bandRun?.ranges;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (banded.length > 1) ...[
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final run in banded) ...[
+                  ChoiceChip(
+                    label: Text(runLabel(run)),
+                    selected: run == bandRun,
+                    visualDensity: VisualDensity.compact,
+                    onSelected: (_) => setState(() => _bandRunId = run.riverId),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         SizedBox(
-          height: 160,
+          height: 180,
           child: values.length >= 2
               ? GaugeFlowChart(
                   points: points,
                   daily: _span.usesDaily,
+                  unit: unit,
+                  bands: bands,
+                  height: 180,
                   semanticLabel:
                       'Flow over the last ${_span.label}, from '
                       '${values.first.toStringAsFixed(1)} to '
-                      '${values.last.toStringAsFixed(1)} cubic metres '
-                      'per second',
+                      '${values.last.toStringAsFixed(1)} $unitWords'
+                      '${bands == null ? '' : '. ${bands.summary}'}',
                 )
               : Center(
                   child: loading
@@ -289,15 +351,17 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
 }
 
 class _RunOnGauge extends ConsumerWidget {
-  const _RunOnGauge({required this.run, required this.flow});
+  const _RunOnGauge({required this.run, required this.flow, this.level});
   final RiverRun run;
   final double? flow;
+  final double? level;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final grade = run.difficultyText;
-    final range = goodRange(run);
+    final range = rangeSummary(run);
+    final status = run.flowStatus(flow, level: level);
     final detail = [
       if (grade.isNotEmpty) grade.startsWith('Class') ? grade : 'Class $grade',
       ?range,
@@ -333,9 +397,9 @@ class _RunOnGauge extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (flow != null && run.hasFlowRanges) ...[
+              if (status != FlowStatus.unknown) ...[
                 const SizedBox(width: 8),
-                FlowStatusChip(status: run.flowStatus(flow)),
+                FlowStatusChip(status: status),
               ],
               if (alertRangeFor(run) != null) AlertBell(run: run),
             ],

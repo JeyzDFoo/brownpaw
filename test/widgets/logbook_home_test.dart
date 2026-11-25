@@ -128,7 +128,7 @@ void main() {
     expect(find.text('1'), findsOneWidget); // one new run this season
     expect(find.text('Chilliwack - Tamihi to Vedder'), findsNWidgets(2));
     expect(find.text('with Sam, Priya'), findsOneWidget);
-    expect(find.text('Good'), findsWidgets);
+    expect(find.text('Medium'), findsWidgets);
   });
 
   testWidgets('a logged run shows its details, ready to edit', (tester) async {
@@ -152,7 +152,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Chilliwack - Tamihi to Vedder'), findsOneWidget);
     expect(find.text('22.1'), findsOneWidget);
-    expect(find.text('Good'), findsOneWidget);
+    expect(find.text('Medium'), findsOneWidget);
     expect(find.text('with Alex'), findsOneWidget);
     expect(find.text('How was it?'), findsOneWidget);
     // Descents are always private now, so there's no switch for it.

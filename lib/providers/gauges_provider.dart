@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/gauge_repository.dart';
 import '../data/repositories.dart';
+import '../domain/flow_ranges.dart' show FlowUnit;
 import '../domain/gauges.dart';
 import 'descents_provider.dart';
 import 'favorites_provider.dart';
@@ -56,10 +57,14 @@ final gaugeProvider = Provider.family<AsyncValue<Gauge?>, String>(
       .whenData((gauges) => gauges.where((g) => g.id == id).firstOrNull),
 );
 
-/// Daily mean flows for a station over the last `days` days.
+/// Daily mean flows (or, in metres, water levels) for a station over the
+/// last `days` days.
 final gaugeDailyFlowsProvider =
-    FutureProvider.family<List<FlowPoint>, ({String stationId, int days})>(
+    FutureProvider.family<
+      List<FlowPoint>,
+      ({String stationId, int days, FlowUnit unit})
+    >(
       (ref, key) => ref
           .watch(gaugeRepositoryProvider)
-          .dailyFlows(key.stationId, key.days),
+          .dailyFlows(key.stationId, key.days, unit: key.unit),
     );

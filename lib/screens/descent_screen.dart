@@ -301,8 +301,9 @@ class _DescentEditorState extends ConsumerState<_DescentEditor> {
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
-                    if (flow != null && (run?.hasFlowRanges ?? false))
-                      FlowStatusChip(status: run!.flowStatus(flow)),
+                    if ((run?.flowStatus(flow) ?? FlowStatus.unknown)
+                        case final status when status != FlowStatus.unknown)
+                      FlowStatusChip(status: status),
                   ],
                 ),
               ],

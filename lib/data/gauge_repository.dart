@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../domain/flow_lookup.dart';
+import '../domain/flow_ranges.dart' show FlowUnit;
 import '../domain/gauges.dart';
 import '../models/realtime_flow.dart';
 import 'live_readings.dart';
@@ -34,20 +35,25 @@ class StationRealtimeFlow {
 /// A station's official name and latest flow, small enough to load for
 /// every station at once.
 class StationSummary {
-  const StationSummary({this.name, this.flow, this.readingTime});
+  const StationSummary({this.name, this.flow, this.level, this.readingTime});
 
   factory StationSummary.fromMap(Map<String, dynamic> data) {
     final flow = data['flow'];
+    final level = data['level'];
     final time = data['readingTime'];
     return StationSummary(
       name: data['name'] is String ? data['name'] as String : null,
       flow: flow is num ? flow.toDouble() : null,
+      level: level is num ? level.toDouble() : null,
       readingTime: time is String ? DateTime.tryParse(time) : null,
     );
   }
 
   final String? name;
   final double? flow;
+
+  /// Latest water level in metres, for runs measured on the stick.
+  final double? level;
   final DateTime? readingTime;
 }
 
@@ -194,6 +200,7 @@ class GaugeRepository {
     String stationId,
     int days, {
     DateTime? now,
+    FlowUnit unit = FlowUnit.cms,
   }) async {
     final to = now ?? DateTime.now();
     final from = to.subtract(Duration(days: days));
@@ -208,7 +215,7 @@ class GaugeRepository {
     } catch (e) {
       debugPrint('GaugeRepository.dailyFlows($stationId) failed: $e');
     }
-    return dailySeries(docs, from, to);
+    return dailySeries(docs, from, to, unit: unit);
   }
 
   /// One year's `daily_readings` for [stationId], from

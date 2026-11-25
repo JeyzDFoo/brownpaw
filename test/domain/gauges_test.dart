@@ -242,7 +242,7 @@ void main() {
     expect(points.map((p) => p.flow), [10, 12.5]);
   });
 
-  test('goodRange', () {
+  test('rangeSummary', () {
     final r = RiverRun(
       riverId: 'r',
       name: 'n',
@@ -254,7 +254,7 @@ void main() {
       optimalFlowMin: 20,
       optimalFlowMax: 40,
     );
-    expect(goodRange(r), 'good at 20 to 40');
-    expect(goodRange(run('x', 'X', 'Y')), isNull);
+    expect(rangeSummary(r), 'Low 15 · Medium 20 · High 40 · Max 60 m³/s');
+    expect(rangeSummary(run('x', 'X', 'Y')), isNull);
   });
 }

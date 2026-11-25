@@ -266,8 +266,9 @@ class LogEntryCard extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                    if (flow != null && (run?.hasFlowRanges ?? false))
-                      FlowStatusChip(status: run!.flowStatus(flow)),
+                    if ((run?.flowStatus(flow) ?? FlowStatus.unknown)
+                        case final status when status != FlowStatus.unknown)
+                      FlowStatusChip(status: status),
                     if (crew.isNotEmpty)
                       Text('with ${crew.join(', ')}', style: muted),
                   ],

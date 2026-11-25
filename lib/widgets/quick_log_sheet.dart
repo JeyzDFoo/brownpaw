@@ -397,11 +397,11 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
-                                  if (_flow != null &&
-                                      (_run?.hasFlowRanges ?? false))
-                                    FlowStatusChip(
-                                      status: _run!.flowStatus(_flow),
-                                    ),
+                                  if ((_run?.flowStatus(_flow) ??
+                                          FlowStatus.unknown)
+                                      case final status
+                                      when status != FlowStatus.unknown)
+                                    FlowStatusChip(status: status),
                                 ],
                               ),
                       ),

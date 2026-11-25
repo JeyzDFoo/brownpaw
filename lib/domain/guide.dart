@@ -59,9 +59,10 @@ List<GuideEntry> guideEntries(
 
 GuideEntry _entryFor(RiverRun run, Map<String, StationSummary> stations) {
   final station = run.stationId;
-  final flow = (station == null || station.isEmpty)
+  final summary = (station == null || station.isEmpty)
       ? null
-      : stations[GaugeRepository.docIdFor(station)]?.flow;
+      : stations[GaugeRepository.docIdFor(station)];
+  final flow = summary?.flow;
   final at = [
     run.putInCoordinates,
     run.coordinates,
@@ -70,7 +71,7 @@ GuideEntry _entryFor(RiverRun run, Map<String, StationSummary> stations) {
   return GuideEntry(
     run: run,
     flow: flow,
-    status: run.flowStatus(flow),
+    status: run.flowStatus(flow, level: summary?.level),
     latitude: at?['latitude'],
     longitude: at?['longitude'],
   );
@@ -88,7 +89,9 @@ const lowerMainlandZoom = 8.4;
 /// running shows as running.
 FlowStatus bestStatus(Iterable<GuideEntry> entries) {
   const order = [
-    FlowStatus.good,
+    FlowStatus.medium,
+    FlowStatus.low,
+    FlowStatus.high,
     FlowStatus.runnable,
     FlowStatus.tooHigh,
     FlowStatus.tooLow,

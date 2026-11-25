@@ -155,9 +155,9 @@ const bcFlowRanges = <String, Map<String, Object>>{
     'medium': 35,
     'high': 90,
     'max': 300,
-    'gauge': 'the Chehalis gauge',
     'note':
         'Run at 9.08 m (~15 cms); 9.5 m (~35 cms) is a better low-medium; above 10 m (~90 cms) it\'s big water class IV; near 11 m (~300 cms) it\'s in flood.',
+    'station': 'environment_canada_08MG001',
   },
   'chehalis-river-upper': {
     'name': 'Chehalis River - Upper',
@@ -165,9 +165,9 @@ const bcFlowRanges = <String, Map<String, Object>>{
     'low': 9.3,
     'medium': 9.7,
     'high': 10.0,
-    'gauge': 'the Chehalis staff gauge',
     'note':
         '9.7 m is a recommended medium; 9.3 m was more manageable; 10.0 m was medium-high.',
+    'station': 'environment_canada_08MG001',
   },
   'chilliwack-canyon-camp-foley-to-slesse': {
     'name': 'Chilliwack Canyon - Camp Foley to Slesse',

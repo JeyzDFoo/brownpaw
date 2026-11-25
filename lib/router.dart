@@ -10,6 +10,7 @@ import 'screens/gauge_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/log_descent_screen.dart';
 import 'screens/privacy_policy_screen.dart';
+import 'screens/why_brownpaw_screen.dart';
 import 'screens/run_details_screen.dart';
 
 /// URL paths for the app. Every screen has one, so runs can be shared as
@@ -21,6 +22,7 @@ abstract final class AppRoutes {
   static const guide = '/guide';
   static const me = '/me';
   static const privacy = '/me/privacy';
+  static const why = '/me/why';
   static const logDescent = '/log';
 
   /// Where the app opens: the Gauges tab.
@@ -122,6 +124,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'privacy',
             builder: (context, state) => const PrivacyPolicyScreen(),
+          ),
+          GoRoute(
+            path: 'why',
+            builder: (context, state) => const WhyBrownpawScreen(),
           ),
         ],
       ),

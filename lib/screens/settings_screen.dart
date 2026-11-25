@@ -100,6 +100,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // About Section
           _buildSectionHeader('About'),
           const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.favorite_outline),
+              title: const Text('Why Brownpaw'),
+              subtitle: const Text('Fun on the water, without the excess risk'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(AppRoutes.why),
+            ),
+          ),
+          const SizedBox(height: 16),
           _buildAboutCard(),
           const SizedBox(height: 16),
 

@@ -108,6 +108,7 @@ flutter:
   assets:
     - images/brownpaw-logo.png
     - images/brownpaw-mark.png
+    - images/why-brownpaw.webp
 
   # Bundled rather than fetched so text looks right offline.
   # SIL Open Font License 1.1 (see fonts/Nunito-OFL.txt).

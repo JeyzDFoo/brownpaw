@@ -81,6 +81,7 @@ class _GaugeBody extends ConsumerWidget {
         ? '${flow.toStringAsFixed(1)} m³/s'
         : null;
     final trend = trendOf(dischargeReadings(all));
+    final perRunGuides = _bandedRuns(gauge, unit).length > 1;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -185,7 +186,10 @@ class _GaugeBody extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         for (final run in gauge.runs) ...[
-          _RunOnGauge(run: run, flow: flow, level: level),
+          if (perRunGuides)
+            _RunWithGuide(run: run, flow: flow, level: level)
+          else
+            _RunOnGauge(run: run, flow: flow, level: level),
           const SizedBox(height: 10),
         ],
         if (gauge.runs.any((r) => alertRangeFor(r) != null))
@@ -211,6 +215,14 @@ class _GaugeBody extends ConsumerWidget {
   }
 }
 
+/// Runs whose low / medium / high can be drawn against this gauge's
+/// readings in [unit].
+List<RiverRun> _bandedRuns(Gauge gauge, FlowUnit unit) => [
+  for (final run in gauge.runs)
+    if (run.ranges case final r? when r.readOnGaugeOf(run) && r.unit == unit)
+      run,
+];
+
 /// The flow chart with its timeframe picker. Hourly readings back the
 /// short spans; daily means back six months and a year.
 class _FlowChart extends ConsumerStatefulWidget {
@@ -235,7 +247,6 @@ class _FlowChart extends ConsumerStatefulWidget {
 
 class _FlowChartState extends ConsumerState<_FlowChart> {
   GaugeSpan _span = GaugeSpan.twoWeeks;
-  String? _bandRunId;
 
   @override
   Widget build(BuildContext context) {
@@ -244,16 +255,12 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
       color: theme.colorScheme.onSurfaceVariant,
     );
     final unit = widget.unit;
-    // Runs whose low / medium / high can be drawn on this chart.
-    final banded = [
-      for (final run in widget.gauge.runs)
-        if (run.ranges case final r?
-            when r.readOnGaugeOf(run) && r.unit == unit)
-          run,
-    ];
-    final bandRun =
-        banded.where((r) => r.riverId == _bandRunId).firstOrNull ??
-        banded.firstOrNull;
+    // One run with flows shades its bands on the chart, with its flow
+    // guide above. Several runs judge the same water by different numbers,
+    // so the chart stays the river alone and each run row has its own
+    // guide instead.
+    final banded = _bandedRuns(widget.gauge, unit);
+    final bandRun = banded.length == 1 ? banded.single : null;
 
     List<FlowPoint> points;
     var loading = false;
@@ -286,33 +293,14 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (banded.length > 1) ...[
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final run in banded) ...[
-                  ChoiceChip(
-                    label: Text(runLabel(run)),
-                    selected: run == bandRun,
-                    visualDensity: VisualDensity.compact,
-                    onSelected: (_) => setState(() => _bandRunId = run.riverId),
-                  ),
-                  const SizedBox(width: 6),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-        ],
-        // The selected run's bands as a strip, with where the river is now:
-        // the chart shades the same bands, but squeezes them flat when the
+        // The run's bands as a strip, with where the river is now: the
+        // chart shades the same bands, but squeezes them flat when the
         // river is far above or below them.
         if (bandRun != null && bands != null) ...[
           FlowRangeScale(
             ranges: bands,
             status: bandRun.flowStatus(widget.flow, level: widget.level),
-            title: banded.length == 1 && widget.gauge.runs.length > 1
+            title: widget.gauge.runs.length > 1
                 ? runLabel(bandRun)
                 : 'Flow guide',
             showWords: false,
@@ -429,6 +417,92 @@ class _RunOnGauge extends ConsumerWidget {
                 FlowStatusChip(status: status),
               ],
               if (alertRangeFor(run) != null) AlertBell(run: run),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One run on this gauge: its name and grade, and its own flow guide
+/// pinned at the flow now. Each run judges the same water by different
+/// numbers, so each gets its own strip rather than sharing the chart.
+class _RunWithGuide extends ConsumerWidget {
+  const _RunWithGuide({required this.run, required this.flow, this.level});
+  final RiverRun run;
+  final double? flow;
+  final double? level;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final grade = run.difficultyText;
+    final ranges = run.ranges;
+    final comparable = ranges != null && ranges.readOnGaugeOf(run);
+    final status = run.flowStatus(flow, level: level);
+
+    return Material(
+      color: theme.colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(borderRadius: Pebble.small),
+      child: InkWell(
+        borderRadius: Pebble.small,
+        onTap: () => context.push(AppRoutes.run(run.riverId)),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            14,
+            12,
+            alertRangeFor(run) != null ? 4 : 14,
+            ranges == null ? 12 : 14,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          runLabel(run),
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          [
+                            if (grade.isNotEmpty)
+                              grade.startsWith('Class')
+                                  ? grade
+                                  : 'Class $grade',
+                            if (ranges == null) 'No flow guide yet',
+                          ].join(' · '),
+                          style: muted,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (alertRangeFor(run) != null) AlertBell(run: run),
+                ],
+              ),
+              if (ranges != null) ...[
+                const SizedBox(height: 8),
+                Padding(
+                  padding: EdgeInsets.only(
+                    right: alertRangeFor(run) != null ? 10 : 0,
+                  ),
+                  child: FlowRangeScale(
+                    ranges: ranges,
+                    status: comparable ? status : FlowStatus.unknown,
+                    referenceOnly: !comparable,
+                    compact: true,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

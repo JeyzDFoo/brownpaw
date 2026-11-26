@@ -15,6 +15,7 @@ class FlowRangeScale extends StatelessWidget {
     this.referenceOnly = false,
     this.title = 'Flow guide',
     this.showWords = true,
+    this.compact = false,
   });
 
   final FlowRanges ranges;
@@ -32,13 +33,17 @@ class FlowRangeScale extends StatelessWidget {
   /// Show the guidebook's own words under the strip.
   final bool showWords;
 
+  /// A shorter strip with no heading or words, for a row in a list. The
+  /// unit sits at the end of the numbers.
+  final bool compact;
+
   List<({FlowStatus status, double? from})> get _bands {
     final r = ranges;
     return [
       if (r.low != null) (status: FlowStatus.tooLow, from: null),
       if (r.low != null)
         (
-          status: r.medium == null ? FlowStatus.runnable : FlowStatus.low,
+          status: r.medium == null ? FlowStatus.medium : FlowStatus.low,
           from: r.low,
         ),
       if (r.low == null && r.medium != null)
@@ -48,7 +53,7 @@ class FlowRangeScale extends StatelessWidget {
         (status: FlowStatus.unknown, from: null),
       if (r.high != null) (status: FlowStatus.high, from: r.high),
       if (r.low == null && r.medium == null && r.high == null && r.max != null)
-        (status: FlowStatus.runnable, from: null),
+        (status: FlowStatus.medium, from: null),
       if (r.max != null) (status: FlowStatus.tooHigh, from: r.max),
     ];
   }
@@ -66,7 +71,7 @@ class FlowRangeScale extends StatelessWidget {
       builder: (context, box) {
         final w = box.maxWidth / bands.length;
         return SizedBox(
-          height: 58,
+          height: compact ? 44 : 58,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -83,15 +88,28 @@ class FlowRangeScale extends StatelessWidget {
                   Positioned(
                     left: i * w - 40,
                     width: 80,
-                    top: 38,
+                    top: compact ? 28 : 38,
                     child: Text(
                       FlowRanges.number(from),
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style:
+                          (compact
+                                  ? theme.textTheme.labelSmall
+                                  : theme.textTheme.labelMedium)
+                              ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
+              if (compact)
+                Positioned(
+                  right: 0,
+                  top: 28,
+                  child: Text(
+                    unit,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -113,24 +131,26 @@ class FlowRangeScale extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: muted?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
+          if (!compact) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: muted?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(unit, style: muted),
-            ],
-          ),
-          const SizedBox(height: 6),
+                const SizedBox(width: 8),
+                Text(unit, style: muted),
+              ],
+            ),
+            const SizedBox(height: 6),
+          ],
           strip,
           if (referenceOnly && ranges.gauge != null) ...[
             const SizedBox(height: 2),
@@ -162,7 +182,7 @@ class FlowRangeScale extends StatelessWidget {
       right: i == n - 1 ? const Radius.circular(10) : Radius.zero,
     );
     return Container(
-      height: 34,
+      height: compact ? 26 : 34,
       margin: EdgeInsets.only(right: i == n - 1 ? 0 : 2),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -177,15 +197,23 @@ class FlowRangeScale extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (active) ...[
-                Icon(Icons.place, size: 14, color: theme.colorScheme.surface),
+                Icon(
+                  Icons.place,
+                  size: compact ? 12 : 14,
+                  color: theme.colorScheme.surface,
+                ),
                 const SizedBox(width: 2),
               ],
               Text(
                 band == FlowStatus.unknown ? 'Below high' : band.label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: active ? theme.colorScheme.surface : color,
-                  fontWeight: FontWeight.w800,
-                ),
+                style:
+                    (compact
+                            ? theme.textTheme.labelSmall
+                            : theme.textTheme.labelMedium)
+                        ?.copyWith(
+                          color: active ? theme.colorScheme.surface : color,
+                          fontWeight: FontWeight.w800,
+                        ),
               ),
             ],
           ),

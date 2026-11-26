@@ -69,9 +69,9 @@ void main() {
       );
     });
 
-    test('low and high with no medium: runnable between', () {
+    test('low and high with no medium: medium between', () {
       expect(eval(10, low: 16, high: 32), FlowStatus.tooLow);
-      expect(eval(20, low: 16, high: 32), FlowStatus.runnable);
+      expect(eval(20, low: 16, high: 32), FlowStatus.medium);
       expect(eval(40, low: 16, high: 32), FlowStatus.high);
     });
 
@@ -81,7 +81,7 @@ void main() {
     });
 
     test('only an upper bound', () {
-      expect(eval(60, max: 80), FlowStatus.runnable);
+      expect(eval(60, max: 80), FlowStatus.medium);
       expect(eval(90, max: 80), FlowStatus.tooHigh);
       expect(eval(60, high: 80), FlowStatus.unknown);
     });

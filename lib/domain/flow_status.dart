@@ -16,9 +16,6 @@ enum FlowStatus {
   /// From low up to medium.
   low,
 
-  /// Above the low flow when the source gives no medium.
-  runnable,
-
   /// From medium up to high.
   medium,
 
@@ -33,7 +30,6 @@ enum FlowStatus {
     FlowStatus.unknown => 'No range',
     FlowStatus.tooLow => 'Too low',
     FlowStatus.low => 'Low',
-    FlowStatus.runnable => 'Runnable',
     FlowStatus.medium => 'Medium',
     FlowStatus.high => 'High',
     FlowStatus.tooHigh => 'Too high',
@@ -42,11 +38,10 @@ enum FlowStatus {
   /// Whether the run is generally considered paddleable at this flow.
   bool get isRunnable =>
       this == FlowStatus.low ||
-      this == FlowStatus.runnable ||
       this == FlowStatus.medium ||
       this == FlowStatus.high;
 
-  /// The best of [statuses] to paddle: medium, then low, high, runnable,
+  /// The best of [statuses] to paddle: medium, then low, high,
   /// and the out-of-range ones last. For a gauge or a cluster of pins that
   /// covers several runs.
   static FlowStatus best(Iterable<FlowStatus> statuses) {
@@ -54,7 +49,6 @@ enum FlowStatus {
       FlowStatus.medium,
       FlowStatus.low,
       FlowStatus.high,
-      FlowStatus.runnable,
       FlowStatus.tooHigh,
       FlowStatus.tooLow,
       FlowStatus.unknown,
@@ -76,10 +70,12 @@ enum FlowStatus {
     if (medium != null && value >= medium) return FlowStatus.medium;
     // Below medium (or high), and not too low.
     if (medium != null) return FlowStatus.low;
-    if (low != null) return FlowStatus.runnable;
+    // No medium given: everything between low and high (or the maximum)
+    // is the run's middle band, so it reads as Medium like any other run.
+    if (low != null) return FlowStatus.medium;
     // Only an upper bound: under the maximum is fine, but under "high"
     // alone says nothing about whether there's enough water.
-    if (max != null && high == null) return FlowStatus.runnable;
+    if (max != null && high == null) return FlowStatus.medium;
     return FlowStatus.unknown;
   }
 }

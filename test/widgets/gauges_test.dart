@@ -294,16 +294,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1 year ago'), findsOneWidget);
     expect(find.byType(LineChart), findsOneWidget);
-    // Each run with flows can be picked; the pick drives the flow guide.
-    expect(find.byType(ChoiceChip), findsNWidgets(2));
-    expect(find.text('FLOW GUIDE'), findsOneWidget);
-    Finder guideAt(FlowStatus status) => find.byWidgetPredicate(
-      (w) => w is FlowRangeScale && w.status == status,
-    );
-    expect(guideAt(FlowStatus.low), findsOneWidget); // Canyon at 24.6
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Tamihi to Vedder'));
-    await tester.pumpAndSettle();
-    expect(guideAt(FlowStatus.medium), findsOneWidget); // Tamihi at 24.6
+    // The chart is the river alone: runs judge it by different numbers,
+    // so each run row carries its own flow guide instead.
+    expect(find.byType(ChoiceChip), findsNothing);
+    final chart = tester.widget<LineChart>(find.byType(LineChart));
+    expect(chart.data.extraLinesData.horizontalLines, isEmpty);
+    expect(chart.data.rangeAnnotations.horizontalRangeAnnotations, isEmpty);
 
     await tester.scrollUntilVisible(
       find.text('Runs on this gauge'),
@@ -311,25 +307,14 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
-    expect(
-      find.text('Class III · Low 15 · Medium 20 · High 40 · Max 60 m³/s'),
-      findsOneWidget,
-    );
-    Finder chipIn(String run) => find.descendant(
+    Finder guideIn(String run) => find.descendant(
       of: find.ancestor(of: find.text(run), matching: find.byType(InkWell)),
-      matching: find.byType(FlowStatusChip),
+      matching: find.byType(FlowRangeScale),
     );
-    expect(
-      find.descendant(
-        of: chipIn('Tamihi to Vedder'),
-        matching: find.text('Medium'),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(of: chipIn('Canyon'), matching: find.text('Low')),
-      findsOneWidget,
-    );
+    FlowStatus statusOf(String run) =>
+        tester.widget<FlowRangeScale>(guideIn(run)).status;
+    expect(statusOf('Tamihi to Vedder'), FlowStatus.medium); // at 24.6
+    expect(statusOf('Canyon'), FlowStatus.low); // at 24.6
   });
 
   testWidgets('the bell turns a run\'s alert on and off', (tester) async {

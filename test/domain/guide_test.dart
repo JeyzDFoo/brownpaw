@@ -84,7 +84,7 @@ void main() {
       ], stations);
       expect(entries.map((e) => e.run.riverId), ['good', 'none', 'low']);
       expect(entries.first.flow, 30);
-      expect(entries.first.status, FlowStatus.runnable);
+      expect(entries.first.status, FlowStatus.medium);
       expect(entries.last.status, FlowStatus.tooLow);
       expect(entries[1].status, FlowStatus.unknown);
     });
@@ -126,7 +126,7 @@ void main() {
         'environment_canada_08GA030': const StationSummary(flow: 2),
       },
     );
-    expect(bestStatus(entries), FlowStatus.runnable);
+    expect(bestStatus(entries), FlowStatus.medium);
     expect(
       bestStatus(entries.where((e) => e.run.riverId != 'good')),
       FlowStatus.tooLow,

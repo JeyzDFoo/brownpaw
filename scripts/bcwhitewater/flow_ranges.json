@@ -32,6 +32,7 @@
   "fraser-river-alexandra-bridge-to-yale": {"unit": "cms", "low": 700, "high": 1300, "station": "environment_canada_08MF005", "note": "Paddled between 700 and 1,300 cms; June and July average 7,000 cms."},
   "hurley-river-canyon": {"unit": "cms", "low": 10, "medium": 14, "station": "environment_canada_08ME027", "note": "10 cms gave a medium-low level, probably a good minimum. 14 to 15 is a good medium flow."},
   "lillooet-river-between-the-lakes": {"unit": "cms", "low": 50, "station": "environment_canada_08MG027", "note": "Good flows start at 50 cms; late summer flows are around 250 cms, boily at high water."},
+  "lynn-creek": {"unit": "cms", "low": 14, "medium": 20, "high": 30, "max": 60, "station": "flowworks_lynn", "source": "Local paddler beta", "note": "Too low below 14, low 14 to 20, medium 20 to 30, high 30 to 60."},
   "mamquam-river-upper": {"unit": "cms", "low": 45, "station": "environment_canada_08GA075", "note": "45 to 55 cms is a nice low or medium-low level."},
   "meager-creek-lower": {"unit": "cms", "medium": 200, "station": "environment_canada_08MG005", "note": "200 cms on the Lillooet near Pemberton in July was a nice padded medium."},
   "nahatlach-river-francis-lake-to-apocynum-campground": {"unit": "m", "low": 1.7, "medium": 2.2, "high": 2.7, "gauge": "the REO Rafting gauge", "note": "Low: 1.7, Medium: 2.2, High: 2.7."},

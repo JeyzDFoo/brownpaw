@@ -295,6 +295,17 @@ const bcFlowRanges = <String, Map<String, Object>>{
     'note':
         'Good flows start at 50 cms; late summer flows are around 250 cms, boily at high water.',
   },
+  'lynn-creek': {
+    'name': 'Lynn Creek',
+    'unit': 'cms',
+    'low': 14,
+    'medium': 20,
+    'high': 30,
+    'max': 60,
+    'station': 'flowworks_lynn',
+    'source': 'Local paddler beta',
+    'note': 'Too low below 14, low 14 to 20, medium 20 to 30, high 30 to 60.',
+  },
   'mamquam-river-upper': {
     'name': 'Mamquam River - Upper',
     'unit': 'cms',

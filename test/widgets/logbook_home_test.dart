@@ -58,6 +58,14 @@ class FakeLocation extends LocationService {
   @override
   Future<LatLng?> currentPosition() async =>
       state == LocationAccess.granted ? position : null;
+
+  @override
+  Future<LatLng?> lastKnownPosition() async => null;
+
+  int settingsOpened = 0;
+
+  @override
+  Future<void> openSettings(LocationAccess access) async => settingsOpened++;
 }
 
 Future<void> pumpHome(

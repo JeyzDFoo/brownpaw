@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -7,9 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../data/location_service.dart' hide LatLng;
 import '../domain/flow_status.dart';
 import '../domain/gauges.dart' show runLabel;
 import '../domain/guide.dart';
+import '../providers/check_in_provider.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../router.dart';
@@ -57,6 +60,127 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
 
   /// Whether the list shows only the runs in the map's view.
   bool _inMapArea = true;
+
+  /// Where the paddler is, for the blue dot. Null until location is allowed.
+  LatLng? _me;
+
+  /// Whether the location button is waiting on a fix.
+  bool _locating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Show the dot straight away when location is already allowed, without
+    // moving the map or asking for anything.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _placeDot());
+  }
+
+  Future<void> _placeDot() async {
+    final service = ref.read(locationServiceProvider);
+    if (await service.access() != LocationAccess.granted) return;
+    final quick = await service.lastKnownPosition();
+    if (quick != null && mounted) setState(() => _me = _toLatLng(quick));
+    final fresh = await service.currentPosition();
+    if (fresh != null && mounted) setState(() => _me = _toLatLng(fresh));
+  }
+
+  static LatLng _toLatLng(({double latitude, double longitude}) p) =>
+      LatLng(p.latitude, p.longitude);
+
+  /// The location button: ask if we haven't, explain if we can't, and
+  /// otherwise centre the map on the paddler.
+  Future<void> _goToMe() async {
+    if (_locating) return;
+    final service = ref.read(locationServiceProvider);
+    var access = await service.access();
+    if (access == LocationAccess.askable) {
+      access = await service.ask();
+      ref.invalidate(locationAccessProvider);
+    }
+    if (!mounted) return;
+    if (access != LocationAccess.granted) {
+      _explainNoLocation(access);
+      return;
+    }
+
+    setState(() => _locating = true);
+    // The last known spot is instant; a fresh fix can take a few seconds.
+    final quick = await service.lastKnownPosition();
+    if (quick != null && mounted) _centreOn(_toLatLng(quick));
+    final fresh = await service.currentPosition();
+    if (!mounted) return;
+    setState(() => _locating = false);
+
+    if (fresh != null) {
+      final here = _toLatLng(fresh);
+      // Only move again when the quick guess was well off, so the map
+      // doesn't jump under the paddler's thumb.
+      final moved =
+          quick == null ||
+          const Distance().as(LengthUnit.Meter, _toLatLng(quick), here) > 500;
+      if (moved) {
+        _centreOn(here);
+      } else {
+        setState(() => _me = here);
+      }
+    } else if (quick == null) {
+      _say("Couldn't find you just now. Try again in a moment.");
+    }
+  }
+
+  void _centreOn(LatLng here) {
+    setState(() {
+      _me = here;
+      _selected = null;
+    });
+    final zoom = _map.camera.zoom < _myLocationZoom
+        ? _myLocationZoom
+        : _map.camera.zoom;
+    _map.move(here, zoom);
+  }
+
+  void _explainNoLocation(LocationAccess access) {
+    final service = ref.read(locationServiceProvider);
+    final (message, canFix) = switch (access) {
+      LocationAccess.off => (
+        'Location Services are off on this phone.',
+        !kIsWeb,
+      ),
+      LocationAccess.denied when kIsWeb => (
+        'Location is blocked for this site. Allow it in your browser '
+            'settings.',
+        false,
+      ),
+      LocationAccess.denied => (
+        'Brownpaw isn’t allowed to use location.',
+        true,
+      ),
+      _ => ('Location isn’t available on this device.', false),
+    };
+    _say(
+      message,
+      action: canFix
+          ? SnackBarAction(
+              label: 'Settings',
+              onPressed: () => service.openSettings(access),
+            )
+          : null,
+    );
+  }
+
+  void _say(String message, {SnackBarAction? action}) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    messenger
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          action: action,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: action != null ? 6 : 4),
+        ),
+      );
+  }
 
   @override
   void dispose() {
@@ -268,6 +392,17 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
                 ),
               ),
             ),
+            if (_me != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: _me!,
+                    width: 44,
+                    height: 44,
+                    child: const _MyLocationDot(),
+                  ),
+                ],
+              ),
           ],
         ),
         Positioned(
@@ -285,6 +420,8 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
           child: _ZoomControls(
             onZoomIn: () => _zoomBy(1),
             onZoomOut: () => _zoomBy(-1),
+            onMyLocation: _goToMe,
+            locating: _locating,
             onReset: _resetView,
           ),
         ),
@@ -321,17 +458,59 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
 const _minZoom = 5.0;
 const _maxZoom = 17.0;
 
-/// Zoom in, zoom out and back to the Lower Mainland, for the web and for
-/// one-handed use where pinching is awkward.
+/// Close enough to see the runs around you, far enough to see the valley.
+const _myLocationZoom = 11.0;
+
+/// Where the paddler is: a blue dot with a white ring and a soft halo.
+class _MyLocationDot extends StatelessWidget {
+  const _MyLocationDot();
+
+  static const _blue = Color(0xFF1A73E8);
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'You are here',
+      child: IgnorePointer(
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: _blue.withValues(alpha: 0.18),
+            shape: BoxShape.circle,
+          ),
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: _blue,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 3),
+              boxShadow: const [
+                BoxShadow(color: Color(0x40000000), blurRadius: 4),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Zoom in, zoom out, find me and back to the Lower Mainland, for the web
+/// and for one-handed use where pinching is awkward.
 class _ZoomControls extends StatelessWidget {
   const _ZoomControls({
     required this.onZoomIn,
     required this.onZoomOut,
+    required this.onMyLocation,
+    required this.locating,
     required this.onReset,
   });
 
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
+  final VoidCallback onMyLocation;
+  final bool locating;
   final VoidCallback onReset;
 
   @override
@@ -356,11 +535,24 @@ class _ZoomControls extends StatelessWidget {
           Container(width: 28, height: 1, color: theme.dividerColor),
           button(Icons.remove, 'Zoom out', onZoomOut),
           Container(width: 28, height: 1, color: theme.dividerColor),
-          button(
-            Icons.my_location_outlined,
-            'Back to the Lower Mainland',
-            onReset,
+          IconButton(
+            tooltip: 'Show my location',
+            onPressed: onMyLocation,
+            icon: locating
+                ? SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: theme.colorScheme.primary,
+                    ),
+                  )
+                : const Icon(Icons.my_location, size: 22),
+            color: theme.colorScheme.onSurface,
+            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            padding: EdgeInsets.zero,
           ),
+          Container(width: 28, height: 1, color: theme.dividerColor),
+          button(Icons.zoom_out_map, 'Back to the Lower Mainland', onReset),
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,9 +15,14 @@ class PutInCheckIn {
   final double? flow;
 }
 
-final locationAccessProvider = FutureProvider<LocationAccess>(
-  (ref) => ref.watch(locationServiceProvider).access(),
-);
+/// Whether Brownpaw can read the location. Checked again whenever the app
+/// comes back to the front, so turning location on in Settings shows up
+/// without a restart.
+final locationAccessProvider = FutureProvider<LocationAccess>((ref) {
+  final listener = AppLifecycleListener(onResume: ref.invalidateSelf);
+  ref.onDispose(listener.dispose);
+  return ref.watch(locationServiceProvider).access();
+});
 
 /// The run whose put-in is within [nearbyPutInKm] of the device, if any.
 /// Only reads the location when access is already granted, so opening the

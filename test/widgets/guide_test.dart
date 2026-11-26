@@ -1,4 +1,5 @@
 import 'package:brownpaw/data/gauge_repository.dart';
+import 'package:brownpaw/data/location_service.dart';
 import 'package:brownpaw/domain/guide.dart';
 import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/screens/guide_screen.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'gauges_test.dart';
+import 'logbook_home_test.dart' show FakeLocation;
 
 const putIn = {'latitude': 49.0973, 'longitude': -121.9555};
 const takeOut = {'latitude': 49.1067, 'longitude': -121.9952};
@@ -49,22 +51,26 @@ void main() {
   setUp(() => MapTiles.enabled = false);
   tearDown(() => MapTiles.enabled = true);
 
-  Future<void> pumpGuide(WidgetTester tester) => pumpScreen(
-    tester,
-    ProviderScope(
-      overrides: [
-        guideEntriesProvider.overrideWith((ref) {
-          final stations = {
-            'environment_canada_08MH001': const StationSummary(flow: 24.6),
-          };
-          return AsyncValue.data(
-            guideEntries([guideTamihi, canyon, guideSeymour], stations),
-          );
-        }),
-      ],
-      child: const GuideScreen(),
-    ),
-  );
+  Future<void> pumpGuide(WidgetTester tester, {LocationService? location}) =>
+      pumpScreen(
+        tester,
+        ProviderScope(
+          overrides: [
+            locationServiceProvider.overrideWithValue(
+              location ?? FakeLocation(LocationAccess.unavailable),
+            ),
+            guideEntriesProvider.overrideWith((ref) {
+              final stations = {
+                'environment_canada_08MH001': const StationSummary(flow: 24.6),
+              };
+              return AsyncValue.data(
+                guideEntries([guideTamihi, canyon, guideSeymour], stations),
+              );
+            }),
+          ],
+          child: const GuideScreen(),
+        ),
+      );
 
   testWidgets('map pins open a card for the run', (tester) async {
     await pumpGuide(tester);
@@ -151,5 +157,62 @@ void main() {
     await tester.tap(find.text('Show all'));
     await tester.pumpAndSettle();
     expect(find.byType(GuideRunCard), findsNWidgets(3));
+  });
+
+  group('location button', () {
+    testWidgets('asks, then centres on the paddler with a blue dot', (
+      tester,
+    ) async {
+      final location = FakeLocation(
+        LocationAccess.askable,
+        position: (latitude: 49.25, longitude: -122.3),
+        afterAsk: LocationAccess.granted,
+      );
+      await pumpGuide(tester, location: location);
+      expect(find.bySemanticsLabel('You are here'), findsNothing);
+
+      await tester.tap(find.byTooltip('Show my location'));
+      await tester.pumpAndSettle();
+      expect(location.asks, 1);
+      expect(find.bySemanticsLabel('You are here'), findsOneWidget);
+    });
+
+    testWidgets('shows the dot on opening when already allowed', (
+      tester,
+    ) async {
+      final location = FakeLocation(
+        LocationAccess.granted,
+        position: (latitude: 49.25, longitude: -122.3),
+      );
+      await pumpGuide(tester, location: location);
+      expect(find.bySemanticsLabel('You are here'), findsOneWidget);
+      expect(location.asks, 0);
+    });
+
+    testWidgets('points to Settings when location was refused', (tester) async {
+      final location = FakeLocation(LocationAccess.denied);
+      await pumpGuide(tester, location: location);
+
+      await tester.tap(find.byTooltip('Show my location'));
+      await tester.pump();
+      expect(
+        find.text('Brownpaw isn’t allowed to use location.'),
+        findsOneWidget,
+      );
+      expect(location.asks, 0);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(SnackBarAction, 'Settings'));
+      expect(location.settingsOpened, 1);
+    });
+
+    testWidgets('says when Location Services are off', (tester) async {
+      await pumpGuide(tester, location: FakeLocation(LocationAccess.off));
+      await tester.tap(find.byTooltip('Show my location'));
+      await tester.pump();
+      expect(
+        find.text('Location Services are off on this phone.'),
+        findsOneWidget,
+      );
+    });
   });
 }

@@ -35,8 +35,11 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+<<<<<<< Updated upstream
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+=======
+>>>>>>> Stashed changes
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>comgooglemaps</string>
@@ -51,6 +54,7 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+<<<<<<< Updated upstream
 	<key>NSCameraUsageDescription</key>
 	<string>Brownpaw uses the camera when you take a profile photo.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -84,6 +88,14 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+=======
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to show nearby river runs on the map.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to show nearby river runs on the map.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+>>>>>>> Stashed changes
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -101,5 +113,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+<<<<<<< Updated upstream
+=======
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+>>>>>>> Stashed changes
 </dict>
 </plist>

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com</string>
+	<string>1047120968895-q5ncbn413fejlmujrmidc4fm2ca1s79i.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8</string>
+	<string>com.googleusercontent.apps.1047120968895-q5ncbn413fejlmujrmidc4fm2ca1s79i</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.brownpaw</string>
+	<string>com.brownpaw.app</string>
 	<key>PROJECT_ID</key>
 	<string>brownclaw</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1047120968895:ios:642d054996963fdf899a0a</string>
+	<string>1:1047120968895:ios:f87f4b1428b1b77b899a0a</string>
 </dict>
 </plist>

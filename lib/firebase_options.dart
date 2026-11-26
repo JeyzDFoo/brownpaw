@@ -50,13 +50,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCs_Br3aZQLkankC2SOPXj9JknWqdUJVKk',
-    appId: '1:1047120968895:ios:642d054996963fdf899a0a',
+    appId: '1:1047120968895:ios:f87f4b1428b1b77b899a0a',
     messagingSenderId: '1047120968895',
     projectId: 'brownclaw',
     storageBucket: 'brownclaw.firebasestorage.app',
     androidClientId: '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
-    iosClientId: '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
-    iosBundleId: 'com.example.brownpaw',
+    iosClientId: '1047120968895-q5ncbn413fejlmujrmidc4fm2ca1s79i.apps.googleusercontent.com',
+    iosBundleId: 'com.brownpaw.app',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
@@ -71,13 +71,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCs_Br3aZQLkankC2SOPXj9JknWqdUJVKk',
-    appId: '1:1047120968895:ios:642d054996963fdf899a0a',
+    appId: '1:1047120968895:ios:f87f4b1428b1b77b899a0a',
     messagingSenderId: '1047120968895',
     projectId: 'brownclaw',
     storageBucket: 'brownclaw.firebasestorage.app',
     androidClientId: '1047120968895-a5j6ujp1ni89hubjh1kp0t0f5ilc4mvo.apps.googleusercontent.com',
-    iosClientId: '1047120968895-7q6a0j7c21bb1m9k1pgihnodfh8cnhe8.apps.googleusercontent.com',
-    iosBundleId: 'com.example.brownpaw',
+    iosClientId: '1047120968895-q5ncbn413fejlmujrmidc4fm2ca1s79i.apps.googleusercontent.com',
+    iosBundleId: 'com.brownpaw.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

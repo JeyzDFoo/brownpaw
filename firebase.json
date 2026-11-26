@@ -57,7 +57,7 @@
       "ios": {
         "default": {
           "projectId": "brownclaw",
-          "appId": "1:1047120968895:ios:642d054996963fdf899a0a",
+          "appId": "1:1047120968895:ios:f87f4b1428b1b77b899a0a",
           "uploadDebugSymbols": false,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
@@ -67,8 +67,8 @@
           "projectId": "brownclaw",
           "configurations": {
             "android": "1:1047120968895:android:4a17f225a7109e91899a0a",
-            "ios": "1:1047120968895:ios:642d054996963fdf899a0a",
-            "macos": "1:1047120968895:ios:642d054996963fdf899a0a",
+            "ios": "1:1047120968895:ios:f87f4b1428b1b77b899a0a",
+            "macos": "1:1047120968895:ios:f87f4b1428b1b77b899a0a",
             "web": "1:1047120968895:web:5ec959fd59373af4899a0a",
             "windows": "1:1047120968895:web:fcd868f16b59f506899a0a"
           }
@@ -77,7 +77,7 @@
       "macos": {
         "default": {
           "projectId": "brownclaw",
-          "appId": "1:1047120968895:ios:642d054996963fdf899a0a",
+          "appId": "1:1047120968895:ios:f87f4b1428b1b77b899a0a",
           "uploadDebugSymbols": false,
           "fileOutput": "macos/Runner/GoogleService-Info.plist"
         }

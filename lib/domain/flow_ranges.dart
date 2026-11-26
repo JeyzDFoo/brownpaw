@@ -1,4 +1,3 @@
-import '../data/bc_flow_ranges.dart';
 import '../data/gauge_repository.dart';
 import '../models/river_run.dart';
 
@@ -148,14 +147,6 @@ class FlowRanges {
   }
 }
 
-final _bundledByName = <String, Map<String, dynamic>>{
-  for (final e in bcFlowRanges.entries)
-    if (e.value['name'] case final String name) _key(name): e.value,
-};
-
-String _key(String s) =>
-    s.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
-
 final _cache = Expando<_Cached>();
 
 class _Cached {
@@ -164,19 +155,13 @@ class _Cached {
 }
 
 extension RiverRunFlowRanges on RiverRun {
-  /// This run's low / medium / high flows: what's stored on the run, else
-  /// the BC Whitewater numbers bundled with the app, else the older
-  /// min / optimal fields. Null when there are none.
+  /// This run's low / medium / high flows, from the backend: the run's
+  /// `flowRanges` map, else its older min / optimal fields. Null when it
+  /// has neither. (Firestore keeps its own offline copy.)
   FlowRanges? get ranges {
     final hit = _cache[this];
     if (hit != null) return hit.ranges;
-    final found =
-        FlowRanges.fromMap(flowRanges) ??
-        FlowRanges.fromMap(
-          bcFlowRanges[riverId] ?? _bundledByName[_key(name)],
-          source: 'BC Whitewater',
-        ) ??
-        FlowRanges.fromLegacy(this);
+    final found = FlowRanges.fromMap(flowRanges) ?? FlowRanges.fromLegacy(this);
     _cache[this] = _Cached(found);
     return found;
   }

@@ -1,4 +1,3 @@
-import 'package:brownpaw/data/bc_flow_ranges.dart';
 import 'package:brownpaw/domain/flow_ranges.dart';
 import 'package:brownpaw/domain/flow_status.dart';
 import 'package:brownpaw/models/river_run.dart';
@@ -98,22 +97,36 @@ void main() {
   });
 
   group('run flows', () {
-    test('bundled BC Whitewater numbers, found by id', () {
-      final r = run(id: 'cheakamus-paradise-valley');
+    const paradise = {
+      'unit': 'cms',
+      'low': 25,
+      'medium': 50,
+      'high': 100,
+      'station': 'environment_canada_08GA043',
+      'source': 'BC Whitewater',
+    };
+
+    test('read from the run in the backend', () {
+      final r = run(flowRanges: paradise);
       expect(r.ranges?.summary, 'Low 25 · Medium 50 · High 100 m³/s');
       expect(r.ranges?.source, 'BC Whitewater');
       expect(r.flowStatus(60), FlowStatus.medium);
     });
 
-    test('bundled numbers found by name when the id differs', () {
-      final r = run(id: 'abc123', name: 'Cheakamus – Paradise Valley');
-      expect(r.ranges?.medium, 50);
+    test('nothing in the app itself: no backend numbers, no ranges', () {
+      expect(run(id: 'cheakamus-paradise-valley').ranges, isNull);
     });
 
     test('metres runs are judged on level, not discharge', () {
       final r = run(
-        id: 'cheakamus-river-upper',
         station: 'environment_canada_08GA072',
+        flowRanges: {
+          'unit': 'm',
+          'low': 2.1,
+          'medium': 2.5,
+          'high': 3.0,
+          'station': 'environment_canada_08GA072',
+        },
       );
       expect(r.ranges?.unit, FlowUnit.metres);
       expect(r.flowStatus(30), FlowStatus.unknown);
@@ -123,23 +136,23 @@ void main() {
 
     test('numbers on another gauge are a reference only', () {
       final elsewhere = run(
-        id: 'cheakamus-paradise-valley',
         station: 'environment_canada_08MH001',
+        flowRanges: paradise,
       );
       expect(elsewhere.ranges, isNotNull);
       expect(elsewhere.hasFlowRanges, isFalse);
       expect(elsewhere.flowStatus(60), FlowStatus.unknown);
-      final offline = run(id: 'callaghan-creek', station: null);
+      final offline = run(
+        station: null,
+        flowRanges: {'unit': 'm', 'low': 0.1, 'gauge': 'the staff gauge'},
+      );
       expect(offline.ranges?.gauge, isNotNull);
       expect(offline.flowStatus(1, level: 0.3), FlowStatus.unknown);
     });
 
-    test('numbers stored on the run win over the bundled ones', () {
-      final r = run(
-        id: 'cheakamus-paradise-valley',
-        flowRanges: {'low': 30, 'medium': 60, 'high': 120},
-      );
-      expect(r.ranges?.low, 30);
+    test('a map without numbers falls back to the older fields', () {
+      final r = run(flowRanges: {'note': 'old import'}, min: 10, max: 60);
+      expect(r.ranges?.low, 10);
     });
 
     test('older min / optimal fields still work', () {
@@ -149,22 +162,6 @@ void main() {
       expect(r.flowStatus(25), FlowStatus.medium);
       expect(r.flowStatus(40), FlowStatus.high);
       expect(r.flowStatus(61), FlowStatus.tooHigh);
-    });
-
-    test('every bundled entry has a unit, a number and a gauge', () {
-      for (final MapEntry(:key, :value) in bcFlowRanges.entries) {
-        final r = FlowRanges.fromMap(value);
-        expect(r, isNotNull, reason: key);
-        expect(
-          value.containsKey('station') || value.containsKey('gauge'),
-          isTrue,
-          reason: key,
-        );
-        final anchors = [?r!.low, ?r.medium, ?r.high, ?r.max];
-        for (var i = 1; i < anchors.length; i++) {
-          expect(anchors[i] > anchors[i - 1], isTrue, reason: key);
-        }
-      }
     });
   });
 

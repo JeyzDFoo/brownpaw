@@ -128,6 +128,10 @@ class RiverRun {
   /// Visibility setting for user-created runs
   final String visibility;
 
+  /// Starred for a new paddler, so the Gauges tab opens on local gauges.
+  /// Set in the backend (`starter: true`).
+  final bool starter;
+
   RiverRun({
     required this.riverId,
     required this.name,
@@ -170,6 +174,7 @@ class RiverRun {
     this.updatedAt,
     this.verified = true,
     this.visibility = 'public',
+    this.starter = false,
   });
 
   /// Create RiverRun from Firestore document
@@ -234,6 +239,7 @@ class RiverRun {
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       verified: data['verified'] as bool? ?? true,
       visibility: _asString(data['visibility']) ?? 'public',
+      starter: data['starter'] == true,
     );
   }
 
@@ -299,6 +305,7 @@ class RiverRun {
     if (updatedAt != null) map['updatedAt'] = Timestamp.fromDate(updatedAt!);
     map['verified'] = verified;
     map['visibility'] = visibility;
+    if (starter) map['starter'] = true;
 
     return map;
   }
@@ -398,6 +405,9 @@ class RiverRun {
       createdBy: createdBy ?? this.createdBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      verified: verified,
+      visibility: visibility,
+      starter: starter,
     );
   }
 

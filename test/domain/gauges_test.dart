@@ -12,6 +12,7 @@ RiverRun run(
   String name, {
   String? station,
   String? stationName,
+  bool starter = false,
 }) => RiverRun(
   riverId: id,
   name: name,
@@ -20,6 +21,7 @@ RiverRun run(
   difficultyClass: 'III',
   stationId: station,
   gaugeStation: stationName == null ? null : {'name': stationName},
+  starter: starter,
 );
 
 Descent logged(String runId, DateTime date) => Descent(
@@ -260,33 +262,13 @@ void main() {
     expect(rangeSummary(run('x', 'X', 'Y')), isNull);
   });
 
-  test('new paddlers start with Capilano, Lynn Creek and the Mamquam', () {
+  test('new paddlers start with the runs the backend marks as starters', () {
     final runs = [
-      run(
-        'capilano-river',
-        'Capilano River',
-        'Capilano River',
-        station: 'metro_vancouver_capilano',
-      ),
-      run('lynn-creek', 'Lynn Creek', 'Lynn Creek', station: 'flowworks_lynn'),
-      run(
-        'lower-mamquam',
-        'Lower Mamquam',
-        'Mamquam River',
-        station: '08GA075',
-      ),
-      run(
-        'cheakamus',
-        'Paradise Valley',
-        'Cheakamus River',
-        station: '08GA043',
-      ),
+      run('capilano-river', 'Capilano', 'Capilano River', starter: true),
+      run('lynn-creek', 'Lynn Creek', 'Lynn Creek', starter: true),
+      run('cheakamus', 'Paradise Valley', 'Cheakamus River'),
     ];
-    expect(starterFavouriteRunIds(runs), {
-      'capilano-river',
-      'lynn-creek',
-      'lower-mamquam',
-    });
+    expect(starterFavouriteRunIds(runs), {'capilano-river', 'lynn-creek'});
   });
 
   group('gaugeSections', () {

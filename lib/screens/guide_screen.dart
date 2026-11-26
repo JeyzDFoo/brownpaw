@@ -521,6 +521,7 @@ class _GuideList extends StatelessWidget {
             ),
           );
     return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       children: [
         ?header,
@@ -623,6 +624,7 @@ class _SearchField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
       decoration: InputDecoration(
         hintText: 'Search rivers and runs',
         prefixIcon: const Icon(Icons.search),

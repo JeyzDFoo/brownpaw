@@ -290,6 +290,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -446,6 +447,8 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
             // Note
             TextField(
               controller: _noteController,
+              textInputAction: TextInputAction.done,
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
                 labelText: 'Note (optional)',

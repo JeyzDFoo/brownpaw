@@ -219,6 +219,7 @@ class _DescentEditorState extends ConsumerState<_DescentEditor> {
         ],
       ),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
         children: [
           Text(d.displayName, style: theme.textTheme.headlineSmall),
@@ -277,6 +278,7 @@ class _DescentEditorState extends ConsumerState<_DescentEditor> {
                     Expanded(
                       child: TextField(
                         controller: _flow,
+                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
@@ -385,6 +387,7 @@ class _DescentEditorState extends ConsumerState<_DescentEditor> {
                 const SectionLabel('Notes'),
                 TextField(
                   controller: _notes,
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   minLines: 3,
                   maxLines: null,
                   textCapitalization: TextCapitalization.sentences,

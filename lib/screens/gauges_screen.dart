@@ -88,6 +88,7 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
         }
 
         return ListView.builder(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           itemCount: items.length + 1,
           itemBuilder: (context, i) {
@@ -129,6 +130,7 @@ class _SearchField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
       decoration: InputDecoration(
         hintText: 'Search any river or station',
         prefixIcon: const Icon(Icons.search),

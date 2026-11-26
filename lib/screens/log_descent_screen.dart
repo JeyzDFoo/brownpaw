@@ -628,6 +628,8 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
                   // Search Field
                   TextField(
                     controller: _searchController,
+                    textInputAction: TextInputAction.search,
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
                     decoration: InputDecoration(
                       hintText: 'Search rivers...',
                       prefixIcon: const Icon(Icons.search),
@@ -927,6 +929,8 @@ class _RiverRunSelectorState extends ConsumerState<RiverRunSelector> {
 
                   return ListView.builder(
                     controller: scrollController,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount:
                         (_searchQuery.isEmpty && recentRuns.isNotEmpty

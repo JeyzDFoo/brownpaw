@@ -37,6 +37,14 @@ class StationRealtimeFlow {
 class StationSummary {
   const StationSummary({this.name, this.flow, this.level, this.readingTime});
 
+  /// The latest of [live]'s readings, so a list can be sorted on exactly
+  /// what its rows show.
+  factory StationSummary.fromLive(StationRealtimeFlow live) => StationSummary(
+    flow: live.discharge,
+    level: live.level,
+    readingTime: live.timestamp,
+  );
+
   factory StationSummary.fromMap(Map<String, dynamic> data) {
     final flow = data['flow'];
     final level = data['level'];

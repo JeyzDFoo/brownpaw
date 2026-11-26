@@ -57,7 +57,16 @@ class LocationService {
       );
       return (latitude: p.latitude, longitude: p.longitude);
     } catch (_) {
-      return null;
+      // No fix in time (in a canyon, say): the last known spot is close
+      // enough for sorting by distance.
+      try {
+        final p = await Geolocator.getLastKnownPosition();
+        return p == null
+            ? null
+            : (latitude: p.latitude, longitude: p.longitude);
+      } catch (_) {
+        return null;
+      }
     }
   }
 }

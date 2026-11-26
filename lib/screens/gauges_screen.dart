@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/gauge_repository.dart' show StationSummary;
 import '../domain/flow_status.dart';
 import '../domain/gauges.dart';
 import '../providers/gauges_provider.dart';
@@ -210,14 +211,10 @@ class GaugeRow extends ConsumerWidget {
     final updated = readings.isEmpty
         ? (current.isLoading ? '' : 'No recent reading')
         : updatedAgo(readings.last.timestamp);
-    final fresh =
-        readings.isNotEmpty &&
-        DateTime.now().difference(readings.last.timestamp) <= statusFreshFor;
-    final status = fresh
-        ? FlowStatus.best(
-            gauge.runs.map((r) => r.flowStatus(flow, level: data?.level)),
-          )
-        : FlowStatus.unknown;
+    // The same judgement the list is sorted on.
+    final status = data == null
+        ? FlowStatus.unknown
+        : gaugeStatus(gauge, StationSummary.fromLive(data));
     final position = ref.watch(devicePositionProvider).valueOrNull;
     final km = position == null ? null : gaugeDistanceKm(gauge, position);
     final away = km == null ? null : distanceLabel(km);

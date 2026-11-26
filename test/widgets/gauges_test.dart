@@ -154,6 +154,8 @@ Future<void> pumpScreen(
   Set<String> favourites = const {},
   List<Descent> descents = const [],
   FakeAlerts? alerts,
+  List<RiverRun>? runs,
+  ({double latitude, double longitude})? position,
 }) async {
   final fakeAlerts = alerts ?? FakeAlerts();
   final favs = StateProvider<Set<String>>((ref) => favourites);
@@ -164,7 +166,7 @@ Future<void> pumpScreen(
     ProviderScope(
       overrides: [
         riverRunsStreamProvider.overrideWith(
-          (ref) => Stream.value([tamihi, canyon, seymour, cheakamus]),
+          (ref) => Stream.value(runs ?? [tamihi, canyon, seymour, cheakamus]),
         ),
         allDescentsProvider.overrideWith((ref) => Stream.value(descents)),
         favouriteRunIdsProvider.overrideWith((ref) => ref.watch(favs)),
@@ -177,7 +179,7 @@ Future<void> pumpScreen(
           },
         ),
         gaugeRepositoryProvider.overrideWithValue(gauges),
-        devicePositionProvider.overrideWith((ref) async => null),
+        devicePositionProvider.overrideWith((ref) async => position),
         flowAlertsControllerProvider.overrideWithValue(fakeAlerts),
         alertedRunIdsProvider.overrideWith((ref) => fakeAlerts.changes.stream),
       ],
@@ -254,6 +256,34 @@ void main() {
     expect(y('Recent'), lessThan(y('Chilliwack River at Vedder Crossing')));
     // Its flow is in range, and the row says so.
     expect(find.byType(FlowStatusChip), findsWidgets);
+  });
+
+  testWidgets('starred gauges sort on the flow their rows show', (
+    tester,
+  ) async {
+    // Seymour is next door but has no flow range; the Chilliwack gauge is
+    // far away, and its live reading is in range though the stored
+    // summary has no flow yet.
+    await pumpScreen(
+      tester,
+      const GaugesScreen(),
+      favourites: {'seymour-lower', 'chilliwack-tamihi'},
+      position: (latitude: 49.33, longitude: -123.0),
+      runs: [
+        tamihi.copyWith(
+          putInCoordinates: {'latitude': 49.10, 'longitude': -121.86},
+        ),
+        seymour.copyWith(
+          putInCoordinates: {'latitude': 49.34, 'longitude': -123.0},
+        ),
+      ],
+    );
+    double y(String text) => tester.getTopLeft(find.text(text)).dy;
+    expect(
+      y('Chilliwack River at Vedder Crossing'),
+      lessThan(y('Seymour River near North Vancouver')),
+    );
+    expect(find.textContaining('km away'), findsNWidgets(2));
   });
 
   testWidgets('search finds a gauge by run name', (tester) async {

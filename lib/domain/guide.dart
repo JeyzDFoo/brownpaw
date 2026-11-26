@@ -87,21 +87,8 @@ const lowerMainlandZoom = 8.4;
 
 /// The best status among [entries], so a cluster of pins with anything
 /// running shows as running.
-FlowStatus bestStatus(Iterable<GuideEntry> entries) {
-  const order = [
-    FlowStatus.medium,
-    FlowStatus.low,
-    FlowStatus.high,
-    FlowStatus.runnable,
-    FlowStatus.tooHigh,
-    FlowStatus.tooLow,
-    FlowStatus.unknown,
-  ];
-  return order.firstWhere(
-    (s) => entries.any((e) => e.status == s),
-    orElse: () => FlowStatus.unknown,
-  );
-}
+FlowStatus bestStatus(Iterable<GuideEntry> entries) =>
+    FlowStatus.best(entries.map((e) => e.status));
 
 /// From this zoom in, every run gets its own pin.
 const clusterUntilZoom = 12;

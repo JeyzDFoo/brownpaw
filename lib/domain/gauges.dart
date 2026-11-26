@@ -3,6 +3,8 @@ import '../models/descent.dart';
 import '../models/realtime_flow.dart';
 import '../models/river_run.dart';
 import 'flow_ranges.dart';
+import 'flow_status.dart';
+import 'run_suggestion.dart' show distanceKm;
 
 /// One gauge station and the runs judged against it.
 class Gauge {
@@ -183,6 +185,116 @@ List<Gauge> yourGauges(
     return a.title.compareTo(b.title);
   });
   return mine;
+}
+
+/// The Gauges tab's three lists. Each gauge appears in one of them only.
+typedef GaugeSections = ({
+  List<Gauge> starred,
+  List<Gauge> recent,
+  List<Gauge> all,
+});
+
+/// Splits [gauges] into the ones the paddler starred, the ones they've
+/// logged a run on (and not starred), and the rest. Each list is in
+/// [sortGauges] order.
+GaugeSections gaugeSections(
+  List<Gauge> gauges, {
+  Set<String> favouriteRunIds = const {},
+  List<Descent> descents = const [],
+  Map<String, StationSummary> stations = const {},
+  ({double latitude, double longitude})? position,
+  DateTime? now,
+}) {
+  final logged = {for (final d in descents) d.runId};
+  final starred = <Gauge>[], recent = <Gauge>[], all = <Gauge>[];
+  for (final g in gauges) {
+    if (g.runs.any((r) => favouriteRunIds.contains(r.riverId))) {
+      starred.add(g);
+    } else if (g.runs.any((r) => logged.contains(r.riverId))) {
+      recent.add(g);
+    } else {
+      all.add(g);
+    }
+  }
+  List<Gauge> sorted(List<Gauge> list) =>
+      sortGauges(list, stations: stations, position: position, now: now);
+  return (starred: sorted(starred), recent: sorted(recent), all: sorted(all));
+}
+
+/// Gauges with a run that's in range right now first, then the nearest to
+/// [position] (when the device location is known), then by name.
+List<Gauge> sortGauges(
+  List<Gauge> gauges, {
+  Map<String, StationSummary> stations = const {},
+  ({double latitude, double longitude})? position,
+  DateTime? now,
+}) {
+  final keyed = [
+    for (final g in gauges)
+      (
+        gauge: g,
+        running: gaugeStatus(g, stations[g.id], now: now).isRunnable,
+        km: position == null ? null : gaugeDistanceKm(g, position),
+      ),
+  ];
+  keyed.sort((a, b) {
+    if (a.running != b.running) return a.running ? -1 : 1;
+    final ka = a.km, kb = b.km;
+    if (ka != null && kb != null && ka != kb) return ka.compareTo(kb);
+    if (ka != null && kb == null) return -1;
+    if (ka == null && kb != null) return 1;
+    return a.gauge.title.toLowerCase().compareTo(b.gauge.title.toLowerCase());
+  });
+  return [for (final k in keyed) k.gauge];
+}
+
+/// Readings older than this aren't trusted to say a run is in.
+const statusFreshFor = Duration(hours: 24);
+
+/// The best status among the runs on [gauge] at its latest reading, or
+/// unknown when there's no reading from the last day.
+FlowStatus gaugeStatus(Gauge gauge, StationSummary? summary, {DateTime? now}) {
+  if (summary == null) return FlowStatus.unknown;
+  final at = summary.readingTime;
+  if (at != null && (now ?? DateTime.now()).difference(at) > statusFreshFor) {
+    return FlowStatus.unknown;
+  }
+  return FlowStatus.best(
+    gauge.runs.map((r) => r.flowStatus(summary.flow, level: summary.level)),
+  );
+}
+
+/// Kilometres from [position] to the closest run on [gauge], measured to
+/// each run's put-in (or its pin, or its take-out). Null when no run has a
+/// location.
+double? gaugeDistanceKm(
+  Gauge gauge,
+  ({double latitude, double longitude}) position,
+) {
+  double? nearest;
+  for (final run in gauge.runs) {
+    final at = [run.putInCoordinates, run.coordinates, run.takeOutCoordinates]
+        .firstWhere(
+          (c) => c?['latitude'] != null && c?['longitude'] != null,
+          orElse: () => null,
+        );
+    if (at == null) continue;
+    final km = distanceKm(
+      position.latitude,
+      position.longitude,
+      at['latitude']!,
+      at['longitude']!,
+    );
+    if (nearest == null || km < nearest) nearest = km;
+  }
+  return nearest;
+}
+
+/// "800 m away", "12 km away".
+String distanceLabel(double km) {
+  if (km < 1) return 'Under 1 km away';
+  if (km < 10) return '${km.toStringAsFixed(1)} km away';
+  return '${km.round()} km away';
 }
 
 enum GaugeTrend {

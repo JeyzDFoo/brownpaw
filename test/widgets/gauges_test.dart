@@ -16,6 +16,7 @@ import 'package:brownpaw/screens/gauge_screen.dart';
 import 'package:brownpaw/screens/gauges_screen.dart';
 import 'package:brownpaw/theme/app_theme.dart';
 import 'package:brownpaw/widgets/favourite_star.dart';
+import 'package:brownpaw/widgets/flow_status_chip.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -174,6 +175,7 @@ Future<void> pumpScreen(
           },
         ),
         gaugeRepositoryProvider.overrideWithValue(gauges),
+        devicePositionProvider.overrideWith((ref) async => null),
         flowAlertsControllerProvider.overrideWithValue(fakeAlerts),
         alertedRunIdsProvider.overrideWith((ref) => fakeAlerts.changes.stream),
       ],
@@ -194,8 +196,8 @@ void main() {
       favourites: {'seymour-lower'},
     );
 
-    expect(find.text('Your gauges'), findsOneWidget);
-    expect(find.text('All gauges'), findsOneWidget);
+    expect(find.text('Starred'), findsOneWidget);
+    expect(find.text('All'), findsOneWidget);
     // Both Chilliwack runs share one gauge.
     expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
     expect(find.text('Canyon · Tamihi to Vedder'), findsOneWidget);
@@ -218,10 +220,44 @@ void main() {
     expect(seymourY, lessThan(chilliwackY));
   });
 
+  testWidgets('logged gauges sit under Recent, once each', (tester) async {
+    await pumpScreen(
+      tester,
+      const GaugesScreen(),
+      favourites: {'seymour-lower'},
+      descents: [
+        Descent(
+          id: 'd1',
+          runId: 'chilliwack-tamihi',
+          runName: 'Tamihi to Vedder',
+          userId: 'u',
+          date: DateTime(2026, 11, 20),
+          createdAt: DateTime(2026, 11, 20),
+        ),
+        Descent(
+          id: 'd2',
+          runId: 'seymour-lower',
+          runName: 'Lower',
+          userId: 'u',
+          date: DateTime(2026, 11, 21),
+          createdAt: DateTime(2026, 11, 21),
+        ),
+      ],
+    );
+    double y(String text) => tester.getTopLeft(find.text(text)).dy;
+    expect(find.text('Recent'), findsOneWidget);
+    expect(find.text('Seymour River near North Vancouver'), findsOneWidget);
+    expect(find.text('Chilliwack River at Vedder Crossing'), findsOneWidget);
+    expect(y('Seymour River near North Vancouver'), lessThan(y('Recent')));
+    expect(y('Recent'), lessThan(y('Chilliwack River at Vedder Crossing')));
+    // Its flow is in range, and the row says so.
+    expect(find.byType(FlowStatusChip), findsWidgets);
+  });
+
   testWidgets('search finds a gauge by run name', (tester) async {
     await pumpScreen(tester, const GaugesScreen());
     expect(
-      find.text('Star a gauge, or log a run, and it shows up here first.'),
+      find.text('Tap the star on any gauge to keep it up here.'),
       findsOneWidget,
     );
     await tester.enterText(find.byType(TextField), 'tamihi');
@@ -323,7 +359,7 @@ void main() {
 
   testWidgets('starring a gauge moves it to your gauges', (tester) async {
     await pumpScreen(tester, const GaugesScreen());
-    expect(find.text('Your gauges'), findsOneWidget);
+    expect(find.text('Starred'), findsOneWidget);
     final seymourBefore = tester
         .getTopLeft(find.text('Seymour River near North Vancouver'))
         .dy;

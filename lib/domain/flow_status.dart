@@ -46,6 +46,23 @@ enum FlowStatus {
       this == FlowStatus.medium ||
       this == FlowStatus.high;
 
+  /// The best of [statuses] to paddle: medium, then low, high, runnable,
+  /// and the out-of-range ones last. For a gauge or a cluster of pins that
+  /// covers several runs.
+  static FlowStatus best(Iterable<FlowStatus> statuses) {
+    const order = [
+      FlowStatus.medium,
+      FlowStatus.low,
+      FlowStatus.high,
+      FlowStatus.runnable,
+      FlowStatus.tooHigh,
+      FlowStatus.tooLow,
+      FlowStatus.unknown,
+    ];
+    final seen = statuses.toSet();
+    return order.firstWhere(seen.contains, orElse: () => FlowStatus.unknown);
+  }
+
   /// Where [value] sits in [ranges]. Each number is where its level
   /// starts; any may be missing.
   static FlowStatus evaluate(FlowRanges? ranges, double? value) {

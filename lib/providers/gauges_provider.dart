@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/gauge_repository.dart';
+import '../data/location_service.dart';
 import '../data/repositories.dart';
 import '../domain/flow_ranges.dart' show FlowUnit;
 import '../domain/gauges.dart';
+import 'check_in_provider.dart' show locationAccessProvider;
 import 'descents_provider.dart';
 import 'favorites_provider.dart';
 import 'river_runs_provider.dart';
@@ -47,6 +49,35 @@ final yourGaugesProvider = Provider<AsyncValue<List<Gauge>>>((ref) {
       .whenData(
         (gauges) =>
             yourGauges(gauges, favouriteRunIds: favourites, descents: descents),
+      );
+});
+
+/// Where the device is, for putting nearby gauges first. Null until the
+/// paddler has allowed location; this never shows a permission prompt.
+final devicePositionProvider = FutureProvider<LatLng?>((ref) async {
+  final access = await ref.watch(locationAccessProvider.future);
+  if (access != LocationAccess.granted) return null;
+  return ref.read(locationServiceProvider).currentPosition();
+});
+
+/// The Gauges tab's Starred, Recent and All lists, each with what's running
+/// first, then what's nearest, then by name. Gauges show up while flows and
+/// location are still loading, and re-sort when they arrive.
+final gaugeSectionsProvider = Provider<AsyncValue<GaugeSections>>((ref) {
+  final favourites = ref.watch(favouriteRunIdsProvider);
+  final descents = ref.watch(allDescentsProvider).valueOrNull ?? const [];
+  final stations = ref.watch(stationsProvider).valueOrNull ?? const {};
+  final position = ref.watch(devicePositionProvider).valueOrNull;
+  return ref
+      .watch(gaugesProvider)
+      .whenData(
+        (gauges) => gaugeSections(
+          gauges,
+          favouriteRunIds: favourites,
+          descents: descents,
+          stations: stations,
+          position: position,
+        ),
       );
 });
 

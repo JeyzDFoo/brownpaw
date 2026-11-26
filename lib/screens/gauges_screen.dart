@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/flow_status.dart';
 import '../domain/gauges.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
@@ -9,11 +10,13 @@ import '../router.dart';
 import '../widgets/check_in_banner.dart';
 import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
+import '../widgets/flow_status_chip.dart';
 import '../theme/app_theme.dart';
 import '../widgets/pebble.dart';
 
-/// The Gauges tab: your gauges first, then every gauge, with live flow,
-/// a week's trend and a search across rivers, stations and runs.
+/// The Gauges tab: starred gauges, then ones you've logged, then the rest,
+/// each with what's running first, then what's nearest. Live flow, a week's
+/// trend and a search across rivers, stations and runs.
 class GaugesScreen extends ConsumerStatefulWidget {
   const GaugesScreen({super.key});
 
@@ -33,10 +36,9 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allAsync = ref.watch(gaugesProvider);
-    final mine = ref.watch(yourGaugesProvider).valueOrNull ?? const <Gauge>[];
+    final sectionsAsync = ref.watch(gaugeSectionsProvider);
 
-    return allAsync.when(
+    return sectionsAsync.when(
       loading: () => const LoadingPebbles(
         count: 5,
         padding: EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -57,10 +59,18 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
           ),
         ),
       ),
-      data: (all) {
+      data: (sections) {
         final items = <Widget>[];
         if (_query.trim().isNotEmpty) {
-          final results = all.where((g) => g.matches(_query)).toList();
+          final results = sortGauges(
+            [
+              ...sections.starred,
+              ...sections.recent,
+              ...sections.all,
+            ].where((g) => g.matches(_query)).toList(),
+            stations: ref.watch(stationsProvider).valueOrNull ?? const {},
+            position: ref.watch(devicePositionProvider).valueOrNull,
+          );
           items.add(
             _Heading(
               results.isEmpty
@@ -72,18 +82,20 @@ class _GaugesScreenState extends ConsumerState<GaugesScreen> {
           );
           items.addAll(results.map((g) => GaugeRow(gauge: g)));
         } else {
-          final mineIds = {for (final g in mine) g.id};
-          items.add(const _Heading('Your gauges'));
-          if (mine.isEmpty) {
+          items.add(const _Heading('Starred'));
+          if (sections.starred.isEmpty) {
             items.add(const _NoGaugesYet());
           } else {
-            items.addAll(mine.map((g) => GaugeRow(gauge: g)));
+            items.addAll(sections.starred.map((g) => GaugeRow(gauge: g)));
           }
-          final rest = all.where((g) => !mineIds.contains(g.id)).toList();
-          if (rest.isNotEmpty) {
+          for (final (title, list) in [
+            ('Recent', sections.recent),
+            ('All', sections.all),
+          ]) {
+            if (list.isEmpty) continue;
             items.add(const SizedBox(height: 8));
-            items.add(const _Heading('All gauges'));
-            items.addAll(rest.map((g) => GaugeRow(gauge: g)));
+            items.add(_Heading(title));
+            items.addAll(list.map((g) => GaugeRow(gauge: g)));
           }
         }
 
@@ -170,7 +182,7 @@ class _NoGaugesYet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Text(
-      'Star a gauge, or log a run, and it shows up here first.',
+      'Tap the star on any gauge to keep it up here.',
       style: theme.textTheme.bodyMedium?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
       ),
@@ -198,6 +210,17 @@ class GaugeRow extends ConsumerWidget {
     final updated = readings.isEmpty
         ? (current.isLoading ? '' : 'No recent reading')
         : updatedAgo(readings.last.timestamp);
+    final fresh =
+        readings.isNotEmpty &&
+        DateTime.now().difference(readings.last.timestamp) <= statusFreshFor;
+    final status = fresh
+        ? FlowStatus.best(
+            gauge.runs.map((r) => r.flowStatus(flow, level: data?.level)),
+          )
+        : FlowStatus.unknown;
+    final position = ref.watch(devicePositionProvider).valueOrNull;
+    final km = position == null ? null : gaugeDistanceKm(gauge, position);
+    final away = km == null ? null : distanceLabel(km);
 
     final flowText = flow?.toStringAsFixed(1) ?? '–';
     final label = [
@@ -205,7 +228,9 @@ class GaugeRow extends ConsumerWidget {
       if (gauge.place.isNotEmpty) gauge.place,
       if (flow != null) '$flowText cubic metres per second',
       if (trend != null) trend.label,
+      if (status != FlowStatus.unknown) status.label,
       if (updated.isNotEmpty) updated,
+      ?away,
     ].join(', ');
 
     return Material(
@@ -243,20 +268,40 @@ class GaugeRow extends ConsumerWidget {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(gauge.place, style: muted),
                               ),
-                            if (updated.isNotEmpty)
+                            if (updated.isNotEmpty || away != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
-                                child: Text(
-                                  updated,
-                                  // Old readings stand out in ochre.
-                                  style:
-                                      readings.isNotEmpty &&
-                                          isStale(readings.last.timestamp)
-                                      ? muted?.copyWith(
-                                          color: Riverstone.of(context).low,
-                                        )
-                                      : muted,
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: updated,
+                                        // Old readings stand out in ochre.
+                                        style:
+                                            readings.isNotEmpty &&
+                                                isStale(readings.last.timestamp)
+                                            ? TextStyle(
+                                                color: Riverstone.of(
+                                                  context,
+                                                ).low,
+                                              )
+                                            : null,
+                                      ),
+                                      if (away != null)
+                                        TextSpan(
+                                          text: updated.isEmpty
+                                              ? away
+                                              : ' · $away',
+                                        ),
+                                    ],
+                                  ),
+                                  style: muted,
                                 ),
+                              ),
+                            if (status != FlowStatus.unknown)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: FlowStatusChip(status: status),
                               ),
                           ],
                         ),

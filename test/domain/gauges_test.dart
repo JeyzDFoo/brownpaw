@@ -1,3 +1,5 @@
+import 'package:brownpaw/data/gauge_repository.dart';
+import 'package:brownpaw/domain/flow_status.dart';
 import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/models/descent.dart';
 import 'package:brownpaw/models/realtime_flow.dart';
@@ -284,6 +286,104 @@ void main() {
       'capilano-river',
       'lynn-creek',
       'lower-mamquam',
+    });
+  });
+
+  group('gaugeSections', () {
+    final now = DateTime(2026, 11, 26, 12);
+    RiverRun ranged(
+      String id,
+      String station, {
+      required double lat,
+      required double lng,
+      double low = 10,
+    }) => RiverRun(
+      riverId: id,
+      name: id,
+      river: id,
+      province: 'BC',
+      difficultyClass: 'III',
+      stationId: station,
+      gaugeStation: {'name': '${id.toUpperCase()} RIVER GAUGE'},
+      flowRanges: {'low': low, 'medium': low * 2, 'high': low * 4},
+      putInCoordinates: {'latitude': lat, 'longitude': lng},
+    );
+
+    // Vancouver-ish, and runs north, east and far east of it.
+    const home = (latitude: 49.28, longitude: -123.12);
+    final near = ranged('near', '08AA001', lat: 49.35, lng: -123.10);
+    final mid = ranged('mid', '08AA002', lat: 49.70, lng: -123.15);
+    final far = ranged('far', '08AA003', lat: 49.38, lng: -121.44);
+    final noRange = run('blank', 'Blank', 'Blank', station: '08AA004');
+    final gauges = gaugesFromRuns([near, mid, far, noRange]);
+
+    StationSummary at(double flow, {Duration age = Duration.zero}) =>
+        StationSummary(flow: flow, readingTime: now.subtract(age));
+
+    test('puts running gauges first, then nearest, then by name', () {
+      final s = gaugeSections(
+        gauges,
+        stations: {
+          'environment_canada_08AA001': at(5), // too low
+          'environment_canada_08AA002': at(25),
+          'environment_canada_08AA003': at(15),
+          'environment_canada_08AA004': at(99), // no range
+        },
+        position: home,
+        now: now,
+      );
+      expect(s.all.map((g) => g.runs.first.riverId), [
+        'mid',
+        'far',
+        'near',
+        'blank',
+      ]);
+    });
+
+    test('falls back to name order without a location', () {
+      final s = gaugeSections(
+        gauges,
+        stations: {
+          'environment_canada_08AA003': at(15),
+          'environment_canada_08AA002': at(25),
+        },
+        now: now,
+      );
+      expect(s.all.map((g) => g.runs.first.riverId), [
+        'far',
+        'mid',
+        'blank',
+        'near',
+      ]);
+    });
+
+    test('a day-old reading does not count as running', () {
+      final g = gauges.firstWhere((g) => g.runs.first.riverId == 'mid');
+      expect(gaugeStatus(g, at(25), now: now), FlowStatus.medium);
+      expect(
+        gaugeStatus(g, at(25, age: const Duration(hours: 30)), now: now),
+        FlowStatus.unknown,
+      );
+    });
+
+    test('splits starred, logged and the rest without repeats', () {
+      final s = gaugeSections(
+        gauges,
+        favouriteRunIds: {'far'},
+        descents: [logged('far', now), logged('near', now)],
+        now: now,
+      );
+      expect(s.starred.map((g) => g.runs.first.riverId), ['far']);
+      expect(s.recent.map((g) => g.runs.first.riverId), ['near']);
+      expect(s.all.map((g) => g.runs.first.riverId), ['blank', 'mid']);
+    });
+
+    test('distance labels', () {
+      expect(distanceLabel(0.4), 'Under 1 km away');
+      expect(distanceLabel(3.26), '3.3 km away');
+      expect(distanceLabel(42.6), '43 km away');
+      final g = gauges.firstWhere((g) => g.runs.first.riverId == 'near');
+      expect(gaugeDistanceKm(g, home), closeTo(7.9, 0.3));
     });
   });
 }

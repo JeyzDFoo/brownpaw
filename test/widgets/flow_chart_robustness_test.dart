@@ -1,6 +1,8 @@
+import 'package:brownpaw/domain/flow_ranges.dart';
 import 'package:brownpaw/domain/gauges.dart';
 import 'package:brownpaw/models/realtime_flow.dart';
 import 'package:brownpaw/widgets/flow_sparkline.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -41,6 +43,43 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('band words drop out where the bands are too thin to hold them', (
+    tester,
+  ) async {
+    // Seymour in spate: 210 m³/s against bands at 15, 20 and 40.
+    Future<Map<double, bool>> labels(List<double> flows) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: GaugeFlowChart(
+              points: series(flows),
+              daily: false,
+              height: 180,
+              bands: const FlowRanges(low: 15, medium: 20, high: 40),
+            ),
+          ),
+        ),
+      );
+      final data = tester.widget<LineChart>(find.byType(LineChart)).data;
+      return {
+        for (final l in data.extraLinesData.horizontalLines) l.y: l.label.show,
+      };
+    }
+
+    // Lines stay, the word goes: Low is a 5 m³/s sliver at this scale.
+    expect(await labels([30, 25, 100, 210]), {
+      15.0: false,
+      20.0: true,
+      40.0: true,
+    });
+    // Near the bands there's room for every word.
+    expect(await labels([18, 22, 30, 35]), {
+      15.0: true,
+      20.0: true,
+      40.0: true,
+    });
+  });
 
   test('CSV readings drop NaN and infinity', () {
     final flow = RealtimeFlow.fromCSV(

@@ -13,6 +13,8 @@ class FlowRangeScale extends StatelessWidget {
     required this.ranges,
     this.status = FlowStatus.unknown,
     this.referenceOnly = false,
+    this.title = 'Flow guide',
+    this.showWords = true,
   });
 
   final FlowRanges ranges;
@@ -22,6 +24,13 @@ class FlowRangeScale extends StatelessWidget {
 
   /// The numbers are read on a gauge the app can't compare with.
   final bool referenceOnly;
+
+  /// The heading over the strip, e.g. the run's name on a gauge with
+  /// several runs.
+  final String title;
+
+  /// Show the guidebook's own words under the strip.
+  final bool showWords;
 
   List<({FlowStatus status, double? from})> get _bands {
     final r = ranges;
@@ -89,14 +98,16 @@ class FlowRangeScale extends StatelessWidget {
       },
     );
 
-    final words = [
-      if (ranges.note != null) '“${ranges.note}”',
-      if (ranges.source != null) '– ${ranges.source}',
-    ].join(' ');
+    final words = showWords
+        ? [
+            if (ranges.note != null) '“${ranges.note}”',
+            if (ranges.source != null) '– ${ranges.source}',
+          ].join(' ')
+        : '';
 
     return Semantics(
       label:
-          'Flow guide: ${ranges.summary}'
+          '$title: ${ranges.summary}'
           '${status == FlowStatus.unknown ? '' : '. Now ${status.label}'}',
       excludeSemantics: true,
       child: Column(
@@ -104,14 +115,18 @@ class FlowRangeScale extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                'FLOW GUIDE',
-                style: muted?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.6,
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: muted?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Text(unit, style: muted),
             ],
           ),

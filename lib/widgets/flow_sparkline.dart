@@ -329,7 +329,25 @@ class GaugeFlowChart extends StatelessWidget {
     final b = bands;
     if (b == null) return const [];
     final style = Theme.of(context).textTheme.labelSmall;
-    HorizontalLine line(double at, String word, FlowStatus status) {
+    final edges = [
+      if (b.low != null) (at: b.low!, word: 'Low', status: FlowStatus.low),
+      if (b.medium != null)
+        (at: b.medium!, word: 'Medium', status: FlowStatus.medium),
+      if (b.high != null) (at: b.high!, word: 'High', status: FlowStatus.high),
+      if (b.max != null)
+        (at: b.max!, word: 'Too high', status: FlowStatus.tooHigh),
+    ];
+    // Each word sits just above its line, inside the band it starts. A band
+    // squeezed thinner than the word (the river far above the run's
+    // numbers) keeps its line and colour but loses the word, so words
+    // never pile up; the flow guide strip says the same thing in full.
+    final pxPerUnit = height / (maxY - minY);
+    bool roomFor(int i) {
+      final top = i + 1 < edges.length ? edges[i + 1].at : maxY;
+      return (math.min(top, maxY) - edges[i].at) * pxPerUnit >= 14;
+    }
+
+    HorizontalLine line(double at, String word, FlowStatus status, bool named) {
       final color = status.color(context);
       return HorizontalLine(
         y: at,
@@ -337,7 +355,7 @@ class GaugeFlowChart extends StatelessWidget {
         strokeWidth: 1,
         dashArray: const [3, 3],
         label: HorizontalLineLabel(
-          show: true,
+          show: named,
           alignment: Alignment.topLeft,
           padding: const EdgeInsets.only(left: 4, bottom: 1),
           style: style?.copyWith(color: color, fontWeight: FontWeight.w800),
@@ -347,11 +365,10 @@ class GaugeFlowChart extends StatelessWidget {
     }
 
     return [
-      if (b.low != null) line(b.low!, 'Low', FlowStatus.low),
-      if (b.medium != null) line(b.medium!, 'Medium', FlowStatus.medium),
-      if (b.high != null) line(b.high!, 'High', FlowStatus.high),
-      if (b.max != null) line(b.max!, 'Too high', FlowStatus.tooHigh),
-    ].where((l) => l.y > minY && l.y < maxY).toList();
+      for (var i = 0; i < edges.length; i++)
+        if (edges[i].at > minY && edges[i].at < maxY)
+          line(edges[i].at, edges[i].word, edges[i].status, roomFor(i)),
+    ];
   }
 
   static double _niceInterval(double raw) {

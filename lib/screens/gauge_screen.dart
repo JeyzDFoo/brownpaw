@@ -13,6 +13,7 @@ import '../providers/realtime_flow_provider.dart';
 import '../router.dart';
 import '../widgets/alert_bell.dart';
 import '../widgets/favourite_star.dart';
+import '../widgets/flow_range_scale.dart';
 import '../widgets/flow_sparkline.dart';
 import '../widgets/flow_status_chip.dart';
 import 'gauges_screen.dart' show TrendIcon;
@@ -168,7 +169,13 @@ class _GaugeBody extends ConsumerWidget {
                   ),
                 ),
               const SizedBox(height: 12),
-              _FlowChart(gauge: gauge, readings: all, unit: unit),
+              _FlowChart(
+                gauge: gauge,
+                readings: all,
+                unit: unit,
+                flow: flow,
+                level: level,
+              ),
             ],
           ),
         ),
@@ -211,10 +218,16 @@ class _FlowChart extends ConsumerStatefulWidget {
     required this.gauge,
     required this.readings,
     required this.unit,
+    this.flow,
+    this.level,
   });
   final Gauge gauge;
   final List<FlowReading> readings;
   final FlowUnit unit;
+
+  /// The latest reading, to pin on the selected run's flow guide.
+  final double? flow;
+  final double? level;
 
   @override
   ConsumerState<_FlowChart> createState() => _FlowChartState();
@@ -290,7 +303,21 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+        ],
+        // The selected run's bands as a strip, with where the river is now:
+        // the chart shades the same bands, but squeezes them flat when the
+        // river is far above or below them.
+        if (bandRun != null && bands != null) ...[
+          FlowRangeScale(
+            ranges: bands,
+            status: bandRun.flowStatus(widget.flow, level: widget.level),
+            title: banded.length == 1 && widget.gauge.runs.length > 1
+                ? runLabel(bandRun)
+                : 'Flow guide',
+            showWords: false,
+          ),
+          const SizedBox(height: 12),
         ],
         SizedBox(
           height: 180,

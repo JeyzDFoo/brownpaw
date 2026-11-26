@@ -6,6 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../data/account_merge.dart';
+
 // Providers
 final authProvider = Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
 final firestoreProvider = Provider<FirebaseFirestore>(
@@ -33,11 +35,16 @@ class UserData {
   final bool isLoading;
   final String? errorMessage;
 
+  /// Goes up each time data made without an account is brought into this
+  /// one, so screens that read once (favourites) know to read again.
+  final int merges;
+
   UserData({
     this.user,
     this.userData,
     this.isLoading = false,
     this.errorMessage,
+    this.merges = 0,
   });
 
   bool get isAuthenticated => user != null;
@@ -50,12 +57,14 @@ class UserData {
     Map<String, dynamic>? userData,
     bool? isLoading,
     String? errorMessage,
+    int? merges,
   }) {
     return UserData(
       user: user ?? this.user,
       userData: userData ?? this.userData,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
+      merges: merges ?? this.merges,
     );
   }
 }
@@ -66,11 +75,22 @@ class UserNotifier extends StateNotifier<UserData> {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
   final GoogleSignIn _googleSignIn;
+  final AccountMergeRepository _merge;
 
-  UserNotifier(this._auth, this._firestore, this._storage, this._googleSignIn)
-    // Start from the session Firebase restored on launch, so a signed-in
-    // paddler never sees the sign-in screen flash past.
-    : super(UserData(user: _auth.currentUser)) {
+  /// Data from an account used without signing in, waiting to be copied
+  /// into the account the paddler has just signed in to.
+  ({AccountData from, String intoUid})? _pendingMerge;
+
+  UserNotifier(
+    this._auth,
+    this._firestore,
+    this._storage,
+    this._googleSignIn, [
+    AccountMergeRepository? merge,
+  ]) : _merge = merge ?? AccountMergeRepository(_firestore),
+       // Start from the session Firebase restored on launch, so a signed-in
+       // paddler never sees the sign-in screen flash past.
+       super(UserData(user: _auth.currentUser)) {
     _auth.authStateChanges().listen(_onAuthStateChanged);
   }
 
@@ -81,10 +101,14 @@ class UserNotifier extends StateNotifier<UserData> {
       user: user,
       userData: user?.uid == state.user?.uid ? state.userData : null,
       isLoading: state.isLoading,
+      merges: state.merges,
     );
 
     if (user != null) {
       await _fetchUserData(user.uid);
+      if (_pendingMerge?.intoUid == user.uid && state.userData != null) {
+        await _applyPendingMerge(user.uid);
+      }
     } else {
       state = state.copyWith(userData: null);
     }
@@ -175,7 +199,41 @@ class UserNotifier extends StateNotifier<UserData> {
       return result;
     } on FirebaseAuthException catch (e) {
       if (e.code != 'credential-already-in-use') rethrow;
-      return _auth.signInWithCredential(e.credential ?? credential);
+      return _switchToExistingAccount(current, e.credential ?? credential);
+    }
+  }
+
+  /// The Apple or Google account already has a Brownpaw account, so the
+  /// anonymous one can't be linked to it. Signs in to that account and
+  /// brings along what was made without one. The anonymous data is read
+  /// first, while the rules still allow it; if that read fails the paddler
+  /// stays where they were, with everything intact.
+  Future<UserCredential> _switchToExistingAccount(
+    User anonymous,
+    AuthCredential credential,
+  ) async {
+    final carried = await _merge.snapshot(anonymous.uid);
+    final result = await _auth.signInWithCredential(credential);
+    final uid = result.user?.uid;
+    if (uid != null && !carried.isEmpty) {
+      _pendingMerge = (from: carried, intoUid: uid);
+    }
+    return result;
+  }
+
+  /// Copies waiting anonymous data into [uid]'s account. Kept for another
+  /// try if it fails.
+  Future<void> _applyPendingMerge(String uid) async {
+    final pending = _pendingMerge;
+    if (pending == null || pending.intoUid != uid) return;
+    // Taken off the queue while it runs, so two callers can't copy twice.
+    _pendingMerge = null;
+    try {
+      await _merge.apply(pending.from, uid);
+      state = state.copyWith(merges: state.merges + 1);
+    } catch (e) {
+      _pendingMerge ??= pending;
+      debugPrint('Account merge failed, will retry: $e');
     }
   }
 
@@ -197,7 +255,7 @@ class UserNotifier extends StateNotifier<UserData> {
       if (e.code != 'credential-already-in-use' || e.credential == null) {
         rethrow;
       }
-      return _auth.signInWithCredential(e.credential!);
+      return _switchToExistingAccount(current, e.credential!);
     }
   }
 
@@ -329,6 +387,8 @@ class UserNotifier extends StateNotifier<UserData> {
         if (existing['photoURL'] == null && photo != null) 'photoURL': photo,
       });
     }
+    // After the profile exists, so the rules accept the favourites write.
+    await _applyPendingMerge(user.uid);
     await _fetchUserData(user.uid);
   }
 

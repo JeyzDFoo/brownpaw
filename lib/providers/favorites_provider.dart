@@ -43,8 +43,10 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
   }
 
   /// Initialize favorites from Firestore
-  Future<void> _initializeFavorites() async {
-    final user = _ref.read(userProvider).user;
+  Future<void> _initializeFavorites([User? signedIn]) async {
+    // The auth event's user, when there is one: the user provider may not
+    // have caught up with a sign-in yet.
+    final user = signedIn ?? _ref.read(userProvider).user;
     if (user == null) {
       state = FavoritesState();
       return;
@@ -215,8 +217,8 @@ class FavoritesNotifier extends StateNotifier<FavoritesState> {
   }
 
   /// Refresh favorites from Firestore
-  Future<void> refresh() async {
-    await _initializeFavorites();
+  Future<void> refresh([User? user]) async {
+    await _initializeFavorites(user);
   }
 
   /// Clear all favorites (for sign out)
@@ -239,9 +241,14 @@ final favoritesProvider =
             notifier.clear();
           } else {
             // Refresh favorites when user signs in
-            notifier.refresh();
+            notifier.refresh(user);
           }
         });
+      });
+
+      // Favourites brought over from use without an account.
+      ref.listen<int>(userProvider.select((s) => s.merges), (previous, next) {
+        if (next != previous) notifier.refresh();
       });
 
       return notifier;

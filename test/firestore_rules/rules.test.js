@@ -199,3 +199,65 @@ describe('flow_alerts', () => {
     await assertFails(deleteDoc(doc(bob(), 'flow_alerts/alice_tamihi')));
   });
 });
+
+// Signing in to an existing account after using the app without one: the
+// anonymous data is read as the anonymous user, then copied in as the
+// account (lib/data/account_merge.dart).
+describe('bringing anonymous data into an existing account', () => {
+  const anon = () => env.authenticatedContext('anon').firestore();
+  const when = new Date('2026-05-03T17:00:00Z');
+
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'users/anon'), { email: null, favorites: ['curated'] });
+      await setDoc(doc(db, 'descents/anon-1'), {
+        userId: 'anon', runId: 'anon-run', runName: 'Anon run',
+        date: when, createdAt: when, isPublic: false,
+      });
+      await setDoc(doc(db, 'river_runs/anon-run'), {
+        riverId: 'anon-run', name: 'Anon run', river: 'Creek',
+        verified: false, visibility: 'private', createdBy: 'anon',
+      });
+      await setDoc(doc(db, 'flow_alerts/anon_curated'), {
+        userId: 'anon', runId: 'curated', stationId: 's',
+        minFlow: 1, maxFlow: 2, inRange: true,
+      });
+    });
+  });
+
+  test('the anonymous user can read everything to carry over', async () => {
+    const db = anon();
+    await assertSucceeds(getDoc(doc(db, 'users/anon')));
+    await assertSucceeds(getDocs(query(collection(db, 'descents'), where('userId', '==', 'anon'))));
+    await assertSucceeds(getDocs(query(collection(db, 'river_runs'), where('createdBy', '==', 'anon'))));
+    await assertSucceeds(getDocs(query(collection(db, 'flow_alerts'), where('userId', '==', 'anon'))));
+  });
+
+  test('the account can write the copies', async () => {
+    const db = alice();
+    await assertSucceeds(setDoc(doc(db, 'river_runs/anon-run-alice'), {
+      riverId: 'anon-run-alice', name: 'Anon run', river: 'Creek',
+      verified: false, visibility: 'private', createdBy: 'alice',
+      mergedFrom: 'anon/anon-run',
+    }));
+    await assertSucceeds(setDoc(doc(db, 'descents/copy-1'), {
+      userId: 'alice', runId: 'anon-run-alice', runName: 'Anon run',
+      date: when, createdAt: when, isPublic: false, mergedFrom: 'anon/anon-1',
+    }));
+    await assertSucceeds(setDoc(doc(db, 'flow_alerts/alice_curated'), {
+      userId: 'alice', runId: 'curated', stationId: 's',
+      minFlow: 1, maxFlow: 2,
+    }));
+    await assertSucceeds(setDoc(doc(db, 'users/alice'), {
+      favorites: ['curated'],
+    }, { merge: true }));
+  });
+
+  test('the account still cannot touch the anonymous originals', async () => {
+    const db = alice();
+    await assertFails(getDoc(doc(db, 'descents/anon-1')));
+    await assertFails(getDoc(doc(db, 'users/anon')));
+    await assertFails(updateDoc(doc(db, 'river_runs/anon-run'), { createdBy: 'alice' }));
+  });
+});

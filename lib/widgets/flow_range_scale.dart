@@ -15,7 +15,6 @@ class FlowRangeScale extends StatelessWidget {
     this.referenceOnly = false,
     this.title = 'Flow guide',
     this.showWords = true,
-    this.compact = false,
   });
 
   final FlowRanges ranges;
@@ -32,10 +31,6 @@ class FlowRangeScale extends StatelessWidget {
 
   /// Show the guidebook's own words under the strip.
   final bool showWords;
-
-  /// A shorter strip with no heading or words, for a row in a list. The
-  /// unit sits at the end of the numbers.
-  final bool compact;
 
   List<({FlowStatus status, double? from})> get _bands {
     final r = ranges;
@@ -71,7 +66,7 @@ class FlowRangeScale extends StatelessWidget {
       builder: (context, box) {
         final w = box.maxWidth / bands.length;
         return SizedBox(
-          height: compact ? 44 : 58,
+          height: 58,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -88,28 +83,15 @@ class FlowRangeScale extends StatelessWidget {
                   Positioned(
                     left: i * w - 40,
                     width: 80,
-                    top: compact ? 28 : 38,
+                    top: 38,
                     child: Text(
                       FlowRanges.number(from),
                       textAlign: TextAlign.center,
-                      style:
-                          (compact
-                                  ? theme.textTheme.labelSmall
-                                  : theme.textTheme.labelMedium)
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-              if (compact)
-                Positioned(
-                  right: 0,
-                  top: 28,
-                  child: Text(
-                    unit,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
             ],
           ),
         );
@@ -131,26 +113,24 @@ class FlowRangeScale extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!compact) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: muted?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                    ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: muted?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(unit, style: muted),
-              ],
-            ),
-            const SizedBox(height: 6),
-          ],
+              ),
+              const SizedBox(width: 8),
+              Text(unit, style: muted),
+            ],
+          ),
+          const SizedBox(height: 6),
           strip,
           if (referenceOnly && ranges.gauge != null) ...[
             const SizedBox(height: 2),
@@ -182,7 +162,7 @@ class FlowRangeScale extends StatelessWidget {
       right: i == n - 1 ? const Radius.circular(10) : Radius.zero,
     );
     return Container(
-      height: compact ? 26 : 34,
+      height: 34,
       margin: EdgeInsets.only(right: i == n - 1 ? 0 : 2),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -197,23 +177,15 @@ class FlowRangeScale extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (active) ...[
-                Icon(
-                  Icons.place,
-                  size: compact ? 12 : 14,
-                  color: theme.colorScheme.surface,
-                ),
+                Icon(Icons.place, size: 14, color: theme.colorScheme.surface),
                 const SizedBox(width: 2),
               ],
               Text(
                 band == FlowStatus.unknown ? 'Below high' : band.label,
-                style:
-                    (compact
-                            ? theme.textTheme.labelSmall
-                            : theme.textTheme.labelMedium)
-                        ?.copyWith(
-                          color: active ? theme.colorScheme.surface : color,
-                          fontWeight: FontWeight.w800,
-                        ),
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: active ? theme.colorScheme.surface : color,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),

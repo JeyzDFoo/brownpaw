@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../domain/flow_ranges.dart';
 import '../models/river_run.dart';
 import '../providers/river_runs_provider.dart';
 import '../providers/user_provider.dart';
@@ -31,6 +32,7 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
   String? _selectedRunName;
   String? _selectedStationId;
   String? _selectedDifficulty;
+  FlowUnit _unit = FlowUnit.cms;
 
   DateTime _selectedDate = DateTime.now();
   int? _rating;
@@ -95,6 +97,7 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
         ? run.name
         : '${run.river} - ${run.name}';
     _selectedStationId = run.stationId;
+    _unit = run.readingUnit;
     _selectedDifficulty = run.difficultyClass;
     // Auto-populate difficulty with run's difficulty class
     _userDifficulty = run.difficultyClass;
@@ -301,7 +304,7 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
             flow: _flowController.text.isNotEmpty
                 ? double.tryParse(_flowController.text)
                 : null,
-            flowUnit: _flowController.text.isNotEmpty ? 'm³/s' : null,
+            flowUnit: _flowController.text.isNotEmpty ? _unit.symbol : null,
             notes: _notesController.text.isNotEmpty
                 ? _notesController.text
                 : null,
@@ -453,11 +456,11 @@ class _LogDescentScreenState extends ConsumerState<LogDescentScreen> {
             // Flow
             TextFormField(
               controller: _flowController,
-              decoration: const InputDecoration(
-                labelText: 'Flow (m³/s)',
+              decoration: InputDecoration(
+                labelText: 'Flow (${_unit.symbol})',
                 hintText: '25.5',
-                prefixIcon: Icon(Icons.water),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.water),
+                border: const OutlineInputBorder(),
               ),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,

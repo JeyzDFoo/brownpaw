@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../data/repositories.dart';
+import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
 import '../domain/run_suggestion.dart';
 import '../models/descent.dart';
@@ -107,6 +108,9 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
     _refreshFlow();
   }
 
+  /// The unit the flow is in: knots at a tidal spot.
+  FlowUnit get _unit => _run?.readingUnit ?? FlowUnit.cms;
+
   Future<void> _refreshFlow() async {
     final stationId = _run?.stationId;
     final request = ++_flowRequest;
@@ -167,7 +171,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
           controller: controller,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(suffixText: 'm³/s'),
+          decoration: InputDecoration(suffixText: _unit.symbol),
         ),
         actions: [
           TextButton(
@@ -239,7 +243,7 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
       runName: runName,
       date: _date,
       flow: _flow,
-      flowUnit: _flow != null ? 'm³/s' : null,
+      flowUnit: _flow != null ? _unit.symbol : null,
       notes: note.isEmpty ? null : note,
       difficulty: run.difficultyClass,
       crew: _crew.isEmpty ? null : _crew.toList(),
@@ -381,8 +385,8 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                         onTap: _editFlow,
                         semanticsLabel: _flow == null
                             ? 'Flow: not set. Add flow'
-                            : 'Flow: ${_flow!.toStringAsFixed(1)} cubic metres '
-                                  'per second. Edit flow',
+                            : 'Flow: ${_flow!.toStringAsFixed(1)} '
+                                  '${_unit.spoken}. Edit flow',
                         child: _loadingFlow
                             ? const LinearProgressIndicator()
                             : Wrap(
@@ -393,7 +397,8 @@ class _QuickLogSheetState extends ConsumerState<QuickLogSheet> {
                                   Text(
                                     _flow == null
                                         ? 'Add'
-                                        : '${_flow!.toStringAsFixed(1)} m³/s',
+                                        : '${_flow!.toStringAsFixed(1)} '
+                                              '${_unit.symbol}',
                                     style: theme.textTheme.titleSmall?.copyWith(
                                       fontWeight: FontWeight.w800,
                                     ),

@@ -56,6 +56,11 @@ def message_text(alert: dict, flow: float) -> tuple[str, str]:
         return f'{v:g}'
 
     title = f'{name} is {word}'
+    if str(alert.get('stationId', '')).startswith('tidal_'):
+        # A tidal spot is judged on its next max flood, in knots.
+        body = (f'Next max flood at {river} is {flow:.1f} kt '
+                f'({word} is {n(alert["minFlow"])} to {n(alert["maxFlow"])}).')
+        return title, body
     body = (f'{river} is at {flow:.1f} m³/s '
             f'({word} is {n(alert["minFlow"])} to {n(alert["maxFlow"])}).')
     return title, body

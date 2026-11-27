@@ -35,6 +35,7 @@ from zoneinfo import ZoneInfo
 import flowworks
 import metro_vancouver
 import transalta
+import tidal
 import water_office
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
@@ -306,11 +307,18 @@ def run_update(now: datetime = None, store: HistoryStore = None,
         logger.error(f"TransAlta daily failed: {e}", exc_info=True)
         releases = {'error': str(e)}
 
+    try:
+        tides = tidal.update_daily(store, store.db, now)
+    except Exception as e:
+        logger.error(f"Tidal daily failed: {e}", exc_info=True)
+        tides = {'error': str(e)}
+
     summary = {
         'stations': len(stations),
         'metro_vancouver': metro,
         'flowworks': lynn,
         'transalta': releases,
+        'tidal': tides,
         'success': sum(1 for r in results if r['status'] == 'success'),
         'failed': sum(1 for r in results if r['status'] == 'error'),
         'hydat_fetched': hydat_done,

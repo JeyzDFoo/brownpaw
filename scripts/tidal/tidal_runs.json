@@ -1,0 +1,41 @@
+{
+  "_about": "Tidal play spots, seeded into river_runs by scripts/add_tidal_runs.py. Flows are max flood current in knots, from Skook Surfing's wave guide (skooksurfing.com) until the person confirms. Pins marked in pinNote are approximate. After seeding, edit in the Firebase console; this file is only the starting copy.",
+  "skookumchuck-narrows": {
+    "name": "Skookumchuck Narrows - Skook",
+    "river": "Skookumchuck Narrows",
+    "region": "Sunshine Coast",
+    "difficultyClass": "III+",
+    "description": "Sechelt Rapids, the tidal playwave at Roland Point in Skookumchuck Narrows Provincial Park. The main wave forms on the flood, so plan on the max flood: its time and its speed in knots. Ebbs don't make the wave. The ebb before a flood should be close to the flood's speed for a good wave; a much smaller ebb usually means a higher tide and a weaker wave.",
+    "hazards": "Big boils and whirlpools downstream, growing fast above about 13 kt. Bring a bombproof roll: rescues here are long. Above 15 kt (Big Skook) it's experts only.",
+    "access": "Hike about 4 km from the Skookumchuck Narrows trailhead in Egmont to Roland Point, or paddle from Egmont. Time the trip around slack water.",
+    "putIn": "Egmont (Skookumchuck Narrows trailhead)",
+    "takeOut": "Roland Point",
+    "putInCoordinates": {
+      "latitude": 49.7497,
+      "longitude": -123.9295
+    },
+    "coordinates": {
+      "latitude": 49.7383,
+      "longitude": -123.8983
+    },
+    "pinNote": "Put-in pin at the trailhead is approximate; the run pin is the CHS Sechelt Rapids current station at Roland Point.",
+    "stationId": "tidal_sechelt_rapids",
+    "gaugeStation": {
+      "name": "Sechelt Rapids",
+      "code": "tidal_sechelt_rapids"
+    },
+    "flowUnit": "kt",
+    "flowRanges": {
+      "unit": "kt",
+      "low": 7,
+      "medium": 10,
+      "high": 15,
+      "max": 18,
+      "station": "tidal_sechelt_rapids",
+      "source": "Skook Surfing",
+      "note": "Max flood. 7 to 10 kt is a sea kayak wave; 10 to 15 kt is the whitewater wave (Class III paddlers start at 9 to 11 kt); 15 to 18 kt is Big Skook, experts only."
+    },
+    "source": "Skook Surfing",
+    "sourceUrl": "https://skooksurfing.com/surfing-skook/skook-surfing-101"
+  }
+}

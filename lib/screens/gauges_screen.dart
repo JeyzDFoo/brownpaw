@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../data/gauge_repository.dart' show StationSummary;
 import '../domain/flow_status.dart';
 import '../domain/dam_release.dart';
+import '../domain/tidal.dart';
 import '../domain/gauges.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
@@ -16,6 +17,7 @@ import '../widgets/flow_status_chip.dart';
 import '../theme/app_theme.dart';
 import '../widgets/pebble.dart';
 import '../widgets/release_schedule.dart';
+import '../widgets/tidal.dart';
 
 /// The Gauges tab: starred gauges, then ones you've logged, then the rest,
 /// each with what's running first, then what's nearest. Live flow, a week's
@@ -203,6 +205,8 @@ class GaugeRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Dams publish a schedule rather than a live reading.
     if (isReleaseGauge(gauge.id)) return ReleaseGaugeRow(gauge: gauge);
+    // Tidal spots run on predicted currents.
+    if (isTidalGauge(gauge.id)) return TidalGaugeRow(gauge: gauge);
     final theme = Theme.of(context);
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,

@@ -3,14 +3,15 @@ import 'flow_ranges.dart';
 
 /// The flow range an alert watches for, and how to describe it.
 class AlertRange {
-  const AlertRange(this.min, this.max, this.word);
+  const AlertRange(this.min, this.max, this.word, [this.unit = FlowUnit.cms]);
   final double min;
   final double max;
+  final FlowUnit unit;
 
   /// "good" for the optimal range, "runnable" for the recommended one.
   final String word;
 
-  String get text => '${_n(min)} to ${_n(max)} m³/s';
+  String get text => '${_n(min)} to ${_n(max)} ${unit.symbol}';
 
   static String _n(double v) =>
       v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1);
@@ -23,16 +24,16 @@ class AlertRange {
 AlertRange? alertRangeFor(RiverRun run) {
   final r = run.ranges;
   if (r != null &&
-      r.unit == FlowUnit.cms &&
+      r.unit != FlowUnit.metres &&
       r.readOnGaugeOf(run) &&
       run.optimalFlowMin == null &&
       run.minRecommendedFlow == null) {
     if (r.medium != null && r.high != null) {
-      return AlertRange(r.medium!, r.high!, 'medium');
+      return AlertRange(r.medium!, r.high!, 'medium', r.unit);
     }
     final top = r.high ?? r.max;
     if (r.low != null && top != null) {
-      return AlertRange(r.low!, top, 'runnable');
+      return AlertRange(r.low!, top, 'runnable', r.unit);
     }
     return null;
   }

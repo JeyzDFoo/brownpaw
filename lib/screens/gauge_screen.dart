@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/dam_release.dart';
+import '../domain/tidal.dart';
 import '../domain/flow_alert.dart';
 import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
@@ -21,6 +22,7 @@ import 'gauges_screen.dart' show TrendIcon;
 import '../theme/app_theme.dart';
 import '../widgets/pebble.dart';
 import '../widgets/release_schedule.dart';
+import '../widgets/tidal.dart';
 
 /// One gauge: the flow now, how it has moved, and how each run on it is.
 class GaugeScreen extends ConsumerWidget {
@@ -78,8 +80,11 @@ class _GaugeBody extends ConsumerWidget {
     final value = readings.isEmpty ? null : valueIn(readings.last, unit);
     final latest = all.isEmpty ? null : all.last;
     // Below a dam, runs are judged on the release now or next.
+    // At a tidal spot, on the max flood now or next.
     final flow = isReleaseGauge(gauge.id)
         ? releaseFlowForGuide(ref, gauge)
+        : isTidalGauge(gauge.id)
+        ? tidalFlowForGuide(ref, gauge)
         : latest?.discharge;
     final level = latest?.level;
     final other = unit == FlowUnit.metres && flow != null
@@ -104,6 +109,11 @@ class _GaugeBody extends ConsumerWidget {
           // what it released lately.
           ReleaseNowCard(gauge: gauge),
           ReleaseCalendarCard(gauge: gauge, readings: all),
+        ] else if (isTidalGauge(gauge.id)) ...[
+          // A tidal wave: the next max flood and its window, today's
+          // current and tide, and the floods ahead.
+          TidalNowCard(gauge: gauge),
+          TidalCalendarCard(gauge: gauge),
         ] else
           Container(
             padding: const EdgeInsets.all(16),

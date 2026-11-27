@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
 import '../models/river_run.dart';
 import '../providers/favorites_provider.dart';
@@ -73,7 +74,7 @@ class RiverRunCard extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            '${discharge.toStringAsFixed(1)} m³/s$trendSymbol',
+                            '${discharge.toStringAsFixed(1)} ${run.readingUnit.symbol}$trendSymbol',
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                             ),

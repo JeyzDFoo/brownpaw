@@ -7,17 +7,30 @@ enum FlowUnit {
   cms('m³/s'),
 
   /// Water level (stage) on the gauge, in metres.
-  metres('m');
+  metres('m'),
+
+  /// Tidal current speed, knots: at a tidal wave like Skookumchuck, the
+  /// predicted max flood.
+  knots('kt');
 
   const FlowUnit(this.symbol);
   final String symbol;
 
   static FlowUnit parse(Object? raw) {
     final s = raw?.toString().trim().toLowerCase();
-    return (s == 'm' || s == 'metres' || s == 'meters')
-        ? FlowUnit.metres
-        : FlowUnit.cms;
+    if (s == 'm' || s == 'metres' || s == 'meters') return FlowUnit.metres;
+    if (s == 'kt' || s == 'kn' || s == 'kts' || s == 'knots') {
+      return FlowUnit.knots;
+    }
+    return FlowUnit.cms;
   }
+
+  /// How a flow or speed reads aloud.
+  String get spoken => switch (this) {
+    FlowUnit.cms => 'cubic metres per second',
+    FlowUnit.metres => 'metres',
+    FlowUnit.knots => 'knots',
+  };
 }
 
 /// A run's low / medium / high flows, the way BC paddlers describe them:
@@ -155,6 +168,14 @@ class _Cached {
 }
 
 extension RiverRunFlowRanges on RiverRun {
+  /// What this run's gauge number is in: knots at a tidal spot, else
+  /// discharge. (Runs judged on the stick still record discharge.)
+  FlowUnit get readingUnit =>
+      FlowUnit.parse(flowUnit) == FlowUnit.knots ||
+          ranges?.unit == FlowUnit.knots
+      ? FlowUnit.knots
+      : FlowUnit.cms;
+
   /// This run's low / medium / high flows, from the backend: the run's
   /// `flowRanges` map, else its older min / optimal fields. Null when it
   /// has neither. (Firestore keeps its own offline copy.)

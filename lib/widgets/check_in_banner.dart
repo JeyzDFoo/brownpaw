@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/location_service.dart';
+import '../domain/flow_ranges.dart';
 import '../models/descent.dart';
 import '../models/river_run.dart';
 import '../providers/descents_provider.dart';
@@ -61,8 +62,10 @@ class CheckInBanner extends ConsumerWidget {
     final run = checkIn.run;
     final flow = checkIn.flow;
     final detail = flow != null
-        ? '${run.river} is at ${flow.toStringAsFixed(1)} m³/s. '
-              "Log today's run?"
+        ? run.readingUnit == FlowUnit.knots
+              ? "Max flood ${flow.toStringAsFixed(1)} kt. Log today's run?"
+              : '${run.river} is at ${flow.toStringAsFixed(1)} m³/s. '
+                    "Log today's run?"
         : "Log today's run?";
 
     return _BannerCard(

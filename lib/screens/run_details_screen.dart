@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../data/gauge_repository.dart';
 import '../domain/dam_release.dart';
+import '../domain/tidal.dart';
 import '../domain/flow_alert.dart';
 import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
@@ -23,6 +24,7 @@ import '../providers/realtime_flow_provider.dart';
 import '../providers/river_runs_provider.dart';
 import '../router.dart';
 import '../widgets/release_schedule.dart';
+import '../widgets/tidal.dart';
 import '../widgets/alert_bell.dart';
 import '../widgets/favourite_star.dart';
 import '../widgets/flow_sparkline.dart';
@@ -323,6 +325,38 @@ class _Conditions extends ConsumerWidget {
             Expanded(
               child: Text(
                 '${gauge?.title ?? 'Dam release'} schedule',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+      );
+    }
+    if (isTidalGauge(gaugeId)) {
+      return TidalRunConditions(
+        run: run,
+        gaugeId: gaugeId,
+        guide: ranges == null
+            ? null
+            : (status, _) => FlowRangeScale(
+                ranges: ranges,
+                status: comparable ? status : FlowStatus.unknown,
+                referenceOnly: !comparable,
+              ),
+        footer: Row(
+          children: [
+            Icon(Icons.waves, size: 18, color: theme.colorScheme.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '${gauge?.title ?? 'Tidal'} currents and tides',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w700,

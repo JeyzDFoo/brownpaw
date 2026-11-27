@@ -111,6 +111,7 @@ String gaugeSource(String id) {
   if (id.startsWith('metro_vancouver_')) return 'Metro Vancouver';
   if (id.startsWith('flowworks_')) return 'District of North Vancouver';
   if (id.startsWith('environment_canada_')) return 'Environment Canada';
+  if (id.startsWith('tidal_')) return 'dairiki.org';
   return '';
 }
 

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../domain/dam_release.dart';
+import '../domain/tidal.dart';
 import '../domain/flow_lookup.dart';
 import '../domain/flow_ranges.dart' show FlowUnit;
 import '../domain/gauges.dart';
@@ -166,13 +167,26 @@ class GaugeRepository {
     });
   }
 
+  /// A tidal spot's current and tide predictions, updating. Emits null
+  /// when the station has none.
+  Stream<TidalPredictions?> watchTidal(String stationId) {
+    if (stationId.isEmpty) return Stream.value(null);
+    return _doc(stationId).snapshots().map((doc) {
+      final data = doc.data();
+      if (data == null) return null;
+      final p = TidalPredictions.fromDoc(data);
+      return p.isEmpty ? null : p;
+    });
+  }
+
   Future<StationRealtimeFlow?> _withLive(
     String docId,
     StationRealtimeFlow? stored,
     DateTime now,
   ) async {
     // A dam's schedule is only in the stored copy; there's no live feed.
-    if (isReleaseGauge(docId)) return stored;
+    // Nor do tidal predictions.
+    if (isReleaseGauge(docId) || isTidalGauge(docId)) return stored;
     final base = stored?.readings ?? const <FlowReading>[];
     final live = await _live.fetch(docId, hoursMissing(base, now), now: now);
     final readings = mergeLive(base, live, now);

@@ -8,12 +8,33 @@
     "description": "Widowmaker to Canoe Meadows, below TransAlta's Barrier Dam. Flow comes from the dam's scheduled releases.",
     "putIn": "Widowmaker",
     "takeOut": "Canoe Meadows",
-    "putInCoordinates": {"latitude": 51.0505, "longitude": -115.0225},
-    "takeOutCoordinates": {"latitude": 51.0555, "longitude": -115.0134},
-    "coordinates": {"latitude": 51.0505, "longitude": -115.0225},
+    "putInCoordinates": {
+      "latitude": 51.0505,
+      "longitude": -115.0225
+    },
+    "takeOutCoordinates": {
+      "latitude": 51.0555,
+      "longitude": -115.0134
+    },
+    "coordinates": {
+      "latitude": 51.0505,
+      "longitude": -115.0225
+    },
     "stationId": "transalta_barrier",
-    "gaugeStation": {"name": "Barrier Dam release", "code": "transalta_barrier"},
-    "flowRanges": {"unit": "cms", "low": 20, "medium": 25, "high": 35, "max": 50, "station": "transalta_barrier", "source": "Local paddler beta", "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."}
+    "gaugeStation": {
+      "name": "Barrier Dam release",
+      "code": "transalta_barrier"
+    },
+    "flowRanges": {
+      "unit": "cms",
+      "low": 20,
+      "medium": 25,
+      "high": 35,
+      "max": 50,
+      "station": "transalta_barrier",
+      "source": "Local paddler beta",
+      "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."
+    }
   },
   "kananaskis-middle-racecourse": {
     "name": "Kananaskis River - Middle Kan (Racecourse)",
@@ -24,11 +45,33 @@
     "hazards": "Watch for gates.",
     "putIn": "Canoe Meadows",
     "takeOut": "40 Boat Eddy",
-    "putInCoordinates": {"latitude": 51.0555, "longitude": -115.0134},
-    "coordinates": {"latitude": 51.0555, "longitude": -115.0134},
+    "putInCoordinates": {
+      "latitude": 51.0555,
+      "longitude": -115.0134
+    },
+    "coordinates": {
+      "latitude": 51.0555,
+      "longitude": -115.0134
+    },
     "stationId": "transalta_barrier",
-    "gaugeStation": {"name": "Barrier Dam release", "code": "transalta_barrier"},
-    "flowRanges": {"unit": "cms", "low": 20, "medium": 25, "high": 35, "max": 50, "station": "transalta_barrier", "source": "Local paddler beta", "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."}
+    "gaugeStation": {
+      "name": "Barrier Dam release",
+      "code": "transalta_barrier"
+    },
+    "flowRanges": {
+      "unit": "cms",
+      "low": 20,
+      "medium": 25,
+      "high": 35,
+      "max": 50,
+      "station": "transalta_barrier",
+      "source": "Local paddler beta",
+      "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."
+    },
+    "takeOutCoordinates": {
+      "latitude": 51.0563,
+      "longitude": -115.0131
+    }
   },
   "kananaskis-lower": {
     "name": "Kananaskis River - Lower Kan",
@@ -39,11 +82,33 @@
     "hazards": "Wood along the banks.",
     "putIn": "40 Boat Eddy",
     "takeOut": "Seebe Dam",
-    "takeOutCoordinates": {"latitude": 51.0973, "longitude": -115.0615},
-    "coordinates": {"latitude": 51.0973, "longitude": -115.0615},
+    "takeOutCoordinates": {
+      "latitude": 51.0973,
+      "longitude": -115.0615
+    },
+    "coordinates": {
+      "latitude": 51.0563,
+      "longitude": -115.0131
+    },
     "stationId": "transalta_barrier",
-    "gaugeStation": {"name": "Barrier Dam release", "code": "transalta_barrier"},
-    "flowRanges": {"unit": "cms", "low": 20, "medium": 25, "high": 35, "max": 50, "station": "transalta_barrier", "source": "Local paddler beta", "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."}
+    "gaugeStation": {
+      "name": "Barrier Dam release",
+      "code": "transalta_barrier"
+    },
+    "flowRanges": {
+      "unit": "cms",
+      "low": 20,
+      "medium": 25,
+      "high": 35,
+      "max": 50,
+      "station": "transalta_barrier",
+      "source": "Local paddler beta",
+      "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."
+    },
+    "putInCoordinates": {
+      "latitude": 51.0563,
+      "longitude": -115.0131
+    }
   },
   "bow-river-harvie-passage": {
     "name": "Bow River - Harvie Passage",
@@ -51,9 +116,15 @@
     "region": "Calgary",
     "difficultyClass": "",
     "description": "Harvie Passage at Pearce Estate Park in Calgary.",
-    "coordinates": {"latitude": 51.0417, "longitude": -114.0124},
+    "coordinates": {
+      "latitude": 51.0417,
+      "longitude": -114.0124
+    },
     "stationId": "environment_canada_05BH004",
-    "gaugeStation": {"name": "BOW RIVER AT CALGARY", "code": "05BH004"}
+    "gaugeStation": {
+      "name": "BOW RIVER AT CALGARY",
+      "code": "05BH004"
+    }
   },
   "cataract-creek": {
     "name": "Cataract Creek",
@@ -61,9 +132,15 @@
     "region": "Kananaskis Country",
     "difficultyClass": "",
     "pinNote": "approximate: at the gauge",
-    "coordinates": {"latitude": 50.2853, "longitude": -114.5887},
+    "coordinates": {
+      "latitude": 50.2853,
+      "longitude": -114.5887
+    },
     "stationId": "environment_canada_05BL022",
-    "gaugeStation": {"name": "CATARACT CREEK NEAR FORESTRY ROAD", "code": "05BL022"}
+    "gaugeStation": {
+      "name": "CATARACT CREEK NEAR FORESTRY ROAD",
+      "code": "05BL022"
+    }
   },
   "highwood-river": {
     "name": "Highwood River",
@@ -71,9 +148,15 @@
     "region": "Kananaskis Country",
     "difficultyClass": "",
     "pinNote": "approximate: at the gauge",
-    "coordinates": {"latitude": 50.4051, "longitude": -114.5007},
+    "coordinates": {
+      "latitude": 50.4051,
+      "longitude": -114.5007
+    },
     "stationId": "environment_canada_05BL019",
-    "gaugeStation": {"name": "HIGHWOOD RIVER AT DIEBEL'S RANCH", "code": "05BL019"}
+    "gaugeStation": {
+      "name": "HIGHWOOD RIVER AT DIEBEL'S RANCH",
+      "code": "05BL019"
+    }
   },
   "pipestone-river": {
     "name": "Pipestone River",
@@ -81,8 +164,14 @@
     "region": "Banff National Park",
     "difficultyClass": "",
     "pinNote": "approximate: at the gauge",
-    "coordinates": {"latitude": 51.4331, "longitude": -116.1749},
+    "coordinates": {
+      "latitude": 51.4331,
+      "longitude": -116.1749
+    },
     "stationId": "environment_canada_05BA002",
-    "gaugeStation": {"name": "PIPESTONE RIVER NEAR LAKE LOUISE", "code": "05BA002"}
+    "gaugeStation": {
+      "name": "PIPESTONE RIVER NEAR LAKE LOUISE",
+      "code": "05BA002"
+    }
   }
 }

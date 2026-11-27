@@ -110,4 +110,57 @@ void main() {
     ];
     expect(releaseFlowOn(readings, alberta(27, 12).toLocal()), 28);
   });
+
+  test('logging at the put-in before the water is on records the plan', () {
+    // 10 AM Alberta: nothing released yet today.
+    final now = alberta(27, 10);
+    final readings = [
+      for (var h = 0; h <= 10; h++)
+        FlowReading(timestamp: alberta(27, h), discharge: 0),
+    ];
+    expect(
+      releaseFlowToRecord(
+        readings: readings,
+        day: now.toLocal(),
+        now: now.toLocal(),
+        schedule: schedule,
+      ),
+      28,
+    );
+    // Without a schedule, today so far is all there is.
+    expect(
+      releaseFlowToRecord(
+        readings: readings,
+        day: now.toLocal(),
+        now: now.toLocal(),
+      ),
+      0,
+    );
+  });
+
+  test('a past day with no release records 0, and no data records null', () {
+    final now = alberta(29, 12);
+    final day = alberta(27, 12);
+    final off = [
+      for (var h = 6; h <= 18; h++)
+        FlowReading(timestamp: alberta(27, h), discharge: 0),
+    ];
+    expect(
+      releaseFlowToRecord(
+        readings: off,
+        day: day.toLocal(),
+        now: now.toLocal(),
+        schedule: schedule,
+      ),
+      0,
+    );
+    expect(
+      releaseFlowToRecord(
+        readings: const [],
+        day: day.toLocal(),
+        now: now.toLocal(),
+      ),
+      isNull,
+    );
+  });
 }

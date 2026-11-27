@@ -207,10 +207,31 @@ class GaugeRepository {
             !isReleaseGauge(docIdFor(stationId))) {
           return current.discharge;
         }
-        // A dam release is off most of the day: record what it released.
-        final flow = isReleaseGauge(docIdFor(stationId))
-            ? releaseFlowOn(current.readings, day)
-            : flowNearMidday(current.readings, day);
+        if (!isReleaseGauge(docIdFor(stationId))) {
+          final flow = flowNearMidday(current.readings, day);
+          if (flow != null) return flow;
+        }
+      }
+      if (isReleaseGauge(docIdFor(stationId))) {
+        ReleaseSchedule? schedule;
+        if (isToday) {
+          try {
+            final csv = (await _doc(
+              stationId,
+            ).get()).data()?['release_schedule_csv'];
+            if (csv is String && csv.isNotEmpty) {
+              schedule = ReleaseSchedule.fromCsv(csv);
+            }
+          } catch (e) {
+            debugPrint('GaugeRepository.flowOn($stationId) schedule: $e');
+          }
+        }
+        final flow = releaseFlowToRecord(
+          readings: current?.readings ?? const [],
+          day: day,
+          now: today,
+          schedule: schedule,
+        );
         if (flow != null) return flow;
       }
     }

@@ -1,4 +1,5 @@
 import '../models/realtime_flow.dart';
+import 'dam_release.dart';
 
 /// Picks the flow to record for a descent on [day] from hourly readings:
 /// the reading closest to midday that day, or null if no reading falls on
@@ -63,4 +64,31 @@ double? releaseFlowOn(List<FlowReading> readings, DateTime day) {
     if (best == null || discharge > best) best = discharge;
   }
   return best;
+}
+
+/// The flow to record for a descent on [day] below a dam: what it
+/// released that day, or, today before the water's on (logging at the
+/// put-in), today's planned release from [schedule]. A day it didn't
+/// release records 0. Null with nothing to go on.
+double? releaseFlowToRecord({
+  required List<FlowReading> readings,
+  required DateTime day,
+  required DateTime now,
+  ReleaseSchedule? schedule,
+}) {
+  final released = releaseFlowOn(readings, day);
+  if (released != null && released > 0) return released;
+  final isToday =
+      day.year == now.year && day.month == now.month && day.day == now.day;
+  if (isToday && schedule != null) {
+    final todays = schedule.days(now).firstOrNull;
+    if (todays != null) {
+      final peak = todays.windows.fold<double>(
+        0,
+        (m, w) => w.maxFlow > m ? w.maxFlow : m,
+      );
+      if (peak > 0 || released == null) return peak;
+    }
+  }
+  return released;
 }

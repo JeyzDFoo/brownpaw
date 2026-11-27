@@ -110,6 +110,43 @@
       "longitude": -115.0131
     }
   },
+  "kananaskis-todo": {
+    "name": "Kananaskis River - Todo Kan",
+    "river": "Kananaskis River",
+    "region": "Kananaskis Country",
+    "difficultyClass": "III",
+    "description": "The whole river: put in below Barrier Dam and paddle all the way to Seebe Dam, through the Upper, Middle (Racecourse) and Lower Kan. Flow comes from TransAlta's Barrier Dam releases.",
+    "hazards": "Watch for gates on the Racecourse. Wood along the banks on the Lower Kan.",
+    "putIn": "Below Barrier Dam",
+    "takeOut": "Seebe Dam",
+    "putInCoordinates": {
+      "latitude": 51.0346,
+      "longitude": -115.0404
+    },
+    "takeOutCoordinates": {
+      "latitude": 51.0973,
+      "longitude": -115.0615
+    },
+    "coordinates": {
+      "latitude": 51.0346,
+      "longitude": -115.0404
+    },
+    "stationId": "transalta_barrier",
+    "gaugeStation": {
+      "name": "Barrier Dam release",
+      "code": "transalta_barrier"
+    },
+    "flowRanges": {
+      "unit": "cms",
+      "low": 20,
+      "medium": 25,
+      "high": 35,
+      "max": 50,
+      "station": "transalta_barrier",
+      "source": "Local paddler beta",
+      "note": "Too low below 20, low 20 to 25, medium 25 to 35, high 35 to 50, too high over 50."
+    }
+  },
   "bow-river-harvie-passage": {
     "name": "Bow River - Harvie Passage",
     "river": "Bow River",

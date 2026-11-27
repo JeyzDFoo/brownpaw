@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../domain/dam_release.dart';
 import '../domain/flow_lookup.dart';
 import '../domain/flow_ranges.dart' show FlowUnit;
 import '../domain/gauges.dart';
@@ -35,7 +36,13 @@ class StationRealtimeFlow {
 /// A station's official name and latest flow, small enough to load for
 /// every station at once.
 class StationSummary {
-  const StationSummary({this.name, this.flow, this.level, this.readingTime});
+  const StationSummary({
+    this.name,
+    this.flow,
+    this.level,
+    this.readingTime,
+    this.note,
+  });
 
   /// The latest of [live]'s readings, so a list can be sorted on exactly
   /// what its rows show.
@@ -54,6 +61,7 @@ class StationSummary {
       flow: flow is num ? flow.toDouble() : null,
       level: level is num ? level.toDouble() : null,
       readingTime: time is String ? DateTime.tryParse(time) : null,
+      note: data['note'] is String ? data['note'] as String : null,
     );
   }
 
@@ -63,6 +71,10 @@ class StationSummary {
   /// Latest water level in metres, for runs measured on the stick.
   final double? level;
   final DateTime? readingTime;
+
+  /// A line from the source worth showing on the gauge page, such as how
+  /// long a dam release takes to reach the run.
+  final String? note;
 }
 
 /// Reads live gauge data. The Cloud Function writes each station's recent
@@ -142,11 +154,25 @@ class GaugeRepository {
     return controller.stream;
   }
 
+  /// A dam's published release schedule, updating. Emits null when the
+  /// station has none (every gauge that isn't a dam release).
+  Stream<ReleaseSchedule?> watchReleaseSchedule(String stationId) {
+    if (stationId.isEmpty) return Stream.value(null);
+    return _doc(stationId).snapshots().map((doc) {
+      final csv = doc.data()?['release_schedule_csv'];
+      return csv is String && csv.isNotEmpty
+          ? ReleaseSchedule.fromCsv(csv)
+          : null;
+    });
+  }
+
   Future<StationRealtimeFlow?> _withLive(
     String docId,
     StationRealtimeFlow? stored,
     DateTime now,
   ) async {
+    // A dam's schedule is only in the stored copy; there's no live feed.
+    if (isReleaseGauge(docId)) return stored;
     final base = stored?.readings ?? const <FlowReading>[];
     final live = await _live.fetch(docId, hoursMissing(base, now), now: now);
     final readings = mergeLive(base, live, now);
@@ -176,8 +202,15 @@ class GaugeRepository {
           day.day == today.day;
       if (current != null) {
         // For today, the latest reading is what the paddler saw.
-        if (isToday && current.discharge != null) return current.discharge;
-        final flow = flowNearMidday(current.readings, day);
+        if (isToday &&
+            current.discharge != null &&
+            !isReleaseGauge(docIdFor(stationId))) {
+          return current.discharge;
+        }
+        // A dam release is off most of the day: record what it released.
+        final flow = isReleaseGauge(docIdFor(stationId))
+            ? releaseFlowOn(current.readings, day)
+            : flowNearMidday(current.readings, day);
         if (flow != null) return flow;
       }
     }

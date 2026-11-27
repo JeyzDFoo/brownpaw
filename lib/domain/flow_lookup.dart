@@ -47,3 +47,20 @@ String dateKey(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-'
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
+
+/// The flow to record for a descent on [day] on a dam-release gauge: the
+/// day's highest scheduled flow, since the dam is off most of the day and
+/// a paddler runs it while it's releasing. Null with no readings that day.
+double? releaseFlowOn(List<FlowReading> readings, DateTime day) {
+  double? best;
+  for (final r in readings) {
+    final discharge = r.discharge;
+    if (discharge == null) continue;
+    final t = r.timestamp.toLocal();
+    if (t.year != day.year || t.month != day.month || t.day != day.day) {
+      continue;
+    }
+    if (best == null || discharge > best) best = discharge;
+  }
+  return best;
+}

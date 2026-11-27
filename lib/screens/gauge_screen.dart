@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/dam_release.dart';
 import '../domain/flow_alert.dart';
 import '../domain/flow_ranges.dart';
 import '../domain/flow_status.dart';
@@ -19,6 +20,7 @@ import '../widgets/flow_status_chip.dart';
 import 'gauges_screen.dart' show TrendIcon;
 import '../theme/app_theme.dart';
 import '../widgets/pebble.dart';
+import '../widgets/release_schedule.dart';
 
 /// One gauge: the flow now, how it has moved, and how each run on it is.
 class GaugeScreen extends ConsumerWidget {
@@ -75,7 +77,10 @@ class _GaugeBody extends ConsumerWidget {
     final readings = readingsIn(all, unit);
     final value = readings.isEmpty ? null : valueIn(readings.last, unit);
     final latest = all.isEmpty ? null : all.last;
-    final flow = latest?.discharge;
+    // Below a dam, runs are judged on the release now or next.
+    final flow = isReleaseGauge(gauge.id)
+        ? releaseFlowForGuide(ref, gauge)
+        : latest?.discharge;
     final level = latest?.level;
     final other = unit == FlowUnit.metres && flow != null
         ? '${flow.toStringAsFixed(1)} m³/s'
@@ -94,92 +99,112 @@ class _GaugeBody extends ConsumerWidget {
         ),
         if (gauge.place.isNotEmpty) Text(gauge.place, style: muted),
         const SizedBox(height: 18),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerLow,
-            borderRadius: Pebble.a,
+        if (isReleaseGauge(gauge.id)) ...[
+          // A dam: the schedule leads, the record of past releases follows.
+          ReleaseScheduleCard(gauge: gauge),
+          const SizedBox(height: 22),
+          const SectionLabel('Past releases'),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: Pebble.b,
+            ),
+            child: _FlowChart(
+              gauge: gauge,
+              readings: all,
+              unit: FlowUnit.cms,
+              flow: flow,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    value == null
-                        ? '–'
-                        : value.toStringAsFixed(
-                            unit == FlowUnit.metres ? 2 : 1,
-                          ),
-                    style: theme.textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1,
+        ] else
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: Pebble.a,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      value == null
+                          ? '–'
+                          : value.toStringAsFixed(
+                              unit == FlowUnit.metres ? 2 : 1,
+                            ),
+                      style: theme.textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        height: 1,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    unit.symbol,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                    const SizedBox(width: 8),
+                    Text(
+                      unit.symbol,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: trend == null
-                        ? const SizedBox.shrink()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TrendIcon(trend, size: 18),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  trend.label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: trend == null
+                          ? const SizedBox.shrink()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TrendIcon(trend, size: 18),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    trend.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                [
-                  readings.isEmpty
-                      ? (current.isLoading ? '' : 'No recent reading')
-                      : updatedAgo(readings.last.timestamp),
-                  ?other,
-                  gaugeSource(gauge.id),
-                ].where((s) => s.isNotEmpty).join(' · '),
-                style: muted,
-              ),
-              if (readings.isNotEmpty && isStale(readings.last.timestamp))
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    "This gauge hasn't reported for a while, so the river may "
-                    'have changed. Check before you go.',
-                    style: muted?.copyWith(color: Riverstone.of(context).low),
-                  ),
+                              ],
+                            ),
+                    ),
+                  ],
                 ),
-              const SizedBox(height: 12),
-              _FlowChart(
-                gauge: gauge,
-                readings: all,
-                unit: unit,
-                flow: flow,
-                level: level,
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  [
+                    readings.isEmpty
+                        ? (current.isLoading ? '' : 'No recent reading')
+                        : updatedAgo(readings.last.timestamp),
+                    ?other,
+                    gaugeSource(gauge.id),
+                  ].where((s) => s.isNotEmpty).join(' · '),
+                  style: muted,
+                ),
+                if (readings.isNotEmpty && isStale(readings.last.timestamp))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      "This gauge hasn't reported for a while, so the river may "
+                      'have changed. Check before you go.',
+                      style: muted?.copyWith(color: Riverstone.of(context).low),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                _FlowChart(
+                  gauge: gauge,
+                  readings: all,
+                  unit: unit,
+                  flow: flow,
+                  level: level,
+                ),
+              ],
+            ),
           ),
-        ),
         const SizedBox(height: 22),
         SectionLabel(
           gauge.runs.length == 1 ? 'Run on this gauge' : 'Runs on this gauge',
@@ -262,6 +287,7 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
     final banded = _bandedRuns(widget.gauge, unit);
     final bandRun = banded.length == 1 ? banded.single : null;
 
+    final release = isReleaseGauge(widget.gauge.id);
     List<FlowPoint> points;
     var loading = false;
     if (_span.usesDaily) {
@@ -280,6 +306,11 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
           (points.isEmpty || live.last.time.isAfter(points.last.time))) {
         points.add(live.last);
       }
+    } else if (release) {
+      // A dam: one point a day, the flow it released.
+      points = dailyReleasePeaks(
+        hourlyWindow(widget.readings, _span.days, unit: unit),
+      );
     } else {
       points = hourlyWindow(widget.readings, _span.days, unit: unit);
     }
@@ -312,7 +343,7 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
           child: values.length >= 2
               ? GaugeFlowChart(
                   points: points,
-                  daily: _span.usesDaily,
+                  daily: _span.usesDaily || release,
                   unit: unit,
                   bands: bands,
                   height: 180,
@@ -351,11 +382,13 @@ class _FlowChartState extends ConsumerState<_FlowChart> {
           ),
           segments: [
             for (final span in GaugeSpan.values)
-              ButtonSegment(
-                value: span,
-                label: Text(span.short),
-                tooltip: span.label,
-              ),
+              // Two days of a dam is just today's schedule, shown above.
+              if (!(release && span == GaugeSpan.twoDays))
+                ButtonSegment(
+                  value: span,
+                  label: Text(span.short),
+                  tooltip: span.label,
+                ),
           ],
           selected: {_span},
           onSelectionChanged: (s) => setState(() => _span = s.first),

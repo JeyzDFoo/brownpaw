@@ -7,6 +7,7 @@ import 'package:brownpaw/models/river_run.dart';
 import 'package:brownpaw/providers/descents_provider.dart';
 import 'package:brownpaw/providers/river_runs_provider.dart';
 import 'package:brownpaw/theme/app_theme.dart';
+import 'package:brownpaw/domain/dam_release.dart';
 import 'package:brownpaw/widgets/quick_log_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,10 @@ class FakeGauges implements GaugeRepository {
 
   @override
   Future<StationRealtimeFlow?> getCurrent(String stationId) async => null;
+
+  @override
+  Stream<ReleaseSchedule?> watchReleaseSchedule(String stationId) =>
+      Stream.value(null);
 
   @override
   Stream<StationRealtimeFlow?> watchCurrent(String stationId) =>

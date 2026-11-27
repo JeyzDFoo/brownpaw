@@ -10,6 +10,7 @@ import asyncio
 import flow_alerts
 import flowworks
 import metro_vancouver
+import transalta
 from scripts.station_data_manager import StationDataManager
 from scripts.models import Provider
 from scripts.environment_canada.realtime_data_service import RealtimeDataService
@@ -198,6 +199,13 @@ async def run_update():
         logger.error(f"Flowworks failed: {e}", exc_info=True)
         lynn_flows = {}
 
+    # TransAlta's Kananaskis dam release schedules.
+    try:
+        release_flows = transalta.update_realtime(manager.db)
+    except Exception as e:
+        logger.error(f"TransAlta failed: {e}", exc_info=True)
+        release_flows = {}
+
     # Tell paddlers whose runs came into range.
     flows = {
         f"{Provider.ENVIRONMENT_CANADA.value}_{r['station_id']}": r['discharge']
@@ -206,6 +214,7 @@ async def run_update():
     }
     flows.update(metro_flows)
     flows.update(lynn_flows)
+    flows.update(release_flows)
     try:
         alerts = flow_alerts.check_alerts(manager.db, flows)
     except Exception as e:

@@ -11,7 +11,6 @@ import '../models/realtime_flow.dart';
 import '../models/river_run.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
-import '../providers/release_schedule_provider.dart';
 import '../router.dart';
 import '../widgets/alert_bell.dart';
 import '../widgets/favourite_star.dart';
@@ -104,11 +103,7 @@ class _GaugeBody extends ConsumerWidget {
           // A dam: what it's doing now or next, the published week, and
           // what it released lately.
           ReleaseNowCard(gauge: gauge),
-          ReleaseWeekCard(gauge: gauge),
-          ReleaseHistoryCard(
-            readings: all,
-            now: ref.watch(releaseClockProvider).valueOrNull ?? DateTime.now(),
-          ),
+          ReleaseCalendarCard(gauge: gauge, readings: all),
         ] else
           Container(
             padding: const EdgeInsets.all(16),

@@ -13,6 +13,7 @@ import '../providers/gauges_provider.dart';
 import '../providers/release_schedule_provider.dart';
 import '../router.dart';
 import '../theme/app_theme.dart';
+import '../theme/flow_status_style.dart';
 import 'favourite_star.dart';
 import 'flow_status_chip.dart';
 import 'pebble.dart';
@@ -510,262 +511,6 @@ class ReleaseNowCard extends ConsumerWidget {
   }
 }
 
-/// The published days, one row each, with the source's caveats. Nothing
-/// when there's no schedule (the now card already says so).
-class ReleaseWeekCard extends ConsumerWidget {
-  const ReleaseWeekCard({super.key, required this.gauge});
-  final Gauge gauge;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final muted = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-    final now = ref.watch(releaseClockProvider).valueOrNull ?? DateTime.now();
-    final schedule = ref.watch(releaseScheduleProvider(gauge.id)).valueOrNull;
-    final days = schedule?.days(now) ?? const <ReleaseDay>[];
-    if (days.isEmpty) return const SizedBox.shrink();
-    final peak = [
-      for (final d in days) ...d.hours.map((h) => h.flow),
-    ].fold<double>(0, (m, f) => f > m ? f : m);
-    final note = ref.watch(stationsProvider).valueOrNull?[gauge.id]?.note;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 22),
-        const SectionLabel('Release schedule'),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerLow,
-            borderRadius: Pebble.b,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final day in days) ...[
-                _DayRow(day: day, now: now, peak: peak),
-                const SizedBox(height: 12),
-              ],
-              const Padding(
-                padding: EdgeInsets.only(left: 92),
-                child: _HourTicks(),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                [
-                  'Planned by TransAlta, in Alberta time. Flows can change '
-                      'without notice, so check at the river.',
-                  ?note,
-                ].join(' '),
-                style: muted,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// The last two weeks as a column per day: how much the dam released, or
-/// a dot on days it didn't. Only once there are a few days to show.
-class ReleaseHistoryCard extends StatelessWidget {
-  const ReleaseHistoryCard({
-    super.key,
-    required this.readings,
-    required this.now,
-    this.days = 14,
-  });
-
-  final List<FlowReading> readings;
-  final DateTime now;
-  final int days;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final p = Riverstone.of(context);
-    final muted = theme.textTheme.labelSmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-    final peaks = {
-      for (final d in dailyReleasePeaks(hourlyWindow(readings, days)))
-        d.time: d.flow,
-    };
-    if (peaks.length < 2) return const SizedBox.shrink();
-    final w = riverWall(now);
-    final todayStart = DateTime.utc(
-      w.year,
-      w.month,
-      w.day,
-    ).subtract(releaseUtcOffset);
-    final columns = [
-      for (var i = days - 1; i >= 0; i--)
-        todayStart.subtract(Duration(days: i)),
-    ];
-    final top = peaks.values.fold<double>(1, (m, f) => f > m ? f : m);
-    final released = columns.where((d) => (peaks[d] ?? 0) > 0).length;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 22),
-        const SectionLabel('Last two weeks'),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerLow,
-            borderRadius: Pebble.a,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                released == 1
-                    ? 'Released on 1 day'
-                    : 'Released on $released days',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Semantics(
-                label: [
-                  for (final d in columns)
-                    if (peaks[d] case final f?)
-                      '${dayLabel(d, now)}: ${f > 0 ? '${f.round()} cubic metres per second' : 'no release'}',
-                ].join(', '),
-                excludeSemantics: true,
-                child: SizedBox(
-                  height: 108,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      for (final d in columns)
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (peaks[d] case final f? when f > 0) ...[
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      f.round().toString(),
-                                      style: muted,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Container(
-                                    height: 56 * (f / top).clamp(0.15, 1.0),
-                                    decoration: BoxDecoration(
-                                      color: p.glacier,
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(4),
-                                        bottom: Radius.circular(2),
-                                      ),
-                                    ),
-                                  ),
-                                ] else
-                                  Container(
-                                    width: 5,
-                                    height: 5,
-                                    margin: const EdgeInsets.only(bottom: 2),
-                                    decoration: BoxDecoration(
-                                      color: peaks.containsKey(d)
-                                          ? p.muted
-                                          : p.faint,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  DateFormat('E').format(riverWall(d))[0],
-                                  style: muted?.copyWith(
-                                    fontWeight: d == todayStart
-                                        ? FontWeight.w900
-                                        : null,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DayRow extends StatelessWidget {
-  const _DayRow({required this.day, required this.now, required this.peak});
-  final ReleaseDay day;
-  final DateTime now;
-  final double peak;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final muted = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
-    final windows = day.windows;
-    final name = dayLabel(day.start, now);
-    final summary = windows.isEmpty
-        ? 'No release'
-        : windows.map((w) => '${w.timeText} · ${w.flowText}').join(', ');
-    return Semantics(
-      label:
-          '$name: ${windows.isEmpty ? 'no release' : windows.map((w) => '${w.timeText} at ${w.flowText} cubic metres per second').join(', ')}',
-      excludeSemantics: true,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 92,
-            child: Text(
-              name.contains(',') ? name.split(', ').first : name,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 3),
-                  child: ReleaseDayBar(
-                    day: day,
-                    now: now,
-                    height: 12,
-                    maxFlow: peak > 0 ? peak : null,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(windows.isEmpty ? summary : '$summary m³/s', style: muted),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// The flow card on a run page, for a run below a dam: what's released
 /// now or next, judged for this run, and today's strip. Taps through to
 /// the full schedule.
@@ -843,6 +588,374 @@ class ReleaseRunConditions extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The release schedule as a calendar: a week per row, each day showing
+/// the flow and hours the dam released (recorded) or will release
+/// (published), coloured by how that flow suits the runs below. Tap a day
+/// for its details.
+class ReleaseCalendarCard extends ConsumerStatefulWidget {
+  const ReleaseCalendarCard({
+    super.key,
+    required this.gauge,
+    required this.readings,
+  });
+
+  final Gauge gauge;
+
+  /// Recorded hourly flows, for the days already past.
+  final List<FlowReading> readings;
+
+  @override
+  ConsumerState<ReleaseCalendarCard> createState() =>
+      _ReleaseCalendarCardState();
+}
+
+class _ReleaseCalendarCardState extends ConsumerState<ReleaseCalendarCard> {
+  DateTime? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final now = ref.watch(releaseClockProvider).valueOrNull ?? DateTime.now();
+    final schedule = ref
+        .watch(releaseScheduleProvider(widget.gauge.id))
+        .valueOrNull;
+    final history = [
+      for (final r in widget.readings)
+        if (r.discharge != null)
+          (start: r.timestamp.toUtc(), flow: r.discharge!),
+    ];
+    final days = releaseCalendar(history, schedule, now);
+    if (days.isEmpty) return const SizedBox.shrink();
+    final note = ref
+        .watch(stationsProvider)
+        .valueOrNull?[widget.gauge.id]
+        ?.note;
+
+    final today = riverDayStart(now);
+    // Two weeks back at most, through the end of what's published, in
+    // whole Sunday-to-Saturday weeks.
+    var first = days.keys.reduce((a, b) => a.isBefore(b) ? a : b);
+    final floor = today.subtract(const Duration(days: 13));
+    if (first.isBefore(floor)) first = floor;
+    if (first.isAfter(today)) first = today;
+    var last = days.keys.reduce((a, b) => a.isAfter(b) ? a : b);
+    if (last.isBefore(today)) last = today;
+    first = first.subtract(Duration(days: riverWall(first).weekday % 7));
+    last = last.add(Duration(days: 6 - riverWall(last).weekday % 7));
+    final cells = [
+      for (var d = first; !d.isAfter(last); d = d.add(const Duration(days: 1)))
+        d,
+    ];
+    final selected = _selected ?? today;
+    final months = {
+      for (final d in cells) DateFormat('MMMM y').format(riverWall(d)),
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 22),
+        const SectionLabel('Release calendar'),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.fromLTRB(12, 14, 12, 16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerLow,
+            borderRadius: Pebble.b,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  months.length == 1
+                      ? months.single
+                      : '${months.first.split(' ').first} – ${months.last}',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ExcludeSemantics(
+                child: Row(
+                  children: [
+                    for (final d in const ['S', 'M', 'T', 'W', 'T', 'F', 'S'])
+                      Expanded(
+                        child: Text(
+                          d,
+                          textAlign: TextAlign.center,
+                          style: muted?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              for (var row = 0; row < cells.length ~/ 7; row++)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      for (final d in cells.skip(row * 7).take(7))
+                        Expanded(
+                          child: _CalendarCell(
+                            day: d,
+                            data: days[d],
+                            runs: widget.gauge.runs,
+                            isToday: d == today,
+                            selected: d == selected,
+                            now: now,
+                            onTap: () => setState(() => _selected = d),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 14),
+              _CalendarDetail(
+                day: selected,
+                data: days[selected],
+                runs: widget.gauge.runs,
+                now: now,
+                isToday: selected == today,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                [
+                  'Planned by TransAlta, in Alberta time. Flows can change '
+                      'without notice, so check at the river.',
+                  ?note,
+                ].join(' '),
+                style: muted,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CalendarCell extends StatelessWidget {
+  const _CalendarCell({
+    required this.day,
+    required this.data,
+    required this.runs,
+    required this.isToday,
+    required this.selected,
+    required this.now,
+    required this.onTap,
+  });
+
+  final DateTime day;
+  final ReleaseCalendarDay? data;
+  final List<RiverRun> runs;
+  final bool isToday;
+  final bool selected;
+  final DateTime now;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final p = Riverstone.of(context);
+    final small = theme.textTheme.labelSmall;
+    final peak = data?.peak;
+    final status = releaseStatus(runs, peak);
+    final tint = status == FlowStatus.unknown
+        ? p.glacier
+        : status.color(context);
+    final past = data != null && !data!.planned;
+    final w = data?.windows.firstOrNull;
+
+    final label = [
+      dayLabel(day, now),
+      if (data == null)
+        'no information'
+      else if (w == null)
+        'no release'
+      else
+        '${w.timeText}, ${w.flowText} cubic metres per second',
+      if (status != FlowStatus.unknown) status.label,
+    ].join(', ');
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              height: 74,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: selected ? p.ink : Colors.transparent,
+                  width: 1.5,
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+              child: Column(
+                children: [
+                  Container(
+                    width: 22,
+                    height: 22,
+                    alignment: Alignment.center,
+                    decoration: isToday
+                        ? BoxDecoration(color: p.accent, shape: BoxShape.circle)
+                        : null,
+                    child: Text(
+                      '${riverWall(day).day}',
+                      style: small?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: isToday
+                            ? p.card
+                            : data == null
+                            ? p.muted.withValues(alpha: 0.6)
+                            : p.ink,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (w != null)
+                    Opacity(
+                      opacity: past ? 0.6 : 1,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        decoration: BoxDecoration(
+                          color: tint.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Column(
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                w.flowText,
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: tint,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                shortRange(w),
+                                style: small?.copyWith(
+                                  fontSize: 10,
+                                  color: p.muted,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else if (data != null)
+                    Text('Off', style: small?.copyWith(color: p.muted)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarDetail extends StatelessWidget {
+  const _CalendarDetail({
+    required this.day,
+    required this.data,
+    required this.runs,
+    required this.now,
+    required this.isToday,
+  });
+
+  final DateTime day;
+  final ReleaseCalendarDay? data;
+  final List<RiverRun> runs;
+  final DateTime now;
+  final bool isToday;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final p = Riverstone.of(context);
+    final muted = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final name = DateFormat('EEEE, MMM d').format(riverWall(day));
+    final status = releaseStatus(runs, data?.peak);
+    final windows = data?.windows ?? const <ReleaseWindow>[];
+    final String text;
+    if (data == null) {
+      text = day.isAfter(now)
+          ? "TransAlta hasn't published this day yet."
+          : 'No record for this day.';
+    } else if (windows.isEmpty) {
+      text = data!.planned ? 'No release planned.' : 'No release.';
+    } else {
+      final verb = data!.planned ? 'Planned' : 'Released';
+      text = windows
+          .map(
+            (w) => '$verb ${w.timeText} at ${w.flowText}\u00a0m³\u2060/\u2060s',
+          )
+          .join('\n');
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          p.faint.withValues(alpha: 0.5),
+          theme.colorScheme.surfaceContainerLow,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isToday ? 'Today · $name' : name,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(text, style: muted),
+              ],
+            ),
+          ),
+          if (status != FlowStatus.unknown) ...[
+            const SizedBox(width: 8),
+            FlowStatusChip(status: status),
+          ],
+        ],
       ),
     );
   }

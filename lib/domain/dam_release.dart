@@ -309,3 +309,78 @@ String? releaseCountdown(ReleaseOutlook outlook, DateTime now) {
       : '$h h $m min';
   return outlook.releasing ? 'Ends in $span' : 'Starts in $span';
 }
+
+/// "5–11p", "10a–4p", "9:30a–1p": a release window short enough for a
+/// calendar cell, in river time.
+String shortRange(ReleaseWindow w) {
+  String part(DateTime t) {
+    final h = riverWall(t);
+    final hour = h.hour % 12 == 0 ? 12 : h.hour % 12;
+    final mins = h.minute == 0 ? '' : ':${h.minute.toString().padLeft(2, '0')}';
+    return '$hour$mins${h.hour < 12 ? 'a' : 'p'}';
+  }
+
+  final a = part(w.start), b = part(w.end);
+  // Drop the first suffix when both ends share it: "5–11p".
+  if (a.endsWith(b.substring(b.length - 1))) {
+    return '${a.substring(0, a.length - 1)}–$b';
+  }
+  return '$a–$b';
+}
+
+/// Midnight river time for the day holding [t], as a UTC instant.
+DateTime riverDayStart(DateTime t) {
+  final w = riverWall(t);
+  return DateTime.utc(w.year, w.month, w.day).subtract(releaseUtcOffset);
+}
+
+/// What one calendar day holds: its release windows, and whether they're
+/// what happened (recorded) or what's planned (published schedule).
+class ReleaseCalendarDay {
+  const ReleaseCalendarDay({
+    required this.start,
+    required this.windows,
+    required this.planned,
+  });
+
+  final DateTime start;
+  final List<ReleaseWindow> windows;
+  final bool planned;
+
+  double? get peak => windows.isEmpty
+      ? null
+      : windows.map((w) => w.maxFlow).reduce((a, b) => a > b ? a : b);
+}
+
+/// Calendar days from recorded hours [history] (before today) and the
+/// published [schedule] (today on), keyed by river-day start.
+Map<DateTime, ReleaseCalendarDay> releaseCalendar(
+  List<ReleaseHour> history,
+  ReleaseSchedule? schedule,
+  DateTime now,
+) {
+  final today = riverDayStart(now);
+  final out = <DateTime, ReleaseCalendarDay>{};
+  final past = <DateTime, List<ReleaseHour>>{};
+  for (final h in history) {
+    final d = riverDayStart(h.start);
+    if (!d.isBefore(today)) continue;
+    past.putIfAbsent(d, () => []).add(h);
+  }
+  for (final e in past.entries) {
+    final hours = e.value..sort((a, b) => a.start.compareTo(b.start));
+    out[e.key] = ReleaseCalendarDay(
+      start: e.key,
+      windows: releaseWindows(hours),
+      planned: false,
+    );
+  }
+  for (final day in schedule?.days(now) ?? const <ReleaseDay>[]) {
+    out[day.start] = ReleaseCalendarDay(
+      start: day.start,
+      windows: day.windows,
+      planned: true,
+    );
+  }
+  return out;
+}

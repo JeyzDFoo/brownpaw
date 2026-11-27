@@ -4,7 +4,7 @@
     "name": "Kananaskis River - Upper Kan",
     "river": "Kananaskis River",
     "region": "Kananaskis Country",
-    "difficultyClass": "III",
+    "difficultyClass": "II+",
     "description": "Widowmaker to Canoe Meadows, below TransAlta's Barrier Dam. Flow comes from the dam's scheduled releases.",
     "putIn": "Widowmaker",
     "takeOut": "Canoe Meadows",
@@ -37,7 +37,7 @@
     }
   },
   "kananaskis-middle-racecourse": {
-    "name": "Kananaskis River - Middle Kan (Racecourse)",
+    "name": "Kananaskis River - Middle Kanyon (Racecourse)",
     "river": "Kananaskis River",
     "region": "Kananaskis Country",
     "difficultyClass": "III",

@@ -80,7 +80,7 @@ class ReleaseGauges extends FakeGauges {
     if (empty) return Stream.value(null);
     final readings = <FlowReading>[];
     for (
-      var t = now.subtract(const Duration(days: 14));
+      var t = DateTime.utc(now.year, now.month, now.day - 14, now.hour);
       t.isBefore(now);
       t = t.add(const Duration(hours: 1))
     ) {
@@ -218,18 +218,34 @@ void main() {
     );
     expect(find.text('Next release today'), findsOneWidget);
     expect(find.text('Starts in 20 min'), findsOneWidget);
-    expect(find.text('Release schedule'), findsOneWidget);
-    expect(find.text('Today'), findsOneWidget);
-    expect(find.text('Tomorrow'), findsOneWidget);
-    expect(find.text('No release'), findsOneWidget);
-    expect(find.text('5 PM–11 PM · 21 m³/s'), findsOneWidget);
+    expect(find.text('Release calendar'), findsOneWidget);
+    expect(find.text('November – December 2026'), findsOneWidget);
+    expect(find.text('Today · Friday, Nov 27'), findsOneWidget);
+    expect(
+      find.text('Planned 5 PM–11 PM at 28\u00a0m³\u2060/\u2060s'),
+      findsOneWidget,
+    );
+    // Monday is off, Tuesday is lower.
+    expect(find.text('Off'), findsOneWidget);
+    // "21" is also Nov 21's date; Tuesday's flow is the later one.
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('21').last);
+    await tester.pump();
+    expect(
+      find.text('Planned 5 PM–11 PM at 21\u00a0m³\u2060/\u2060s'),
+      findsOneWidget,
+    );
     expect(find.textContaining('45 minutes'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Runs on this gauge'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('Last two weeks'), findsOneWidget);
+    expect(
+      find.text('Released 5 PM–11 PM at 28\u00a0m³\u2060/\u2060s'),
+      findsNothing,
+    );
     expect(find.text('Runs on this gauge'), findsOneWidget);
   });
 
@@ -244,8 +260,7 @@ void main() {
     );
     expect(find.text('No schedule yet'), findsOneWidget);
     expect(find.text("TransAlta's river flows"), findsOneWidget);
-    expect(find.text('Release schedule'), findsNothing);
-    expect(find.text('Last two weeks'), findsNothing);
+    expect(find.text('Release calendar'), findsNothing);
     expect(find.text('Runs on this gauge'), findsOneWidget);
   });
 

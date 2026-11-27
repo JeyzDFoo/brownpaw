@@ -241,8 +241,8 @@ ReleaseOutlook releaseOutlook(ReleaseSchedule? schedule, DateTime now) {
   if (schedule == null || schedule.isEmpty) {
     return const ReleaseOutlook(
       releasing: false,
-      headline: 'Release schedule not available',
-      detail: 'Check TransAlta before you go',
+      headline: 'No schedule yet',
+      detail: "TransAlta's release times will show here",
     );
   }
   final current = schedule.current(now);
@@ -290,4 +290,22 @@ List<({DateTime time, double flow})> dailyReleasePeaks(
   }
   final days = peaks.keys.toList()..sort();
   return [for (final d in days) (time: d, flow: peaks[d]!)];
+}
+
+/// "Starts in 2 h 20 min", "Ends in 45 min", or null with no window.
+String? releaseCountdown(ReleaseOutlook outlook, DateTime now) {
+  final w = outlook.window;
+  if (w == null) return null;
+  final target = outlook.releasing ? w.end : w.start;
+  final mins = target.difference(now).inMinutes;
+  if (mins < 0) return null;
+  // Past a day, the day name in the headline says enough.
+  if (!outlook.releasing && mins >= 24 * 60) return null;
+  final h = mins ~/ 60, m = mins % 60;
+  final span = h == 0
+      ? '$m min'
+      : m == 0
+      ? '$h h'
+      : '$h h $m min';
+  return outlook.releasing ? 'Ends in $span' : 'Starts in $span';
 }

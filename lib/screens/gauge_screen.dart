@@ -11,6 +11,7 @@ import '../models/realtime_flow.dart';
 import '../models/river_run.dart';
 import '../providers/gauges_provider.dart';
 import '../providers/realtime_flow_provider.dart';
+import '../providers/release_schedule_provider.dart';
 import '../router.dart';
 import '../widgets/alert_bell.dart';
 import '../widgets/favourite_star.dart';
@@ -100,23 +101,13 @@ class _GaugeBody extends ConsumerWidget {
         if (gauge.place.isNotEmpty) Text(gauge.place, style: muted),
         const SizedBox(height: 18),
         if (isReleaseGauge(gauge.id)) ...[
-          // A dam: the schedule leads, the record of past releases follows.
-          ReleaseScheduleCard(gauge: gauge),
-          const SizedBox(height: 22),
-          const SectionLabel('Past releases'),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow,
-              borderRadius: Pebble.b,
-            ),
-            child: _FlowChart(
-              gauge: gauge,
-              readings: all,
-              unit: FlowUnit.cms,
-              flow: flow,
-            ),
+          // A dam: what it's doing now or next, the published week, and
+          // what it released lately.
+          ReleaseNowCard(gauge: gauge),
+          ReleaseWeekCard(gauge: gauge),
+          ReleaseHistoryCard(
+            readings: all,
+            now: ref.watch(releaseClockProvider).valueOrNull ?? DateTime.now(),
           ),
         ] else
           Container(

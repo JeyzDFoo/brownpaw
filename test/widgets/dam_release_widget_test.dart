@@ -44,13 +44,16 @@ List<ReleaseHour> barrierHours() => [
 ];
 
 class ReleaseGauges extends FakeGauges {
-  ReleaseGauges(this.now) : super(28);
+  ReleaseGauges(this.now, {this.empty = false}) : super(28);
   final DateTime now;
+
+  /// Before the backend has read TransAlta: no schedule, no history.
+  final bool empty;
 
   @override
   Stream<ReleaseSchedule?> watchReleaseSchedule(String stationId) =>
       Stream.value(
-        stationId == 'transalta_barrier'
+        stationId == 'transalta_barrier' && !empty
             ? ReleaseSchedule(barrierHours())
             : null,
       );
@@ -74,6 +77,7 @@ class ReleaseGauges extends FakeGauges {
   /// Two weeks of evening releases.
   @override
   Stream<StationRealtimeFlow?> watchLive(String stationId) {
+    if (empty) return Stream.value(null);
     final readings = <FlowReading>[];
     for (
       var t = now.subtract(const Duration(days: 14));
@@ -129,6 +133,7 @@ Future<void> pump(
   required DateTime now,
   ThemeData? theme,
   double height = 844,
+  bool empty = false,
 }) async {
   tester.view.physicalSize = Size(390 * 3, height * 3);
   tester.view.devicePixelRatio = 3;
@@ -143,7 +148,9 @@ Future<void> pump(
         allDescentsProvider.overrideWith((ref) => Stream.value(const [])),
         favouriteRunIdsProvider.overrideWith((ref) => {'kananaskis-upper'}),
         setFavouritesProvider.overrideWith((ref) => (ids, on) async {}),
-        gaugeRepositoryProvider.overrideWithValue(ReleaseGauges(now)),
+        gaugeRepositoryProvider.overrideWithValue(
+          ReleaseGauges(now, empty: empty),
+        ),
         devicePositionProvider.overrideWith((ref) async => null),
         flowAlertsControllerProvider.overrideWithValue(alerts),
         alertedRunIdsProvider.overrideWith((ref) => alerts.changes.stream),
@@ -210,6 +217,8 @@ void main() {
       now: alberta(27, 16, 40),
     );
     expect(find.text('Next release today'), findsOneWidget);
+    expect(find.text('Starts in 20 min'), findsOneWidget);
+    expect(find.text('Release schedule'), findsOneWidget);
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('Tomorrow'), findsOneWidget);
     expect(find.text('No release'), findsOneWidget);
@@ -220,13 +229,44 @@ void main() {
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('Past releases'), findsOneWidget);
+    expect(find.text('Last two weeks'), findsOneWidget);
+    expect(find.text('Runs on this gauge'), findsOneWidget);
+  });
+
+  testWidgets('with no schedule yet, the page says so and links out', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const GaugeScreen(gaugeId: 'transalta_barrier'),
+      now: alberta(27, 16, 40),
+      empty: true,
+    );
+    expect(find.text('No schedule yet'), findsOneWidget);
+    expect(find.text("TransAlta's river flows"), findsOneWidget);
+    expect(find.text('Release schedule'), findsNothing);
+    expect(find.text('Last two weeks'), findsNothing);
     expect(find.text('Runs on this gauge'), findsOneWidget);
   });
 
   // Screenshots for review: SHOTS=1 flutter test --update-goldens
   // test/widgets/dam_release_widget_test.dart
   final shots = Platform.environment['SHOTS'] == '1';
+  testWidgets('screenshot gauge_page_empty', skip: !shots, (tester) async {
+    await tester.runAsync(loadFonts);
+    await pump(
+      tester,
+      const GaugeScreen(gaugeId: 'transalta_barrier'),
+      now: alberta(27, 16, 40),
+      theme: AppTheme.darkTheme,
+      height: 1200,
+      empty: true,
+    );
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('shots/gauge_page_empty.png'),
+    );
+  });
   for (final (name, screen, now, dark) in [
     ('gauges_next', const GaugesScreen(), alberta(27, 16, 40), false),
     ('gauges_releasing', const GaugesScreen(), alberta(27, 19, 15), false),

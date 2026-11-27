@@ -68,10 +68,7 @@ void main() {
   });
 
   test('no schedule', () {
-    expect(
-      releaseOutlook(null, alberta(27, 12)).headline,
-      'Release schedule not available',
-    );
+    expect(releaseOutlook(null, alberta(27, 12)).headline, 'No schedule yet');
   });
 
   test('days are Alberta days from today', () {

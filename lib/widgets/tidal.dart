@@ -40,6 +40,40 @@ double? tidalFlowForGuide(WidgetRef ref, Gauge gauge) {
   return tidalOutlook(p, now, lat: lat, lon: lon).knots;
 }
 
+/// The first run on a tidal gauge with a guide link (`sourceUrl`).
+RiverRun? tidalGuideRun(Iterable<RiverRun> runs) {
+  for (final r in runs) {
+    final url = r.sourceUrl?.trim();
+    if (url != null && url.isNotEmpty && Uri.tryParse(url) != null) return r;
+  }
+  return null;
+}
+
+/// "Skook Surfing 101": the spot's local guide (the run's `source` and
+/// `sourceUrl`), opened in the browser.
+class TidalGuideLink extends StatelessWidget {
+  const TidalGuideLink({super.key, required this.run});
+  final RiverRun run;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = run.sourceUrl!.trim();
+    final source = run.source?.trim();
+    final name = source == null || source.isEmpty
+        ? (Uri.tryParse(url)?.host ?? 'the guide')
+        : source;
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: FilledButton.tonalIcon(
+        onPressed: () =>
+            launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+        icon: const Icon(Icons.menu_book_outlined, size: 18),
+        label: Text(name),
+      ),
+    );
+  }
+}
+
 const dairikiUrl = 'https://www.dairiki.org/tides/monthly.php/scl';
 
 /// A small "Tidal" badge, so a tidal tile reads differently from a river

@@ -83,7 +83,7 @@ class TidalGauges extends FakeGauges {
 
   @override
   Stream<Map<String, StationSummary>> watchStations() => Stream.value({
-    'tidal_sechelt_rapids': const StationSummary(name: 'Sechelt Rapids'),
+    'tidal_sechelt_rapids': const StationSummary(name: 'Skookumchuck Wave'),
   });
 
   @override
@@ -104,8 +104,10 @@ final run = RiverRun(
   difficultyClass: 'III+',
   stationId: 'tidal_sechelt_rapids',
   flowUnit: 'kt',
+  source: 'Skook Surfing 101',
+  sourceUrl: 'https://skooksurfing.com/surfing-skook/skook-surfing-101',
   coordinates: const {'latitude': 49.7383, 'longitude': -123.8983},
-  gaugeStation: const {'name': 'Sechelt Rapids'},
+  gaugeStation: const {'name': 'Skookumchuck Wave'},
   flowRanges: const {
     'unit': 'kt',
     'low': 7,
@@ -155,7 +157,7 @@ void main() {
   testWidgets('the gauge list shows the next max flood', (tester) async {
     await pump(tester, const GaugesScreen(), now: bc(27, 3));
     expect(find.byType(TidalGaugeRow), findsOneWidget);
-    expect(find.text('Sechelt Rapids'), findsOneWidget);
+    expect(find.text('Skookumchuck Wave'), findsOneWidget);
     expect(find.text('Next max flood'), findsOneWidget);
     expect(find.text('17.0'), findsOneWidget);
     expect(find.text('kt at 8a'), findsOneWidget);
@@ -182,6 +184,7 @@ void main() {
       now: bc(27, 3),
       height: 1600,
     );
+    expect(find.text('Skook Surfing 101'), findsOneWidget);
     expect(find.text('Next max flood'), findsOneWidget);
     expect(find.text('17.0'), findsWidgets);
     expect(find.text('Today at 7:49 AM'), findsOneWidget);

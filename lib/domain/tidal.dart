@@ -335,8 +335,9 @@ class TidalOutlook {
 }
 
 /// The outlook at [now]. With the spot's [lat] and [lon], a flood that
-/// would peak in the dark is passed over for the next one in daylight
-/// (unless it's running now): nobody drives to Skook for a night flood.
+/// peaks in the dark is passed over for the next one in daylight, even
+/// while it runs: nobody drives to Skook for a night flood, and leading
+/// with one marks the spot "too low" all evening.
 TidalOutlook tidalOutlook(
   TidalPredictions? p,
   DateTime now, {
@@ -353,7 +354,6 @@ TidalOutlook tidalOutlook(
   if (f != null &&
       lat != null &&
       lon != null &&
-      !f.contains(now) &&
       !isDaylight(f.time, lat, lon)) {
     f = p.nextDaylightFlood(now, lat, lon) ?? f;
   }

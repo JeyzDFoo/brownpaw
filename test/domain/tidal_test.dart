@@ -81,6 +81,10 @@ void main() {
     final o = tidalOutlook(p, bc(27, 14), lat: 49.74, lon: -123.9);
     expect(o.knots, 16.6);
     expect(o.headline, 'Next max flood');
+    // Even while the night flood runs.
+    final running = tidalOutlook(p, bc(27, 18), lat: 49.74, lon: -123.9);
+    expect(running.knots, 16.6);
+    expect(running.flooding, isFalse);
   });
 
   test("each day's best flood is in daylight", () {

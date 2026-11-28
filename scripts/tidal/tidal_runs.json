@@ -21,7 +21,7 @@
     "pinNote": "Put-in pin at the trailhead is approximate; the run pin is the CHS Sechelt Rapids current station at Roland Point.",
     "stationId": "tidal_sechelt_rapids",
     "gaugeStation": {
-      "name": "Sechelt Rapids",
+      "name": "Skookumchuck Wave",
       "code": "tidal_sechelt_rapids"
     },
     "flowUnit": "kt",
@@ -35,7 +35,7 @@
       "source": "Skook Surfing",
       "note": "Max flood. 7 to 10 kt is a sea kayak wave; 10 to 15 kt is the whitewater wave (Class III paddlers start at 9 to 11 kt); 15 to 18 kt is Big Skook, experts only."
     },
-    "source": "Skook Surfing",
+    "source": "Skook Surfing 101",
     "sourceUrl": "https://skooksurfing.com/surfing-skook/skook-surfing-101"
   }
 }

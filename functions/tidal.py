@@ -59,7 +59,7 @@ IWLS = 'https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/{id}/data'
 
 STATIONS = {
     'sechelt_rapids': {
-        'name': 'Sechelt Rapids',
+        'name': 'Skookumchuck Wave',
         'dairiki': 'scl',
         'chs_current': '63aef40a6a2b9417c0350313',  # 07845 Sechelt Rapids
         'chs_tide': '5dd3064ee0fdc4b9b4be670d',  # 07842 Egmont

@@ -103,6 +103,13 @@ class _GaugeBody extends ConsumerWidget {
           ),
         ),
         if (gauge.place.isNotEmpty) Text(gauge.place, style: muted),
+        // A tidal spot links to its local guide right away (the run's
+        // sourceUrl in Firestore): currents alone don't tell a first-timer
+        // how to get on the wave.
+        if (isTidalGauge(gauge.id) && tidalGuideRun(gauge.runs) != null) ...[
+          const SizedBox(height: 10),
+          TidalGuideLink(run: tidalGuideRun(gauge.runs)!),
+        ],
         const SizedBox(height: 18),
         if (isReleaseGauge(gauge.id)) ...[
           // A dam: what it's doing now or next, the published week, and
